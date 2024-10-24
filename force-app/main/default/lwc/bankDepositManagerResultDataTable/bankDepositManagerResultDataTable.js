@@ -75,7 +75,7 @@ export default class BankDepositManagerResultDataTable extends LightningElement 
         }
     }
 
-    getVisibleData() {
+    getVisibleData() { 
         let endIndex;
         let startIndex;
         if (this.hasRecordsForPagination) {

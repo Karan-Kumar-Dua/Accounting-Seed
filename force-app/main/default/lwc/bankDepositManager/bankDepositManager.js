@@ -634,7 +634,7 @@ export default class BankDepositManager extends LightningElement {
                 if(this.totalRecordsCount > 0){
                     this.moveToPageNumber(0);
                 }
-                this.showSuccessNotification(message)
+                this.showSuccessNotification(message) 
             })
             .catch(error=>{
                 this.showErrorNotification(JSON.stringify(error?.body?.message), this.labels.ERR_IN_BANK_DEPOSIT_MANAGER_COMPONENT);
