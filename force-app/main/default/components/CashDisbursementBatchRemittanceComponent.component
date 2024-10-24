@@ -1,0 +1,115 @@
+<apex:component controller="CashDisbursementBatchRemittanceComponent">
+    <apex:attribute name="ShowHeader" description="" type="Boolean" default="true"/>
+    <apex:attribute name="ShowPage" description="" type="Boolean" default="false"/>
+    <apex:attribute name="IsCheck" description="" type="Boolean" default="true"/>
+    <apex:attribute name="CustomMessageTop" description="" type="String" default="Customize top message"/>
+    <apex:attribute name="CustomMessageBottom" description="" type="String" default="Customize bottom message"/>
+    <apex:attribute name="ShowCustomMessageTop" description="" type="Boolean" default="false"/>
+    <apex:attribute name="ShowCustomMessageBottom" description="" type="Boolean" default="true"/>
+    <apex:attribute name="ShowLimitMessageTop" description="" type="Boolean" default="true"/>
+    <apex:attribute name="ShowLimitMessageBottom" description="" type="Boolean" default="false"/>
+    
+    <apex:attribute name="ShowRemittances" description="" type="Boolean" assignTo="{!cShowRemittances}" default="true"/>
+    <apex:attribute name="LimitRemittances" description="" type="Integer" assignTo="{!cLimitRemittances}" default="10"/>
+    <apex:attribute name="PerPageRemittances" description="" type="Integer" assignTo="{!cPerPageRemittances}" default="10"/>
+    <apex:attribute name="ShowHeaderRemittances" description="" type="Boolean" default="true"/>
+    
+    <apex:attribute name="ShowSection1" description="" type="Boolean" default="true"/>
+    <apex:attribute name="TopSection1" description="" type="Double" default="0"/>
+    <apex:attribute name="ShowSection2" description="" type="Boolean" default="true"/>
+    <apex:attribute name="Section2DateTop" description="" type="Double" default="114"/>
+    <apex:attribute name="Section2DateRight" description="" type="Double" default="48"/>
+    <apex:attribute name="Section2AmountTop" description="" type="Double" default="114"/>
+    <apex:attribute name="Section2AmountRight" description="" type="Double" default="2"/>
+    <apex:attribute name="Section2AmountWordsTop" description="" type="Double" default="128"/>
+    <apex:attribute name="Section2AmountWordsLeft" description="" type="Double" default="2"/>
+    <apex:attribute name="Section2PayeeTop" description="" type="Double" default="136"/>
+    <apex:attribute name="Section2PayeeLeft" description="" type="Double" default="8"/>
+    <apex:attribute name="Section2AddressTop" description="" type="Double" default="140.5"/>
+    <apex:attribute name="Section2AddressLeft" description="" type="Double" default="8"/>
+    <apex:attribute name="ShowSection3" description="" type="Boolean" default="true"/>
+    <apex:attribute name="TopSection3" description="" type="Double" default="188"/>
+
+    <apex:attribute name="cashDisbursement" description=""
+        assignTo="{!cCashDisbursement}" type="CashDisbursementWrapper" />
+    <apex:attribute name="cashDisbursements" description=""
+        assignTo="{!cCashDisbursements}" type="CashDisbursementWrapper[]" />
+    
+    <apex:variable value="{!1}" var="cbCounter" />
+    <apex:repeat value="{!cCashDisbursements}" var="cb">
+        <apex:variable value="{!1}" var="pageCounter" />
+        <apex:variable value="{!offsetsByCashDisbursement[cb.cashDisbursement.Id]}" var="offsets" />
+        <apex:variable value="{!offsets.size}" var="countPages" />
+        <apex:repeat value="{!offsets}" var="offset">
+
+            <div style="position:relative;width:100%;height:256mm;margin-top:0px">
+                <apex:outputPanel rendered="{!ShowSection1}">
+                    <c:CashDisbursementRemittanceComponent cashDisbursement="{!cb}"
+                        showHeader="true"
+                        top="{!TopSection1}"
+                        isCheck="{!IsCheck}"
+                        showCustomMessage="{!ShowCustomMessageTop}"
+                        showLimitMessage="{!ShowLimitMessageTop}"
+                        customMessage="{!CustomMessageTop}"
+                        showPage="{!ShowPage}"
+                        currentPage="{!pageCounter}"
+                        countPages="{!countPages}"
+                        showRemittances="{!cShowRemittances}"
+                        showHeaderRemittances="{!ShowHeaderRemittances}"
+                        offsetRemittances="{!offset}"
+                        perPageRemittances="{!cPerPageRemittances}"
+                        limitRemittances="{!cLimitRemittances}"
+                    />
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!ShowSection2}">
+                    <div style="position:absolute;top:{!Section2DateTop}mm;right:{!Section2DateRight}mm">
+                        <apex:outputField value="{!cb.cashDisbursement.Disbursement_Date__c}" />
+                    </div>
+                    <div style="position:absolute;top:{!Section2AmountTop}mm;right:{!Section2AmountRight}mm">
+                        <apex:outputField value="{!cb.cashDisbursement.Amount__c}" />
+                    </div>
+                    <div style="position:absolute;top:{!Section2AmountWordsTop}mm;left:{!Section2AmountWordsLeft}mm">
+                        <apex:outputField value="{!cb.cashDisbursement.Amount_in_Words__c}" />
+                    </div>
+                    <div style="position:absolute;top:{!Section2PayeeTop}mm;font-size:9pt;left:{!Section2PayeeLeft}mm">
+                        <apex:outputText value="{!LEFT(cb.cashDisbursement.Payee__c, 60)}" />
+                    </div>
+                    <div style="position:absolute;top:{!Section2AddressTop}mm;font-size:9pt;left:{!Section2AddressLeft}mm">
+                        <apex:outputText value="{!cb.cashDisbursement.Payee_Street__c}" style="white-space:pre;"/><br/>
+                        <apex:outputField value="{!cb.cashDisbursement.Payee_City_State_Zip__c}" /><br/>
+                        <apex:outputField value="{!cb.cashDisbursement.Payee_Country__c}" />
+                    </div>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!ShowSection3}">
+                    <c:CashDisbursementRemittanceComponent cashDisbursement="{!cb}"
+                        showHeader="true"
+                        top="{!TopSection3}"
+                        isCheck="{!IsCheck}"
+                        showCustomMessage="{!ShowCustomMessageBottom}"
+                        showLimitMessage="{!ShowLimitMessageBottom}"
+                        customMessage="{!CustomMessageBottom}"
+                        showPage="{!ShowPage}"
+                        currentPage="{!pageCounter}"
+                        countPages="{!countPages}"
+                        showRemittances="{!cShowRemittances}"
+                        showHeaderRemittances="{!ShowHeaderRemittances}"
+                        offsetRemittances="{!offset}"
+                        perPageRemittances="{!cPerPageRemittances}"
+                        limitRemittances="{!cLimitRemittances}"
+                    />
+                </apex:outputPanel>
+            </div>
+            
+            <apex:outputPanel layout="block" 
+                style="page-break-after:always" 
+                rendered="{!
+                    (cbCounter < cCashDisbursements.size && pageCounter <= countPages)||
+                    (cbCounter == cCashDisbursements.size && pageCounter < countPages)
+                }"
+            />
+            <apex:variable value="{!pageCounter + 1}" var="pageCounter" />
+        </apex:repeat>
+        <apex:variable value="{!cbCounter + 1}" var="cbCounter" />
+    </apex:repeat>
+
+</apex:component>

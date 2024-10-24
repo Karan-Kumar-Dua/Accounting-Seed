@@ -1,0 +1,29 @@
+<template>
+    <template if:true={editMode}>
+        <template if:true={disabled}>
+            <lightning-input type="date" class="input-field" date-style="short" value={value} variant="label-hidden" disabled></lightning-input>
+        </template>
+        <template if:false={disabled}>
+            <lightning-input
+                type="date"
+                date-style="short"
+                variant="label-hidden"
+                value={value}
+                class="input-field"
+                message-when-bad-input={labels.commonInvalidDate}
+                onchange={handleChange}>
+            </lightning-input>
+        </template>
+    </template>
+    <template if:false={editMode}>
+        <div class="slds-p-left_small">
+            <lightning-formatted-date-time
+                value={value}
+                month='2-digit' 
+                day='2-digit'
+                year='numeric'
+                time-zone="UTC">
+            </lightning-formatted-date-time>
+        </div>
+    </template>    
+</template>

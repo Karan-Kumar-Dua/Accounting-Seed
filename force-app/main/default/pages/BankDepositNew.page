@@ -1,0 +1,68 @@
+<apex:page id="thePage" title="{!$Label.AcctSeed__INF_NEW_DEPOSIT} + ' | ' + {!$Label.AcctSeed__COMMON_ACCOUNTING_SEED}" standardController="Bank_Deposit__c" extensions="BankDepositNew">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/>
+    <script type="text/javascript">
+        function setFocusOnLoad() {}
+    </script>
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Bank_Deposit__c.Label + ' ' + $Label.AcctSeed__COMMON_EDIT}" subtitle="{!$Label.AcctSeed__COMMON_NEW + ' ' + $ObjectType.Bank_Deposit__c.Label}" />
+        <apex:pageBlock title="{!$ObjectType.Bank_Deposit__c.Label + ' ' + $Label.AcctSeed__COMMON_EDIT}">
+            <apex:pageMessages escape="false" rendered="{!showMessage}" />
+            <apex:pageBlockButtons id="buttons">
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_SAVING}')" />
+                <apex:commandButton action="{!saveBankDeposit}" value="{!$Label.AcctSeed__COMMON_SAVE}" status="saveStatus" reRender="theForm" />
+                <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_CANCEL}" immediate="true" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection title="{!$Label.AcctSeed__COMMON_INFORMATION}" collapsible="false">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$ObjectType.Bank_Deposit__c.fields.Ledger__c.Label}"/>
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList required="false"
+                                         value="{!Bank_Deposit__c.Ledger__c}"
+                                         id="selectedLedger"
+                                         multiselect="false"
+                                         size="1">
+                            <apex:selectOptions value="{!allLedgers}" />
+                            <apex:actionSupport event="onchange"
+                                                action="{!changeLedger}"
+                                                rerender="bankAccount" />
+                        </apex:selectList>
+                        <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!isLedgerError}">
+                            <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!Bank_Deposit__c.GL_Account_Variable_1__c}" />
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_BANK_ACCOUNT}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList id="bankAccount" value="{!Bank_Deposit__c.Bank_Account__c}" size="1">
+                            <apex:selectOptions value="{!GLAccounts}" />
+                        </apex:selectList>
+                        <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!isGLAccountError}">
+                            <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!Bank_Deposit__c.GL_Account_Variable_2__c}" />
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Deposit Date" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:inputField value="{!Bank_Deposit__c.Deposit_Date__c}" required="false" />
+                        <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!isDateError}">
+                            <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!Bank_Deposit__c.GL_Account_Variable_3__c}" />
+                <apex:inputField value="{!Bank_Deposit__c.Deposit_Reference__c}" />
+                <apex:inputField value="{!Bank_Deposit__c.GL_Account_Variable_4__c}" />
+                <apex:inputField value="{!Bank_Deposit__c['CurrencyIsoCode']}" rendered="{!IS_MULTI_CURRENCY_ENABLED}"/>
+                <apex:outputText />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,12 @@
+<template>
+    <div class="menu-items-group">
+        <div class="slds-m-bottom_medium slds-text-heading_small menu-items-group-label">{itemsGroup.label}</div>
+        <template for:each={itemsGroup.items} for:item="item">
+            <c-navigation-menu-item
+                    key={item.label}
+                    menu-item={item}
+            >
+            </c-navigation-menu-item>
+        </template>
+    </div>
+</template>

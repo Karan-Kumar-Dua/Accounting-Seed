@@ -1,0 +1,137 @@
+<apex:page title="{!$Label.AcctSeed__COMMON_BATCH_UNPOST + ' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" standardController="Account_Payable__c"
+           extensions="AccountPayablePostTransaction"
+           recordSetVar="accountPayables" action="{!validateBeforeUnpost}" sideBar="false" lightningStylesheets="true">
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.dataTables.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/post-unpost-intermediate-screen.js')}" loadOnReady="true"/>
+
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/jquery.dataTables.min.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/post-table.css')}" />
+    <apex:variable var="customLEX" value="customLEXOn" rendered="{!$User.UIThemeDisplayed = 'Theme4d' || $User.UIThemeDisplayed = 'Theme4u'}">
+        <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/visualforce-lex-ext.css')}" />
+    </apex:variable>
+
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Account_Payable__c.labelPlural}" subtitle="{!$Label.AcctSeed__COMMON_BATCH_UNPOST}"/>
+        <apex:pageBlock title="{!$Label.AcctSeed__COMMON_BATCH_UNPOST}">
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="processingStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')"/>
+                <apex:commandButton action="{!unpost}" value="{!$Label.AcctSeed__COMMON_UNPOST}" status="processingStatus"
+                                    rendered="{!showActionButton}" reRender="theForm"
+                                    onComplete="AcctSeed.ASModule.formatSystemExceptionTable();"/>
+                <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true"/>
+            </apex:pageBlockButtons>
+
+            <apex:pageBlockSection collapsible="false" title="{!$Label.AcctSeed__COMMON_UNPOSTING_ERROR_DETAIL}"
+                                   columns="1" rendered="{!showErrorStatisticsTable}">
+                <div id="spinner" style="font-weight:bold; position:absolute; left:50%; margin-left: -100px; display:block">
+                    <img src="/img/loading.gif" style="text-align:center" width="16" height="16" alt="loading gif" />
+                    &nbsp;&nbsp;{!$Label.COMMON_LOADING}
+                </div>
+                <apex:dataTable id="errorStatisticsTable" styleClass="display auto-layout"
+                                value="{!errorStatisticsLines}" var="statisticsLine" style="visibility:hidden">
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_NAME}" styleClass="cell-nowrap">
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.sourceObjectId}"
+                                         target="_blank" value="/{!statisticsLine.sourceObjectId}">
+                            {!statisticsLine.sourceObjectName}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['ALREADY_UNPOSTED']}
+                            <img src="/s.gif" class="helpImg" title="{!helpTextMap['ALREADY_UNPOSTED']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['ALREADY_UNPOSTED'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['ALREADY_UNPOSTED'].id}">
+                            {!statisticsLine.lineCells['ALREADY_UNPOSTED'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                        {!headerMap['POSTING_IN_PROGRESS']}
+                        <img src="/s.gif" class="helpImg" title="{!helpTextMap['INF_POSTING_IN_PROGRESS_HELP_TEXT']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['POSTING_IN_PROGRESS'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['POSTING_IN_PROGRESS'].id}">
+                                {!statisticsLine.lineCells['POSTING_IN_PROGRESS'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                        {!headerMap['UNPOSTING_IN_PROGRESS']}
+                        <img src="/s.gif" class="helpImg" title="{!helpTextMap['INF_UNPOSTING_IN_PROGRESS_HELP_TEXT']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['UNPOSTING_IN_PROGRESS'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['UNPOSTING_IN_PROGRESS'].id}">
+                                {!statisticsLine.lineCells['UNPOSTING_IN_PROGRESS'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['CLOSED_ACCOUNTING_PERIOD']}
+                            <img src="/s.gif" class="helpImg" title="{!helpTextMap['CLOSED_ACCOUNTING_PERIOD']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['CLOSED_ACCOUNTING_PERIOD'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['CLOSED_ACCOUNTING_PERIOD'].id}">
+                            {!statisticsLine.lineCells['CLOSED_ACCOUNTING_PERIOD'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column rendered="{!!isLDVBatchContext}">
+                        <apex:facet name="header">
+                            {!headerMap['LINE_COUNT_LIMIT_EXCEEDED']}
+                            <img src="/s.gif" class="helpImg" title="{!helpTextMap['LINE_COUNT_LIMIT_EXCEEDED']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['LINE_COUNT_LIMIT_EXCEEDED'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['LINE_COUNT_LIMIT_EXCEEDED'].id}">
+                            {!statisticsLine.lineCells['LINE_COUNT_LIMIT_EXCEEDED'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['LEDGER_NO_TAX_SETTINGS']}
+                            <img src="/s.gif" class="helpImg" title="{!helpTextMap['LEDGER_NO_TAX_SETTINGS']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['LEDGER_NO_TAX_SETTINGS'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['LEDGER_NO_TAX_SETTINGS'].id}">
+                            {!statisticsLine.lineCells['LEDGER_NO_TAX_SETTINGS'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                </apex:dataTable>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection collapsible="false" title="{!$Label.AcctSeed__COMMON_UNPOSTING_ERROR_DETAIL}"
+                                   columns="1" rendered="{!showSystemExceptionTable}">
+                <div id="spinner2" style="font-weight:bold; position:absolute; left:50%; margin-left: -100px; display:block">
+                    <img src="/img/loading.gif" style="text-align:center" width="16" height="16" alt="loading gif" />
+                    &nbsp;&nbsp;{!$Label.COMMON_LOADING}
+                </div>
+                <apex:dataTable id="systemExceptionTable" styleClass="display"
+                                value="{!errorStatisticsLines}" var="systemExceptionLine" style="visibility:hidden">
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_NAME}">
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!systemExceptionLine.sourceObjectId}"
+                                         target="_blank" value="/{!systemExceptionLine.sourceObjectId}">
+                            {!systemExceptionLine.sourceObjectName}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!$Label.AcctSeed__ERR_DURING_UNPOSTING_PROCESS}
+                        </apex:facet>
+                        <!-- escape="false" because error message might contain html tags -->
+                        <apex:outputText escape="false" value="{!systemExceptionLine.systemExceptionErrorMessage}"/>
+                    </apex:column>
+                </apex:dataTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

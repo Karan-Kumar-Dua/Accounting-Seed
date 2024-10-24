@@ -1,0 +1,6 @@
+<template>
+    <div class="slds-var-m-top_x-small menu-items-group-item">
+        <a if:true={href} href={href}>{menuItem.label}</a>
+        <a if:false={href} onclick={clickHandler}>{menuItem.label}</a>
+    </div>
+</template>

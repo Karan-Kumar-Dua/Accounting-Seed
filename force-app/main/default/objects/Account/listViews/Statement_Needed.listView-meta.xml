@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Statement_Needed</fullName>
+    <columns>ACCOUNT.NAME</columns>
+    <columns>ACCOUNT.TYPE</columns>
+    <columns>Accounting_Type__c</columns>
+    <columns>Billing_Contact__c</columns>
+    <columns>ACCOUNT.ADDRESS1_STATE</columns>
+    <columns>ACCOUNT.PHONE1</columns>
+    <columns>X1099_Vendor__c</columns>
+    <columns>Statement_Needed__c</columns>
+    <columns>CORE.USERS.ALIAS</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Statement_Needed__c</field>
+        <operation>equals</operation>
+        <value>Yes</value>
+    </filters>
+    <label>Statement Needed</label>
+</ListView>

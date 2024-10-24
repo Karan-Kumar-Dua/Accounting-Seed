@@ -1,0 +1,18 @@
+<template>
+    <div class="slds-p-right_xx-small">
+        <c-custom-currency-cell
+            value={value}
+            errors={typeAttributes.errors}
+            disabled={typeAttributes.disabled}
+            edit-mode={typeAttributes.editMode}
+            is-multi-currency-enabled={typeAttributes.isMultiCurrencyEnabled}
+            currency-code={typeAttributes.currencyCode}
+            value-style={typeAttributes.valueStyle}
+            value-parentheses={typeAttributes.valueParentheses}
+            value-hide-iso-code={typeAttributes.valueHideIsoCode}
+            row-id={typeAttributes.rowId}
+            col-id={typeAttributes.colId}
+            required={typeAttributes.required}>
+        </c-custom-currency-cell>
+    </div>
+</template>

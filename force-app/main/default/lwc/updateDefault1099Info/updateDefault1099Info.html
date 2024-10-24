@@ -1,0 +1,56 @@
+<template>
+    <c-x1099-info-form 
+        title={labels.INF_ENTER_DEFAULT_1099_INFORMATION}
+        record-count={recordCount}
+        onsave={handleSave}
+        oncancel={handleCancel}
+        spinner-active={isSpinner}
+        ltng-out={ltngOut}>
+        <p slot="instructions">
+            {labels.INF_SELECT_DEFAULT_1099_FORM_BOX_PAYEE_CD_PAYMENTS}&nbsp;
+            <lightning-formatted-url 
+                value="https://support.accountingseed.com/hc/en-us/articles/360057556733" 
+                tooltip={labels.knowledgeBase}
+                label={labels.knowledgeBase}
+                target="_blank" >
+            </lightning-formatted-url>.
+        </p>
+        <div slot="form">
+            <lightning-layout horizontal-align="center">
+                <lightning-layout-item size="3" flexibility="auto, no-grow" padding="around-small">
+                    <lightning-input
+                        class="enable1099Vendor"
+                        type="checkbox"
+                        name="enable1099Vendor"
+                        label={labels.INF_ENABLE_1099_VENDOR}
+                        variant="label-stacked"
+                        onchange={enable1099VendorChange}
+                        checked={enable1099Vendor}>
+                    </lightning-input>  
+                    <div style="margin-top:28px;"></div>
+                    <template if:true={singleRecord}>
+                        <lightning-input 
+                            type="text" 
+                            class="taxpayerIdentificationNumber" 
+                            name="taxpayerIdentificationNumber" 
+                            variant="label-stacked" 
+                            onchange={taxpayerIdentificationNumberChange} 
+                            value={taxpayerIdentificationNumber} 
+                            label={labels.INF_TAXPAYER_IDENTIFICATION_NUMBER} 
+                            max-length="80">
+                        </lightning-input>
+                    </template>                                                      
+                </lightning-layout-item>
+                <lightning-layout-item size="3" flexibility="auto, no-grow" padding="around-small">
+                    <c-x1099-dependent-picklists 
+                        form-type-input-label={labels.INF_DEFAULT_FORM_1099_TYPE}
+                        form-type-value={defaultForm1099Type}
+                        box-input-label={labels.INF_DEFAULT_FORM_1099_BOX}
+                        form-box-value={defaultForm1099Box}
+                        onchange={handleFormChange}>
+                    </c-x1099-dependent-picklists>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+    </c-x1099-info-form>
+</template>

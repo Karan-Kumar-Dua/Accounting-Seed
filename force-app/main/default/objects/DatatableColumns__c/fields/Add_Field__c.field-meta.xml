@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Add_Field__c</fullName>
+    <defaultValue>false</defaultValue>
+    <inlineHelpText>This will be automatically marked as true when you select a field to display in datatable columns</inlineHelpText>
+    <label>Add Field</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

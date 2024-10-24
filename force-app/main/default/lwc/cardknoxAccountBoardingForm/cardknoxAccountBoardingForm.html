@@ -1,0 +1,85 @@
+<template>
+    <template if:true={showContent}>
+        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+            <header class="slds-modal__header">
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate heading" data-id="modal-heading">
+                    {modalHeader}
+                </h2>
+            </header>
+            <lightning-spinner class={spinnerClass} variant="brand" alternative-text={labels.commonLoading}></lightning-spinner>
+            <div class="slds-grid slds-wrap slds-p-top_medium width100">
+                <div class="slds-align_absolute-center width70">
+                    <c-path
+                        items={pathItems}
+                        onitemclick={handleItemClick}
+                    ></c-path>
+                </div>
+                <div class="slds-float_right">
+                    <a href={helpURL} target="_blank">{labels.commonHelp}</a>
+                </div>
+            </div>
+            <!--Step One Work is here-->
+            <template if:true={isStep1Active}>
+                <c-cardknox-step-company-info 
+                    form-data={formData}
+                    ondatachange={handleDataChange}
+                    labels-val={labels}
+                    data-wizard-step>
+                </c-cardknox-step-company-info>
+            </template>
+            <!--Step Two Work is here-->
+            <template if:true={isStep2Active}>
+                <c-cardknox-step-address-info 
+                    form-data={formData}
+                    states={stateList}
+                    countries={countryList}
+                    ondatachange={handleDataChange}
+                    labels={labels}
+                    onaddresssame={handleAddressSameCheckboxClick}
+                    data-wizard-step>
+                </c-cardknox-step-address-info>
+            </template>
+
+            <!-- Step 3 Work start here -->
+            <template if:true={isStep3Active}>
+                <template for:each={signerInfo} for:item="signer" for:index="index"> 
+                    <c-cardknox-step-signer-info
+                        key={signer.firstName}
+                        form-data={formData} 
+                        signer-index={index}
+                        signer={signer}
+                        states={stateList}
+                        countries={countryList}
+                        ondatachange={handleDataChange}
+                        ondeletesigner={handleDeleteSigner}
+                        labels={labels}
+                        data-wizard-step>
+                    </c-cardknox-step-signer-info>
+                </template>
+                <template if:true={canAddSigner}>
+                    <div class="width41 textAlignCenter slds-p-top_large">
+                        <lightning-button label={labels.addSigner} class="slds-m-left_small" variant="neutral" onclick={handleAddSigner} data-id="add-signer">
+                        </lightning-button>
+                    </div>
+                </template>
+            </template>
+
+            <!-- Step 4 Work start here -->
+            <template if:true={isStep4Active}>
+                <c-cardknox-agreement-form 
+                    ontokenreceived={handleAgreementToken}
+                    data-wizard-step>
+                </c-cardknox-agreement-form>
+            </template>
+
+        </div>
+        <div class="slds-modal__footer slds-p-around_small slds-clearfix">
+            <footer class="slds-float_right">
+                <lightning-button label={neutralAction} class="slds-m-left_small" variant="neutral" onclick={handleCancelButton} data-id="modal-cancel">
+                </lightning-button>
+                <lightning-button label={brandAction} class="slds-m-left_small" variant="brand" onclick={handleActionButton} data-id="modal-save" disabled={isDisable}>
+                </lightning-button>
+            </footer>
+        </div>
+    </template>
+</template>

@@ -1,0 +1,16 @@
+<apex:page id="thePage" standardController="Project__c" title="{!$Label.AcctSeed__COMMON_CLONE + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="ProjectDeepClone" >
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/>
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$Label.AcctSeed__COMMON_CLONE +' ' + $ObjectType.Project__c.label}" subtitle="{!Project__c.Name}" />
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__COMMON_CLONE + ' ' + $ObjectType.Project__c.label}">
+            <apex:pageMessage summary="{!$Label.AcctSeed__INF_CLONE_FUNCTION + ' ' +  $ObjectType.Project__c.label + ' ' + $Label.AcctSeed__INF_AND_ALL_ASSOCIATED + ' ' + $ObjectType.Project__c.label + ' ' + $Label.AcctSeed__COMMON_TASKS}" severity="info" strength="3" />
+            <apex:pageMessages />
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}');"/>
+                <apex:commandButton action="{!deepClone}" status="saveStatus" reRender="theForm" value="{!$Label.AcctSeed__COMMON_CLONE + ' ' + $ObjectType.Project__c.label}"/>
+                <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,18 @@
+<template>
+    <template if:true={showForm}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoadingText} size="small"></lightning-spinner>
+    </template>
+    <div class="slds-form-element__control">
+        <template if:true={showForm}>
+            <lightning-record-view-form record-id={recordId}
+                                        object-api-name={recordApiName}
+                                        density="auto"
+                                        onload={handleOnLoad}>
+                <lightning-messages>
+                </lightning-messages>
+                <lightning-output-field variant={variant} field-name={fieldApiName} onclick={handleEdit}>
+                </lightning-output-field>
+            </lightning-record-view-form>
+        </template>
+    </div>
+</template>

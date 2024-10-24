@@ -1,0 +1,63 @@
+<apex:page standardController="Cash_Disbursement__c" title="{!$Label.AcctSeed__COMMON_CREATE_1099_EXPORT + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="X1099FileController" 
+    recordSetVar="cashDisbursement" showHeader="true" sidebar="false" docType="html-5.0" lightningStylesheets="true">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" />
+    <script>
+        function setFocusOnLoad() {}
+    </script>
+     <apex:variable var="customLEX" value="customLEXOn" rendered="{!$User.UIThemeDisplayed = 'Theme4d' || $User.UIThemeDisplayed = 'Theme4u'}">
+        <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/visualforce-lex-ext.css')}" />
+    </apex:variable>
+
+    <apex:sectionHeader title="{!$Label.AcctSeed__COMMON_CASH_DISBURSEMENT}" subtitle="{!$Label.AcctSeed__COMMON_CREATE_1099_FILE}"/>
+
+    <apex:form id="theForm">
+        <apex:actionFunction name="backAction" action="{!cancel}" immediate="true"/>
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__COMMON_CREATE_1099_FILE}">
+                <apex:pageMessage severity="info" strength="3" summary="{!$Label.AcctSeed__COMMON_CRITERIA_CD_1099}" escape="false"/>
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons id="buttons" >
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')"/>
+                <apex:commandButton value="{!$Label.AcctSeed__COMMON_SUBMIT}"
+                                    status="saveStatus"
+                                    action="{!create1099File}"
+                                    rendered="{!!jobStarted}" reRender="theForm"/>
+                <apex:commandButton onComplete="AcctSeed.ASModule.customBackToListAction('{!listViewId}', '', '{!SObjectApiName}');"
+                                    value="{!$Label.AcctSeed__COMMON_BACK}" id="cancelButton"/>
+            </apex:pageBlockButtons>
+            <br/>
+            <apex:pageBlockSection columns="1" title="{!$Label.AcctSeed__COMMON_SELECT_1099_YEAR}" collapsible="false">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_REPORTING_1099_YEAR}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock"/>
+                        <apex:selectList value="{!selectedYear}" size="1">
+                            <apex:selectOptions value="{!availableYears}"/>
+                            <apex:actionSupport event="onchange" action="{!getApplicableFormTypes}" rerender="thePageBlock" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_FORM_1099_TYPE}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock"/>
+                        <apex:selectList value="{!selectedFormType}" size="1">
+                            <apex:selectOptions value="{!availableFormTypes}"/>
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_LEDGER}"/>
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock"/>
+                        <apex:selectList value="{!selectedLedger}" size="1">
+                            <apex:selectOptions value="{!availableLedgers}"/>
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,37 @@
+<apex:page standardController="Payment_Method__c" title="{!$Label.AcctSeed__COMMON_EDIT_PAYMENT_METHOD + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="PaymentMethodEditController" id="PaymentMethodEdit">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" />
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Payment_Method__c.Label}" subtitle="{!Payment_Method__c.Name}"/>
+        <apex:pageBlock title="{!$Label.AcctSeed__COMMON_EDIT_PAYMENT_METHOD}">
+            <apex:pageMessage severity="warning" strength="3" summary="{! If(paymentMethod.Payment_Processor__r.Type__c == 'Cardknox' , $Label.WRN_PAYMENT_METHOD_DELETE_WARNING_CARDKNOX, $Label.WRN_PAYMENT_METHOD_DELETE_WARNING_STRIPE)}"/>
+            <apex:pageMessages escape="false" />
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!updateViaUI}" value="{!$Label.AcctSeed__COMMON_SAVE}" rerender="theForm" onClick="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')" rendered="{!isSaveable}"/>
+                <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="2" title="{!$Label.AcctSeed__COMMON_DETAILS}" collapsible="false" rendered="{!!isACH}">
+                <!-- ONLY THESE FIELDS CAN BE EDITED. OTHER ARE IMMUTABLE ON THE STRIPE SIDE -->
+                <apex:inputField value="{!paymentMethod.Card_Holder_Name__c}" />
+                <apex:inputField value="{!paymentMethod.Expiration_Month__c}" />
+                <apex:inputField value="{!paymentMethod.Status__c}" />
+                <apex:inputField value="{!paymentMethod.Expiration_Year__c}" />
+                <apex:inputField value="{!paymentMethod.Default__c}" rendered="{!!paymentMethod.Default__c}"/>
+                <apex:outputField value="{!paymentMethod.Default__c}" rendered="{!paymentMethod.Default__c}"/>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection columns="1" title="{!$Label.AcctSeed__COMMON_DETAILS}" collapsible="false" rendered="{!isACH}">
+                <!-- ONLY THESE FIELDS CAN BE EDITED. OTHER ARE IMMUTABLE ON THE STRIPE SIDE -->
+                <apex:inputField value="{!paymentMethod.Card_Holder_Name__c}" />
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_BANK_ACCOUNT_TYPE}"/>
+                    <apex:selectList id="bankAccountType" value="{!selectedBankAccountType}" size="1">
+                        <apex:selectOptions value="{!BankAccountTypes}" />
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!paymentMethod.Status__c}" />
+                <apex:inputField value="{!paymentMethod.Default__c}" rendered="{!AND(NOT(paymentMethod.Default__c), isVerified)}"/>
+                <apex:outputField value="{!paymentMethod.Default__c}" rendered="{!paymentMethod.Default__c}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,41 @@
+<template>
+    <div
+        class="release"
+        onmouseover={handleMouseover}
+        onmouseout={handleMouseout}
+    >
+        <div class="release--container">
+            <span class="release--name">{releaseName}</span>
+            <span class="release--label">&nbsp;{labels.COMMON_RELEASE}&nbsp;</span>
+            <img
+                data-id="img-releaseLogo"
+                src={releaseLogo}
+                alt={releaseName}
+                class="release--logo"
+            />
+        </div>
+        <section
+            aria-label="Package Version"
+            aria-describedby="release--popover"
+            class={popoverClasses}
+            role="dialog"
+        >
+            <div id="release--popover" class="slds-popover__body">
+                <p
+                    class="release--packageVersion slds-text-align_center"
+                    data-id="p-packageVersion"
+                    if:true={hasPackageVersion}
+                >
+                    {labels.COMMON_VERSION} {packageVersion.data}
+                </p>
+                <p
+                    class="release--packageVersion slds-text-align_center"
+                    data-id="p-packageVersion"
+                    if:false={hasPackageVersion}
+                >
+                    {labels.COMMON_UNPACKAGED}
+                </p>
+            </div>
+        </section>
+    </div>
+</template>

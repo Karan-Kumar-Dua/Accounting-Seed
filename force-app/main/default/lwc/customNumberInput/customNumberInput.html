@@ -1,0 +1,30 @@
+<!-- Custom Number Input -->
+<template>
+    <template if:true={editMode}>
+        <div class="slds-form-element slds-text-align_center">
+            <div class="slds-form-element__control">
+                <abbr class="slds-required">*</abbr>
+                <lightning-input type="number"
+                                 formatter="decimal"
+                                 step="any"
+                                 variant="label-hidden"
+                                 value={value}
+                                 class="custom-input"
+                                 required
+                                 onchange={handleValueChange}>
+
+                </lightning-input>
+            </div>
+        </div>
+    </template>
+    <template if:false={editMode}>
+        <div class="slds-form-element slds-text-align_right">
+            <div class="slds-form-element__control">
+                <lightning-formatted-number value={value}
+                                            format-style="decimal">
+
+                </lightning-formatted-number>
+            </div>
+        </div>
+    </template>
+</template>

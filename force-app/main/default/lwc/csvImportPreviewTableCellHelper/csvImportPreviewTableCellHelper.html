@@ -1,0 +1,27 @@
+<template>
+    <template if:false={column.isRadioButton}>
+        <template if:true={hasOptions}>
+            <div class="slds-size_3-of-3">
+                <lightning-combobox 
+                    variant="label-hidden" 
+                    value={fieldValue} 
+                    options={options} 
+                    dropdown-alignment="auto"
+                    onchange={handlePicklistChange}>
+                </lightning-combobox>
+            </div>
+        </template>
+        <template if:false={hasOptions}>
+            <div class={textClass}>
+                <lightning-formatted-text value={fieldValue}></lightning-formatted-text>
+            </div>
+        </template>
+    </template>
+    <template if:true={isRadioButton}>
+        <lightning-radio-group 
+            name="radioGroup"
+            options={radioOption}
+            value={fieldValue}
+            type="radio" onchange={handleChange}></lightning-radio-group>
+    </template>
+</template>

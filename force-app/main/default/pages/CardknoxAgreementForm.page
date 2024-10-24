@@ -1,0 +1,39 @@
+<apex:page docType="html-5.0" sideBar="false" controller="CardknoxAgreementForm" lightningStylesheets="true">
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery-ui.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/cardknox-common.css')}" />
+
+    <script>
+        <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/ifields-2.14.2211.1101-min.js')}" />
+
+        function init() {
+            setAccount('{!JSENCODE(IFIELD_KEY)}', "AcctSeed", "1.0.0");
+            ckCustomerAgreement.enableAgreement({
+                iframeField: 'agreement',
+                xKey: '{!JSENCODE(IFIELD_KEY)}',
+                autoAgree: true,
+                callbackName: 'handleAgreementResponse'
+            });
+        }
+        function handleAgreementResponse(response) {
+            let message = { source: 'vfpage', error: '', token: '' };
+            if (!response) {
+                message.error = "Failed to load token. No Response";
+            } else if (response.status !== iStatus.success) {
+                message.error = "Failed to load token. " + response.statusText || "No Error description available";
+            } else if (!response.token) {
+                message.error = "Failed to load token. No Token available";
+            } else if (response.token === 'Loading token, please wait...') {
+                message.token = '';
+            } else {
+                message.token = response.token;
+            }
+            window.parent.postMessage(JSON.stringify(message), "*");
+        } 
+    </script>
+
+    <iframe id="agreement" class="agreement" data-ifields-id="agreement" src="https://cdn.cardknox.com/ifields/2.14.2211.1101/agreement.htm"
+        width="100%" onload="init()"></iframe>
+
+</apex:page>

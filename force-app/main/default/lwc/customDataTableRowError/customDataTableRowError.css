@@ -1,0 +1,7 @@
+:host {
+display: table-row;
+}
+
+.slds-notify {
+    white-space: normal;
+}

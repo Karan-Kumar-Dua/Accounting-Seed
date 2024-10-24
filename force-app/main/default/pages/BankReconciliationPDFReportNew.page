@@ -1,0 +1,192 @@
+<apex:page controller="BankReconciliationPDFReportNew" title="{!$Label.AcctSeed__COMMON_REPORT + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}"
+           sidebar="false" applyBodyTag="false"
+           applyHtmlTag="false" showheader="false" readOnly="true" standardStylesheets="false" renderAs="pdf">
+
+    <html>
+    <head>
+        <style type="text/css" media="print">
+        @page {
+        @top-right {
+        content: element(header);
+        }
+        @bottom-left {
+        content: element(footer);
+        }
+        margin-top:50px;
+        }
+
+        div.header {
+        position: running(header);
+        text-align: center;
+        }
+
+        div.error span {
+        color: red;
+        }
+
+        div.content {
+        position: relative;
+        }
+
+        div.footer {
+        display: block;
+        padding: 5px;
+        position: running(footer);
+        }
+
+        .pagenumber:before {
+        content: counter(page);
+        }
+
+        .pagecount:before {
+        content: counter(pages);
+        }
+
+        body {
+        font-family: "Arial""Sans-Serif";
+        font-size: 12px;
+        margin: 0px;
+        }
+
+        .tableHeader {
+        font-weight: bold;
+        background-color: #DADADA;
+        height: 20px;
+        }
+
+        .columnHeader {
+        text-align: right;
+        }
+
+        .tableRow {
+        border-bottom: 3px solid #DADADA;
+        }
+
+        .pageBreakBefore {
+        page-break-before: always;
+        }
+
+        .label {
+        font-weight: bold;
+        }
+
+        .align-right {
+        text-align: right;
+        }
+        .align-center {
+        text-align: center;
+        }
+        .nowrap {
+        white-space:nowrap;
+        }
+        </style>
+    </head>
+
+    <body>
+    <apex:outputPanel layout="block" rendered="{!isError}">
+        <div class="error">
+            <span>{!errorMessage}</span>
+        </div>
+    </apex:outputPanel>
+    <apex:outputPanel layout="block" rendered="{!NOT(isError)}">
+        <div >
+            <h3 style="text-align: center; font-weight: bold">{!IF(bankRec.Type__c == 'Bank','BANK', 'CREDIT CARD')} {!$Label.COMMON_RECONCILIATION_SUMMARY}</h3>
+            <h3 style="text-align: center ; font-weight: bold">{!$Label.INF_STMT_DATE_ENDING} &nbsp;<apex:outputField value="{!bankRec.End_Date__c}"/></h3>
+            <br/>
+        </div>
+        <div class="content">
+            <table cellpadding="6" style="width:100%">
+                <tr>
+                    <td style="font-weight: bold">{!$Label.AcctSeed__INF_BEGINING_BALANCE}</td>
+                    <td style="text-align: right; {!IF(bankRec.Beginning_Balance__c < 0, 'color: #b80707','')}">
+                        <apex:outputText value="{!BeginningBalance}" />
+                    </td>
+                    <td style="padding-left:150px; font-weight: bold">{!$Label.INF_BANK_CREDIT_CARD_ACCOUNT}</td>
+                    <td >
+                        <apex:outputText value="{!bankRec.Bank_Account__r.Name}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold">{!IF(bankRec.Type__c == 'Bank','Payments', 'Charges')} {!$Label.AcctSeed__INF_OTHER_CREDITS_CLEARED}</td>
+                    <td style="text-align: right; {!IF(ClearedDisbursementsDecimal < 0, 'color: #b80707','')}">
+                        <apex:outputText value="{!clearedDisbursementsString}" />
+                    </td>
+                    <td style="padding-left:150px; font-weight: bold">{!$Label.AcctSeed__COMMON_LEDGER}</td>
+                    <td>
+                        <apex:outputText value="{!bankRec.Ledger__r.Name}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold">{!IF(bankRec.Type__c == 'Bank','Deposits', 'Payments')} {!$Label.AcctSeed__INF_OTHER_DEBITS_CLEARED}</td>
+                    <td style="text-align: right;border-bottom:1pt solid black; {!IF(ClearedDepositsDecimal < 0, 'color: #b80707','')}">
+                        <apex:outputText value="{!clearedDepositsString}" />
+                    </td>
+                    <td style="padding-left:150px; font-weight: bold">{!$Label.AcctSeed__COMMON_CURRENCY}</td>
+                    <td>
+                        <apex:outputText value="{!currencyIsoCode}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold">{!$Label.AcctSeed__COMMON_STMT_ENDING_BAL}</td>
+                    <td style="text-align: right;border-bottom:Double; {!IF(bankRec.Calculated_Ending_Balance__c < 0, 'color: #b80707','')}">
+                        <apex:outputText value="{!CalculatedEndingBalance}" />
+                    </td>
+                    <td style="padding-left:150px; font-weight: bold">{!$Label.AcctSeed__COMMON_GL_VARIABLE} 1</td>
+                    <td>
+                        <apex:outputText value="{!GLVariable1}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td style="padding-left:150px; font-weight: bold">{!$Label.COMMON_GL_VARIABLE} 2</td>
+                    <td>
+                        <apex:outputText value="{!GLVariable2}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold">{!$Label.COMMON_OUTSTANDING + ' '} {!IF(bankRec.Type__c == 'Bank', $Label.COMMON_SMALL_PAYMENTS, $Label.COMMON_SMALL_CHARGES)} {!' '  + $Label.COMMON_AS + ' '} {!$Label.COMMON_OF} &nbsp;<apex:outputField value="{!bankRec.End_Date__c}"/></td>
+                    <td style="text-align: right;{!IF(UnClearedDisbursementsDecimal < 0, 'color: #b80707','')}">
+                        <apex:outputText value="{!UnClearedDisbursementsString}" />
+                    </td>
+                    <td style="padding-left:150px; font-weight: bold">{!$Label.AcctSeed__COMMON_GL_VARIABLE} 3</td>
+                    <td>
+                        <apex:outputText value="{!GLVariable3}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold">{!IF(bankRec.Type__c == 'Bank', $Label.COMMON_DEPOSIT, $Label.COMMON_PAYMENTS)} {!$Label.COMMON_IN_TRANSIST} {!$Label.COMMON_AS} {!$Label.COMMON_OF} &nbsp;<apex:outputField value="{!bankRec.End_Date__c}"/></td>
+                    <td style="text-align: right; border-bottom:1pt solid black;{!IF(UnClearedDepositsDecimal < 0, 'color: #b80707','')}">
+                        <apex:outputText value="{!UnClearedDepositsString}" />
+                    </td>
+                    <td style="padding-left:150px; font-weight: bold">{!$Label.AcctSeed__COMMON_GL_VARIABLE} 4</td>
+                    <td>
+                        <apex:outputText value="{!GLVariable4}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold">{!$Label.COMMON_GL_ENDING_BALANCE} {!$Label.COMMON_AS} {!$Label.COMMON_OF} &nbsp;<apex:outputField value="{!bankRec.End_Date__c}"/></td>
+                    <td style="text-align: right; border-bottom:Double;{!IF(bankRec.Calculated_GL_Balance__c < 0, 'color: #b80707','')}">
+                        <apex:outputText value="{!EndingBalance}" />
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+
+            </table>
+        </div>
+        <br/>
+        <br/>
+        <br/>
+        <div >
+            <span>{!$Label.INF_STATUS_COMPLETED_ON}:&nbsp;<apex:outputField value="{!bankRec.LastModifiedDate}"/></span>
+            <br/>
+            <br/>
+            <span>{!$Label.AcctSeed__INF_RESET_STATUS_UPDATE_INFORMATION}</span>
+
+        </div>
+
+    </apex:outputPanel>
+    </body>
+    </html>
+</apex:page>

@@ -1,0 +1,184 @@
+<apex:component controller="MassAddEditLineComponentCntrl" extensions="EnvironmentUtils" allowDML="true" access="global">
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.dataTables.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/javascript/datatables/' & datatablesLocale & '.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"
+    />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/mass-add-edit-lines.js')}" loadOnReady="true"
+    />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/jquery.dataTables.min.css')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, 'javascript/vex.combined.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, 'css/vex.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, 'css/vex-theme-default.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, 'css/common.css')}" />
+
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(IS_MULTI_CURRENCY_ENABLED, "true", "false"))}";
+        AcctSeed.ASModule.currencyIsoCode = "{!JSENCODE(currencyIsoCode)}";
+        AcctSeed.ASModule.LABELS = {CONFIRM_DO_YOU_WANT_TO_LEAVE_THIS_PAGE_SAVE: "{!HTMLENCODE(JSENCODE($Label.AcctSeed__CONFIRM_DO_YOU_WANT_TO_LEAVE_THIS_PAGE_SAVE))}"};
+    </script>
+
+    <apex:attribute name="masterRecordAttr" type="SObject" assignTo="{!masterRecord}" description="{!$Label.COMMON_MASTER_RECORD}" access="global"
+    />
+    <apex:attribute name="isRecordPostedAttr" type="Boolean" assignTo="{!isRecordPosted}" description="{!$Label.INF_RECORD_POSTED}" access="global"
+    />
+    <apex:attribute name="cancelAction" type="ApexPages.Action" description="{!$Label.INF_STANDARD_CONTROLLER_ACTION_PASSED_FROM_PARENT}"
+        required="true" access="global" />
+
+    <apex:form id="theForm">
+
+        <apex:actionFunction name="refreshTable" action="{!initAllLines}" status="loadingStatus" rerender="theForm" oncomplete="AcctSeed.ASModule.redrawTable(false);"
+        />
+        <apex:actionFunction name="saveAndRefresh" action="{!saveAndRefresh}" status="saveStatus" rerender="theForm" oncomplete="AcctSeed.ASModule.refreshTableIfNoErrors({!isError});"
+        />
+        <apex:actionFunction name="redirectToNew" action="{!redirectToNew}" />
+
+        <script type="text/javascript">
+            AcctSeed.ASModule.refreshTable = refreshTable;
+            AcctSeed.ASModule.saveAndRefresh = saveAndRefresh;
+            AcctSeed.ASModule.redirectToNew = redirectToNew;
+        </script>
+
+        <apex:sectionHeader title="{!entryName}" subtitle="{!masterRecord['Name']}" />
+
+        <apex:pageBlock id="thePageBlockHeader" title="{!entryName + ' ' +  $Label.AcctSeed__COMMON_EDIT}">
+
+            <apex:outputPanel id="messages">
+                <apex:pageMessages escape="false" />
+            </apex:outputPanel>
+
+            <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}');" />
+
+            <apex:pageBlockButtons location="top">
+                <!-- Save & Refresh button -->
+                <apex:commandButton id="saveRefreshBtn" status="saveStatus" action="{!saveAndRefresh}" value="{!$Label.AcctSeed__COMMON_SAVE_AND_REFRESH}" rerender="theForm"
+                    rendered="{!AND(NOT(isRecordPosted), NOT(isDetailFieldSetEmpty))}" onComplete="AcctSeed.ASModule.refreshTableIfNoErrors({!isError});"
+                />
+                <!-- Save & Complete button -->
+                <apex:commandButton id="saveCompleteBtn" status="saveStatus" action="{!saveAndComplete}" rendered="{!AND(NOT(isRecordPosted), NOT(isDetailFieldSetEmpty))}"
+                    rerender="theForm" value="{!$Label.AcctSeed__COMMON_SAVE_AND_COMPLETE}" onComplete="AcctSeed.ASModule.refreshTableIfNoErrors({!isError});"
+                />
+                <!-- Save & Post button -->
+                <apex:commandButton id="savePostBtn" status="saveStatus" action="{!saveAndPost}" value="{!$Label.AcctSeed__COMMON_SAVE_AND_POST}" rerender="theForm" rendered="{!AND(NOT(isRecordPosted), isShowPostButton, NOT(isDetailFieldSetEmpty))}"
+                    onComplete="AcctSeed.ASModule.refreshTableIfNoErrors({!isError});" />
+                <!-- Save & New button -->
+                <apex:commandButton id="saveNewBtn" status="saveStatus" action="{!saveAndRefresh}" rendered="{!AND(NOT(isRecordPosted), NOT(isDetailFieldSetEmpty))}"
+                    rerender="theForm" value="{!$Label.AcctSeed__COMMON_SAVE_AND_NEW}" onComplete="AcctSeed.ASModule.refreshTableIfNoErrors({!isError});AcctSeed.ASModule.redirectToNewIfNoErrors({!isError}, '{!JSENCODE(entryAPIName)}');"
+                />
+                <!-- Cancel button -->
+                <apex:commandButton id="cancelButton" action="{!cancelAction}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true" />
+            </apex:pageBlockButtons>
+
+            <apex:pageBlockSection title="{!entryName}" collapsible="false" columns="2" id="masterSection">
+                <apex:repeat value="{!wrappedMasterFields}" var="wrappedField" rendered="{!NOT(isMasterFieldSetEmpty)}">
+                    <apex:outputField value="{!masterRecord[wrappedField.field.fieldPath]}" rendered="{!!wrappedField.needCustomOutput}" />
+                    <apex:pageBlockSectionItem rendered="{!wrappedField.needCustomOutput}">
+                        <apex:outputLabel value="{!wrappedField.field.label}">
+                            <img src="/s.gif" class="tooltip helpOrb" style="right:-10px; margin-top: 0px;" title=" {!wrappedField.helpText}" />
+                        </apex:outputLabel>
+                        <apex:outputText value="{!masterRecord[wrappedField.field.fieldPath]}" styleClass="masterCurrencyField" />
+                    </apex:pageBlockSectionItem>
+                </apex:repeat>
+                <apex:pageMessage severity="warning" strength="3" summary="{!$Label.AcctSeed__COMMON_NO_FIELDS_IN_MASSADDEDITROWS} + ' ' + {!entryName} + ' ' + {!$Label.AcctSeed__COMMON_OBJECT}"
+                    rendered="{!isMasterFieldSetEmpty}"></apex:pageMessage>
+            </apex:pageBlockSection>
+
+
+            <apex:pageBlockSection title="{!entryName} {!$Label.AcctSeed__COMMON_LINES}" collapsible="false" columns="1" id="linesSection">
+                <apex:actionstatus id="loadingStatus" onstart="AcctSeed.ASModule.loadingTable(true);AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}');"
+                    onstop="AcctSeed.ASModule.loadingTable(false)">
+                    <apex:facet name="start">
+                        <div id="loader1" style="font-weight:bold;margin-top:150px;margin-left:60px">
+                            <img src="/img/loading.gif" style="text-align:center" width="16" height="16" alt="{!$Label.COMMON_LOADING_TEXT} gif" />&nbsp;&nbsp;{!$Label.COMMON_LOADING}
+                        </div>
+                    </apex:facet>
+                </apex:actionstatus>
+
+                <apex:pageMessage severity="error" strength="3" summary="{!$Label.AcctSeed__COMMON_NO_FIELDS_IN_MASSADDEDITROWS} + ' ' + {!entryName} + ' ' + {!$Label.AcctSeed__COMMON_LINE_OBJECT}"
+                    rendered="{!isDetailFieldSetEmpty}"></apex:pageMessage>
+
+                <apex:outputPanel id="thePanel" style="visibility:hidden" rendered="{!NOT(isDetailFieldSetEmpty)}">
+
+                    <apex:outputPanel id="lineTablePanel" style="visibility:hidden">
+                        <apex:dataTable value="{!allLines}" var="line" id="lineTable" styleClass="display auto-layout">
+                            <!-- Footer -->
+                            <apex:facet name="footer">
+                                <apex:outputPanel rendered="{!!isRecordPosted}">
+                                    <apex:actionStatus id="addLineStatus">
+                                        <apex:facet name="start">
+                                            <apex:image url="/img/loading.gif" />
+                                        </apex:facet>
+                                        <apex:facet name="stop">
+                                            <apex:commandlink id="addNewLineCmd" styleClass="btn" style="text-decoration: none; padding: 4px;" title="{!$Label.AcctSeed__COMMON_ADD_NEW_LINE}" action="{!putNewLine}"
+                                                reRender="lineTablePanel" immediate="true" onClick="AcctSeed.ASModule.disableDeleteAbility();"
+                                                onComplete="AcctSeed.ASModule.redrawTable(true);" status="addLineStatus">
+                                                <span style="font-weight: bold;">{!$Label.AcctSeed__COMMON_ADD_NEW_LINE}</span>
+                                            </apex:commandlink>
+                                        </apex:facet>
+                                    </apex:actionStatus>
+                                </apex:outputPanel>
+                            </apex:facet>
+                            <!--Footer -->
+                            <apex:column rendered="{!!isRecordPosted}">
+                                <apex:actionStatus id="deleteStatus" onStop="">
+                                    <apex:facet name="stop">
+                                        <apex:commandLink action="{!deleteLine}" title="{!$Label.AcctSeed__COMMON_REMOVE_LINE}" status="deleteStatus" rerender="lineTablePanel" onClick="AcctSeed.ASModule.disableDeleteAbility();"
+                                            onComplete="AcctSeed.ASModule.redrawTable(true);" immediate="false">
+                                            <span style="font-weight: bold;">{!$Label.AcctSeed__COMMON_DELETE}</span>
+                                            <apex:param id="lineToDelete" name="lineToDelete" assignTo="{!indexOfRowToDelete}" value="{!line.rowIndex}" />
+                                        </apex:commandLink>
+
+                                    </apex:facet>
+                                    <apex:facet name="start">
+                                        <apex:image url="/img/loading.gif" />
+                                    </apex:facet>
+                                </apex:actionStatus>
+                            </apex:column>
+                            <apex:repeat value="{!wrappedDetailFields}" var="wrappedField">
+                                <apex:column styleClass="cell-nowrap cell-vertical-align">
+                                    <apex:facet name="header">{!wrappedField.field.Label}</apex:facet>
+                                    <!-- Input state of the table + field is required -->
+                                    <apex:outputPanel styleClass="requiredInput" layout="block" rendered="{!wrappedField.isRequired && !isRecordPosted && NOT(line.isAvalaraSalesTax && wrappedField.isLockedDown) && !wrappedField.isReadOnly}">
+                                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                                        <apex:inputField value="{!line.rowContentObj[wrappedField.field.fieldPath]}" required="false">
+                                            <apex:actionSupport event="onchange" rendered="{!wrappedField.actionSupport}" action="{!refreshLines}" rerender="lineTablePanel"
+                                                onComplete="AcctSeed.ASModule.redrawTable(true);" immediate="false" status="addLineStatus"
+                                            />
+                                        </apex:inputField>
+                                        <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!line.errorMap[wrappedField.field.fieldPath]}">
+                                            <strong>{!$Label.AcctSeed__COMMON_ERROR}</strong> {!$Label.AcctSeed__ERR_MUST_ENTER_VALUE}
+                                        </apex:outputPanel>
+                                    </apex:outputPanel>
+                                    <!-- Input state of the table + field is not required -->
+                                    <apex:inputField value="{!line.rowContentObj[wrappedField.field.fieldPath]}" required="false" rendered="{!!wrappedField.isRequired && !isRecordPosted && !wrappedField.needCustomOutput && NOT(line.isAvalaraSalesTax && wrappedField.isLockedDown) && !wrappedField.isReadOnly}">
+                                        <apex:actionSupport event="onchange" rendered="{!wrappedField.actionSupport}" action="{!refreshLines}" rerender="lineTablePanel"
+                                            onComplete="AcctSeed.ASModule.redrawTable(true);" immediate="false" status="addLineStatus"
+                                        />
+                                    </apex:inputField>
+                                    <!-- Output state of the table -->
+                                    <apex:outputField value="{!line.rowContentObj[wrappedField.field.fieldPath]}" rendered="{!(isRecordPosted || (line.isAvalaraSalesTax && wrappedField.isLockedDown) || wrappedField.isReadOnly) && !wrappedField.needCustomOutput}"
+                                    />
+                                    <!-- Input/Output state of the table for formula fields with Currency DisplayType -->
+                                    <apex:outputText value="{!line.rowContentObj[wrappedField.field.fieldPath]}" styleClass="detailCurrencyField" style="white-space: nowrap;"
+                                        rendered="{!wrappedField.needCustomOutput}" />
+                                </apex:column>
+                            </apex:repeat>
+                        </apex:dataTable>
+                    </apex:outputPanel>
+
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+
+            <apex:inputHidden id="offset" value="{!offset}" />
+            <apex:inputHidden id="recLimit" value="{!recLimit}" />
+            <apex:inputHidden id="recordSetSize" value="{!recordSetSize}" />
+
+        </apex:pageBlock>
+
+    </apex:form>
+
+</apex:component>

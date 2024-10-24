@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Credit_Card_Vendor__c</fullName>
+    <defaultValue>false</defaultValue>
+    <inlineHelpText>This field denotes a credit card vendor. If checked this account will display in the credit card field filtered lookup on the expense object.</inlineHelpText>
+    <label>Credit Card Vendor</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Checkbox</type>
+</CustomField>

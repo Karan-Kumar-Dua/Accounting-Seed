@@ -1,0 +1,35 @@
+<template>
+    <div class="slds-border_top"></div>
+    <div class="slds-is-relative slds-p-around_small">
+        <template if:true={hasSpinner}>
+            <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+        </template>
+        <lightning-record-edit-form object-api-name={ledgerHierarchy.objectApiName} record-id={deleteRecordId}>
+            <template if:true={showMessageCLRemoving}>
+                <div>{labels.INF_REMOVING_LEDGER_DELETE_ELIMINATED_LEDGER_FINANCIAL_CUBES}</div>
+                <div>{labels.WRN_ARE_YOU_SURE_TO_REMOVE} <b>{ledgerHierarchyToDeleteName}</b>?</div>
+            </template>
+            <template if:false={showMessageCLRemoving}>
+                {labels.WRN_ARE_YOU_SURE_TO_REMOVE} <b>{ledgerHierarchyToDeleteName}</b>?
+            </template>
+        </lightning-record-edit-form>
+    </div>
+    <footer class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+        <div class="slds-float_right">
+            <lightning-button 
+                label={labels.commonCancel}
+                data-jest-name="cancel" 
+                class="slds-m-top_small"
+                variant="neutral" 
+                onclick={handleCancel}>
+            </lightning-button>
+            <lightning-button 
+                label={labels.commonRemove}
+                data-jest-name="remove"
+                variant="brand"
+                onclick={handleConfirm}
+                class="slds-m-left_small">
+            </lightning-button>
+            </div>
+        </footer>
+</template>

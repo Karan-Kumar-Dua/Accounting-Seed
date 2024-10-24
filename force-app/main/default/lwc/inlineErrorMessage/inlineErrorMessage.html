@@ -1,0 +1,17 @@
+<template>
+    <template if:true={errors}>
+        <div>
+            <div class="slds-m-right_medium">
+                <div class="slds-notify slds-notify_toast slds-theme_error slds-notify__content generic-error-container-width">
+                    <h2 class="slds-text-heading_small ">{genericErrorMessage}</h2>
+                </div>
+            </div>
+            <ul class="slds-text-color_error slds-p-left_x-large slds-p-right_x-large">
+                <template for:each={errorMessages} for:item="error">
+                    <li key={error}>{error}</li>
+                </template>
+            </ul>
+        </div>
+        <div class="slds-border_bottom slds-m-top_medium slds-m-right_small  slds-m-left_small"></div>
+    </template>
+</template>

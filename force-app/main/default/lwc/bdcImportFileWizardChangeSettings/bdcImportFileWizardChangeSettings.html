@@ -1,0 +1,27 @@
+<!-- Bdc Import File Wizard Change Settings -->
+<template>
+
+    <template if:true={isSpinner}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+    </template>
+
+    <c-inline-error-message generic-error={error.title} errors={error.msg}></c-inline-error-message>
+
+    <lightning-record-edit-form record-id={importFileDto.glam.glamId}
+                                object-api-name={glamObjectApiName}
+                                onsubmit={handleFormValidation}>
+
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input-field field-name={ledgerFieldApiName} value={defaultLedgerId} required ></lightning-input-field>
+            </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input-field field-name={glAccountFieldApiName}></lightning-input-field>
+            </div>
+        </div>
+
+        <button class="hiddenSubmitBtn" type="submit" style="visibility: hidden"></button>
+
+    </lightning-record-edit-form>
+
+</template>

@@ -1,0 +1,236 @@
+<apex:page id="thePage" title="{!$Label.AcctSeed__INF_PAY_BATCH + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" standardController="Account_Payable__c" extensions="AccountPayablePayBatch,EnvironmentUtils" recordSetVar="accountPayable" lightningStylesheets="true" sidebar="false" docType="html-5.0">
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/cash-apply.css')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/javascript/Intl.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/locale-data/jsonp/' & DefaultLocale & '.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/> 
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.getCheckNumberRemoteAction = "{!$RemoteAction.AccountPayablePayBatch.refreshCheckNumber}";
+        AcctSeed.ASModule.queryCurrencyConversionRateAction = "{!$RemoteAction.AccountPayablePayBatch.queryCurrencyConversionRate}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+        AcctSeed.ASModule.currencyIsoCode = "{!JSENCODE(currencyIsoCode)}";
+        AcctSeed.ASModule.ledgerId = "{!JSENCODE(wrappedCDs[0].payments[0].Ledger__c)}";
+       
+    </script>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/ap-pay-batch.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, 'javascript/vex.combined.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, 'css/vex.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, 'css/vex-theme-default.css')}" /> 
+
+    <apex:variable var="customLEX" value="customLEXOn" rendered="{!$User.UIThemeDisplayed = 'Theme4d' || $User.UIThemeDisplayed = 'Theme4u'}">
+        <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/visualforce-lex-ext.css')}" />
+    </apex:variable>
+    <apex:form id="theForm">
+        <apex:actionFunction name="backAction" action="{!cancel}" immediate="true"/>
+        <apex:actionFunction name="aggregateByChanged" action="{!updateAggregateByPayee}"  status="waitStatus" reRender="thePageBlock"  oncomplete="AcctSeed.ASModule.sumBatchCheckCountAndAmount();"/>
+        <apex:sectionHeader title="{!$ObjectType.Account_Payable__c.labelPlural}" subtitle="{!$Label.AcctSeed__INF_PAY_BATCH}" />
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__INF_PAY_BATCH}">
+            <apex:outputpanel id="waitPanel">
+                <apex:actionstatus id="waitStatus">
+                    <apex:facet name="start">
+                        <div class="waitingSearchDiv" id="el_loading" style="background-color: rgba(251, 251, 251, 0.44);
+                                                            height: 100%;width:100%; height:100%;position: fixed;z-index: 200">
+                                <div class="waitingHolder" style="top: 40%; width: 91px;">
+                                        <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                                        <span class="waitingDescription">Loading...</span>
+                                </div>
+                        </div>
+                    </apex:facet>
+                </apex:actionstatus>
+            </apex:outputpanel>
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons id="buttons">
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')" onstop="AcctSeed.ASModule.pageLoad()"/>
+                <apex:commandButton id="saveButton"
+                                    action="{!payBatch}"
+                                    value="{!$Label.AcctSeed__COMMON_CREATE}"
+                                    status="saveStatus"
+                                    reRender="theForm"
+                                    oncomplete="AcctSeed.ASModule.sumBatchCheckCountAndAmount()"
+                                    rendered="{!NOT(isError)}" />
+                <apex:commandButton id="postButton"
+                                    action="{!payBatchAndPost}"
+                                    value="{!$Label.AcctSeed__COMMON_CREATE_AND_POST}"
+                                    status="saveStatus"
+                                    reRender="theForm"
+                                    oncomplete="AcctSeed.ASModule.sumBatchCheckCountAndAmount()"
+                                    rendered="{!!isError}"
+                                    disabled="{!!isDefaultCDApproved}" />
+                <apex:commandButton id="cancelButton"
+                                    onComplete="AcctSeed.ASModule.customBackToListAction('{!listViewId}', '', '{!SObjectApiName}');"
+                                    value="{!$Label.AcctSeed__COMMON_BACK}" onclick="history.back()"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection id="thePageBlockSection" rendered="{!NOT(isError)}" title="{!$Label.AcctSeed__INF_BATCH_DETAIL}" collapsible="false" columns="2">
+                <apex:pageBlockSection columns="1">
+                    <apex:inputField value="{!uiCashDisbursementBatch.Name}" required="true" />
+                    <apex:pageBlockSectionItem >
+                        <apex:outputLabel value="{!$Label.AcctSeed__INF_BATCH_TOTAL_AMOUNT}" />
+                        <apex:outputText id="batchTotalAmount"/>
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__INF_BATCH_CREDIT_MEMO_AMT}" />
+                    <apex:outputText id="batchCreditMemoAmount"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__INF_BATCH_DISCOUNT_AMT}" />
+                    <apex:outputText id="batchDiscountAmount"/>
+                </apex:pageBlockSectionItem>
+                <apex:outputText value=""/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__INF_BATCH_PAYMENT_AMT}" />
+                    <apex:outputText id="batchNetAmount"/>
+                </apex:pageBlockSectionItem>
+                <apex:outputText value=""/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputPanel id="checkNumLabel">
+                        <apex:outputLabel value="{!$Label.AcctSeed__INF_STARTING_CHECK_NO}" rendered="{!uiCashDisbursement.Type__c='Check'}" />
+                    </apex:outputPanel>
+                    <apex:outputPanel id="checkNumInput">
+                        <apex:inputField id="checkNum"
+                                         value="{!uiCashDisbursementBatch.Starting_Check_Number__c}"
+                                         required="{!uiCashDisbursement.Type__c='Check'}" rendered="{!uiCashDisbursement.Type__c='Check'}" />
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+                <apex:pageBlockSection columns="1">
+                <apex:pageBlockSectionItem >
+                    <apex:inputCheckbox value="{!aggregateByPayee}"
+                            title="{!$Label.AcctSeed__INF_PAYEE_AGGREGATE_SINGL_CD}" onchange = "AcctSeed.ASModule.aggregateByPayeeChanged();"/>
+                    <apex:outputLabel value="{!$Label.AcctSeed__INF_AGGREGATE_BY_PAYEE}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__INF_NO_OF_CASH_DISBURSEMENTS}"/>
+                    <span id="checkCount">0</span>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_LEDGER}" />
+                    <apex:outputField value="{!wrappedCDs[0].payments[0].Ledger__c}" />
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_BANK_ACCOUNT}"/>
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" />
+                        <apex:selectList required="true"
+                                         value="{!uiCashDisbursement.Bank_Account__c}"
+                                         multiselect="false"
+                                         size="1"
+                                         id="bankAccount"
+                                         onChange="AcctSeed.ASModule.refreshCheckNumber();">
+                            <apex:selectOptions value="{!GLAccounts}" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!uiCashDisbursement.Debit_GL_Account__c}" required="false" rendered="{!isShowDebitGLAccountField}"/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_TYPE}" />
+                    <apex:actionRegion >
+                        <apex:inputField value="{!uiCashDisbursement.Type__c}" required="true">
+                            <apex:actionSupport event="onchange"
+                                                oncomplete="AcctSeed.ASModule.refreshCheckNumber();"
+                                                rerender="checkNumLabel,checkNumInput" />
+                        </apex:inputField>
+                    </apex:actionRegion>
+                </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection id="thePageBlockSectionCash" title="{!$Label.AcctSeed__COMMON_CASH_DISBURSEMENTS}" rendered="{!NOT(isError)}" collapsible="false" columns="1">
+                <apex:pageBlockTable id="checkTable" value="{!wrappedCDs}" var="cd" width="100%" align="center" style="table-layout:auto;">
+                    <apex:column style="width:1%">
+                        <apex:facet name="header">
+                            <div style="text-align:center">{!$Label.AcctSeed__COMMON_SELECT}</div>
+                        </apex:facet>
+                        <apex:facet name="footer">
+                            <div id="checkCountTable" style="text-align:center">0</div>
+                        </apex:facet>
+                        <div style="text-align:center">
+                            <apex:inputCheckBox id="theCheckBox" value="{!cd.isSelected}" onchange="AcctSeed.ASModule.sumBatchCheckCountAndAmount()" />
+                        </div>
+                    </apex:column>
+                    <apex:column width="20%">
+                        <apex:outputText value="{!cd.Payee}" style="white-space: nowrap;"/>
+                        <apex:facet name="header">{!$Label.AcctSeed__COMMON_PAYEE}</apex:facet>
+                    </apex:column>
+                    <apex:column width="5%">
+                        <apex:inputField value="{!cd.cashDisbursement.Disbursement_Date__c}" required="true" id="cdDate"/>
+                        <apex:facet name="header">{!$Label.AcctSeed__COMMON_DATE}</apex:facet>
+                    </apex:column>
+                    <apex:column rendered="{!isMultiCurrencyEnabled}">
+                        <apex:inputField id="conversionRate" value="{!cd.cashDisbursement.Currency_Conversion_Rate__c}" style="width:80%"/>
+                        <apex:facet name="header">{!$Label.AcctSeed__COMMON_CONVERSION_RATE}</apex:facet>
+                    </apex:column>
+                    <apex:column id="theTotalAmountColumn" headerClass="alignRight" footerClass="alignRight" styleClass="alignRight" width="100px">
+                        <apex:outputText id="totalAmount" value="{!cd.TotalAmount}" />                   
+                        <apex:facet name="header">{!$Label.AcctSeed__COMMON_TOTAL} {!$Label.AcctSeed__COMMON_AMOUNT}</apex:facet>
+                        <apex:facet name="footer">
+                            <apex:outputText id="totalTotalAmount"/>
+                        </apex:facet>
+                    </apex:column>
+                    <apex:column id="theDiscountAmountColumn" headerClass="alignRight" footerClass="alignRight" styleClass="alignRight" width="5%">
+                        <apex:outputText id="discountAmount" value="{!cd.discountAmount}"  rendered="{!!cd.isDiscountAmountEditable}"/>
+                        <apex:inputField id="discountAmountInput" value="{!cd.payments[0].Discount_Amount__c}" onkeyup="AcctSeed.ASModule.recalculateDiscount(this)" onchange="AcctSeed.ASModule.recalculateDiscount(this)" rendered="{!cd.isDiscountAmountEditable}"/>
+                        <apex:facet name="header">{!$Label.AcctSeed__COMMON_DISCOUNT_AMOUNT}</apex:facet>
+                        <apex:facet name="footer">
+                            <apex:outputText id="discountTotalAmount"/>
+                        </apex:facet>
+                    </apex:column>
+                    <apex:column id="theCreditMemoAmountColumn" headerClass="alignRight" footerClass="alignRight" styleClass="alignRight" width="5%">
+                        <apex:outputText id="creditMemoAmount" value="{!cd.creditMemoAmount}" />                   
+                        <apex:facet name="header">{!$Label.AcctSeed__COMMON_CREDIT_MEMO_AMT}</apex:facet>
+                        <apex:facet name="footer">
+                             <apex:outputText id="totalCreditMemoAmount"/>
+                        </apex:facet>
+                    </apex:column>
+                    <apex:column id="theAmountColumn" headerClass="alignRight" footerClass="alignRight" styleClass="alignRight" width="5%">
+                        <apex:outputText id="netAmount" value="{!cd.cashDisbursement.Amount__c}" />
+                        <apex:facet name="header">{!$Label.AcctSeed__COMMON_PAYMENT_AMT}</apex:facet>
+                        <apex:facet name="footer">
+                            <apex:outputText id="netTotalAmount"/>
+                        </apex:facet>
+                    </apex:column>
+                    <apex:column >
+                        <apex:inputField value="{!cd.cashDisbursement.Reference__c}" />
+                        <apex:facet name="header">{!$Label.AcctSeed__COMMON_REFERENCE}</apex:facet>
+                    </apex:column>
+                    <apex:column style="width:5%" rendered="{!isCashFlowStatementEnabled}">
+                        <apex:inputField value="{!cd.cashDisbursement.Cash_Flow_Category__c}"/>
+                        <apex:facet name="header">
+                            <apex:outputText value="{!$ObjectType.Cash_Disbursement__c.Fields.Cash_Flow_Category__c.Label}" />
+                        </apex:facet>
+                    </apex:column>                    
+                    <apex:repeat value="{!fieldSetFields}" var="field">
+                        <apex:column width="5%">
+                            <apex:facet name="header">{!field.label}</apex:facet>
+                            <apex:inputField value="{!cd.cashDisbursement[field.fieldPath]}" required="{!field.dbRequired || field.required}" />
+                        </apex:column>
+                    </apex:repeat>
+                    <apex:column style="width:5%" rendered="{!areAnyPayees1099}">
+                        <apex:selectList multiselect="false"
+                                        size="1"
+                                        value="{!cd.cashDisbursement.Form_Category_Id__c}"
+                                        id="form1099Type"
+                                        rendered="{!cd.is1099Vendor}">
+                            <apex:selectOptions value="{!form1099Types}" /> 
+                            <apex:actionSupport action="{!updateBoxes}" event="onchange" rerender="form1099Box" />
+                        </apex:selectList> 
+                        <apex:facet name="header">{!$Label.AcctSeed__COMMON_FORM_1099_TYPE}</apex:facet>
+                    </apex:column>
+                    <apex:column style="width:5%" rendered="{!areAnyPayees1099}">
+                        <apex:selectList multiselect="false"
+                                        size="1"
+                                        id="form1099Box"
+                                        disabled="{!cd.cashDisbursement.Form_Category_Id__c == ''}"
+                                        value="{!cd.cashDisbursement.Form_1099_Box__c}"
+                                        rendered="{!cd.is1099Vendor}">
+                            <apex:selectOptions value="{!cd.formCategories}" />
+                        </apex:selectList> 
+                        <apex:facet name="header">{!$Label.AcctSeed__COMMON_FORM_1099_BOX}</apex:facet>
+                    </apex:column>
+                </apex:pageBlockTable>
+                <input type="hidden" value="{!wrappedCDs.size}" id="checkTotal" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

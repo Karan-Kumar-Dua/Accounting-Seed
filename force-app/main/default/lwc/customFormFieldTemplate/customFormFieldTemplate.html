@@ -1,0 +1,50 @@
+<template>
+    <template if:true={editMode}>
+        <div class="slds-form-element__control" style="min-height: 32px">
+        <lightning-record-edit-form record-id={recordId}
+                                    object-api-name={recordApiName}
+                                    density="auto"
+                                    onload={handleOnLoad}>
+            <template if:true={showError}>
+                <lightning-messages>
+                </lightning-messages>
+            </template>
+            <lightning-input-field required={required}
+                                   variant={variant}
+                                   field-name={fieldApiName}
+                                   value={customValue}
+                                   onchange={handleChange}>
+            </lightning-input-field>
+            <lightning-spinner variant="brand" alternative-text={labels.commonLoadingText} size="small" class="transparent-background"></lightning-spinner>
+        </lightning-record-edit-form>
+        </div>
+    </template>
+    <template if:false={editMode}>
+        <div class="slds-form-element__control">
+            <span class="slds-form-element__static slds-grow">
+                <lightning-record-edit-form record-id={recordId}
+                                            object-api-name={recordApiName}
+                                            density="auto"
+                                            onload={handleOnLoad}>
+                    <template if:true={showError}>
+                        <lightning-messages>
+                        </lightning-messages>
+                    </template>
+                    <lightning-output-field variant={variant} field-name={fieldApiName} onclick={handleEdit}>
+                    </lightning-output-field>
+                    <lightning-spinner variant="brand" alternative-text={labels.commonLoadingText} size="small" class="transparent-background"></lightning-spinner>
+                </lightning-record-edit-form>
+            </span>
+            <template if:true={isEditable}>
+                <button class="slds-button slds-button_icon slds-button_icon-x-small slds-m-right_x-small"
+                        aria-hidden="true"
+                        tabindex="-1"
+                        title={labels.commonEdit}
+                        onclick={handleEdit}>
+                    <lightning-icon icon-name="utility:edit" size="xx-small" alternative-text={labels.INF_SMALL_EDIT}> </lightning-icon>
+                    <span class="slds-assistive-text">{labels.commonEdit}</span>
+                </button>
+            </template>
+        </div>
+    </template>
+</template>

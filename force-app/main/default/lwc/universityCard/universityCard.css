@@ -1,0 +1,29 @@
+.universityCard {
+    background: rgb(57, 163, 216);
+    background: linear-gradient(
+        130deg,
+        rgba(57, 163, 216, 1) 0%,
+        rgba(21, 103, 202, 1) 100%
+    );
+    border-radius: 15px;
+    line-height: 2rem;
+    width: 360px;
+}
+
+.universityCard--wrapper {
+    padding-top: 40px;
+}
+
+.universityCard--title {
+    color: #ffffff;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.universityCard--button {
+    --sds-c-button-text-color: #0f7ac9;
+    border-radius: 8px;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-weight: normal;
+}

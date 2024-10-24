@@ -1,0 +1,9 @@
+:host {
+    display: table-row;
+}
+.zeroWidth{
+    width: 0px;
+}
+.rightBorder{
+    border-right: 2px solid lightgray;
+}

@@ -1,0 +1,11 @@
+<template>
+    <div id={tabId} class={tabItemClasses} data-id="menuBodyItemDiv" role="tabpanel" aria-labelledby={tabAriaLabelledby} onmouseenter={mouseenterHandler} onmouseleave={mouseleaveHandler}>
+        <template for:each={menuItem.items} for:item="item">
+            <c-navigation-menu-group-items
+                    key={item.label}
+                    items-group={item}
+            >
+            </c-navigation-menu-group-items>
+        </template>
+    </div>
+</template>

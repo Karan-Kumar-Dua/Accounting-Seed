@@ -1,0 +1,40 @@
+<template>
+    <div class="lastPeriodClosed">
+        <div
+            class="lastPeriodClosed--title"
+            onmouseover={handleOnMouseover}
+            onmouseout={handleOnMouseout}
+        >
+            {labels.commonLastPeriodClosed}
+        </div>
+        <section
+            if:true={showPopover}
+            aria-label={labels.COMMON_WARNING}
+            aria-describedby="lastPeriodClosed--popover"
+            class="
+                slds-popover
+                slds-nubbin_top
+                slds-popover_walkthrough
+                lastPeriodClosed--popover
+            "
+            role="dialog"
+        >
+            <div id="lastPeriodClosed--popover" class="slds-popover__body">
+                <p>
+                    {labels.INF_LAST_CLOSED_PERIOD_DATE_30_MORE_THAN_TODAY}
+                </p>
+            </div>
+        </section>
+        <template if:true={hasLastPeriod}>
+            <div class="lastPeriodClosed--period">
+                <lightning-icon
+                    data-id="lightningIcon-lastPeriodClosedIcon"
+                    icon-name={iconName}
+                    variant={iconVariant}
+                    class="slds-var-m-right_small"
+                ></lightning-icon>
+                <span data-id="lastPeriodClosed" class={textClass}>{lastPeriodClosed.data.period}</span>
+            </div>
+        </template>
+    </div>
+</template>

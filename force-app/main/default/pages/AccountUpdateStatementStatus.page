@@ -1,0 +1,18 @@
+<apex:page standardController="Account" title="{!$Label.AcctSeed__COMMON_UPDATE + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="AccountUpdateStatementStatusCntrlExt" recordSetVar="accounts">
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Account.labelPlural}" subtitle="{!$Label.AcctSeed__COMMON_UPDATE_STMT_STATUS}"/>
+        <apex:pageBlock title="{!$Label.AcctSeed__COMMON_BATCH + $Label.AcctSeed__COMMON_UPDATE}">
+            <apex:pageMessage summary="{!$Label.AcctSeed__INF_UPDATE_STATEMENT_YES_POST_BAL_GREATER_ZERO}"
+                              severity="info"
+                              strength="3"
+                              rendered="{!!isSuccess}"/>
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!runAction}"
+                                    value="{!$Label.AcctSeed__COMMON_RUN}"
+                                    rendered="{!!isSuccess}"/>
+                <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

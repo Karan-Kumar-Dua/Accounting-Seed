@@ -1,0 +1,12 @@
+.calcTax--tableHeader th {
+  background-color: #172b50;
+  color: #ffffff;
+  font-weight: normal;
+}
+
+.content-left {
+  justify-content: left;
+}
+.estimated-total-holder {
+  text-align: right;
+}

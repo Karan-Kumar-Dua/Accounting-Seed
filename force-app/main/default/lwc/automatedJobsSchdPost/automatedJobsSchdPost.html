@@ -1,0 +1,55 @@
+<template>
+    <div class="slds-border_top"></div>
+
+    <template if:true={isTimeSlotsNotAvailable}>
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning">
+            <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+            <h2 class="slds-p-left_x-small">
+                {labels.automatedJobsNotImeSlotsAvailable}
+            </h2>
+        </div>
+    </template>
+
+    <div class="slds-is-relative">
+        <lightning-datatable
+                data={schdTypes}
+                columns={columns}
+                key-field="name"
+                onrowselection={handleRowSelection}
+                selected-rows={selectedSchdTypes}
+                show-row-number-column="true">
+        </lightning-datatable>
+        <template if:true={isAddSchdJobsState}>
+            <lightning-layout class="slds-var-p-around_medium">
+                <lightning-layout-item size="4" class="slds-var-p-left_xx-large">
+                    <lightning-combobox
+                            label={labels.commonPreferredStartTime}
+                            options={startTimes}
+                            data-id="lightningCombobox-startTime"
+                            value={jobToScheduleTime}
+                            disabled={userCannotEdit}
+                            dropdown-alignment="auto"
+                            onchange={handleScheduleJobTimeUpdate}
+                    ></lightning-combobox>
+                </lightning-layout-item>
+            </lightning-layout>
+        </template>
+    </div>
+
+    <footer class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+        <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-center">
+            <lightning-button
+                    variant="neutral"
+                    label={labels.commonCancel}
+                    onclick={cancel}>
+            </lightning-button>
+            <lightning-button
+                    variant="brand"
+                    label={currentState.buttonLabel}
+                    disabled={isTimeSlotsNotAvailable}
+                    onclick={processJob}
+                    class="slds-m-left_small">
+            </lightning-button>
+        </div>
+    </footer>
+</template>

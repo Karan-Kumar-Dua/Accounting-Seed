@@ -1,0 +1,18 @@
+<template>
+    <div class="slds-p-around_xx-small">
+        <div class={formElementStyle}>
+            <template if:true={showLabel}>
+                <label class="slds-form-element__label">
+                    <template if:true={required}>
+                        <abbr data-jest="required" title={labels.commonRequired} class="slds-required">*</abbr>
+                    </template>
+                    {label}
+                </label>
+                <slot name="help-text"></slot>
+            </template>
+            <div class="slds-form-element__control">
+                <slot></slot>
+            </div>
+        </div>
+    </div>
+</template>

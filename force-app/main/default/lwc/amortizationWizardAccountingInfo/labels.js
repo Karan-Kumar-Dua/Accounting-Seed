@@ -1,0 +1,5 @@
+import INF_SEARCH_PROJECT_TASKS from '@salesforce/label/c.INF_SEARCH_PROJECT_TASKS';
+
+export default {
+    INF_SEARCH_PROJECT_TASKS: INF_SEARCH_PROJECT_TASKS
+}

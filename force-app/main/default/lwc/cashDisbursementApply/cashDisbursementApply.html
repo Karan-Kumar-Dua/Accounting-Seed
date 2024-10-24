@@ -1,0 +1,118 @@
+<template>
+    <c-modal-popup 
+        popup-title={labels.INF_FILTER_PAYABLES}
+        popup-subtitle={labels.commonUnsavedChanges}
+        popup-body={labels.commonUnsavedChangesDiscardContinue}
+        action-button-text={labels.commonYes}
+        cancel-button-text={labels.commonNo}
+        onmodalactionclick={popupSaveEvent}
+        onmodalcancelclick={popupCancelEvent}            
+        open-modal={showPopup}>
+    </c-modal-popup>
+    <template if:true={isSpinner}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoadingText} size="medium"></lightning-spinner>
+    </template>
+    <template if:false={isError}>  
+        <lightning-card> 
+            <div slot="title">
+                <c-card-title-stacked
+                    icon-name="custom:custom41"
+                    label={labels.commonCashDisbursement}
+                    value={name}>
+                </c-card-title-stacked>
+            </div>
+                <div slot="actions">
+                    <lightning-button-group>
+                        <lightning-button class="btn-search" label={labels.INF_FILTER_PAYABLES} onclick={handleSearchPayables}></lightning-button>
+                        <lightning-button class="btn-save-complete" label={labels.commonSaveAndComplete} onclick={handleSaveComplete}></lightning-button>
+                        <lightning-button class="btn-save-refresh" label={labels.commonSaveAndRefresh} onclick={handleSaveRefresh}></lightning-button>
+                        <lightning-button class="btn-cancel" label={labels.commonBack} onclick={handleCancel}></lightning-button>
+                    </lightning-button-group>
+                </div>
+                <template if:true={error}>
+                    <div class="slds-m-left_x-small">
+                        <c-inline-error-message class="errMsg" errors={error}></c-inline-error-message>  
+                    </div>                                  
+                </template>
+                <lightning-layout multiple-rows>
+                    <template for:each={displayData} for:item="column">
+                        <lightning-layout-item size="2" flexibility="auto, no-grow" key={column.name} padding="horizontal-small">
+                            <div class="slds-p-around_small">
+                                <template for:each={column.columns} for:item="item">
+                                    <template if:true={item.url}>
+                                        <c-formatted-cmp-label key={item.value} label={item.label}>
+                                            <lightning-formatted-url label={item.value} value={item.link}></lightning-formatted-url>
+                                        </c-formatted-cmp-label>
+                                    </template>
+                                    <template if:true={item.date}>
+                                        <c-formatted-cmp-label key={item.value} label={item.label}>
+                                            <lightning-formatted-date-time value={item.value} year="numeric" month="2-digit" day="2-digit" time-zone="UTC"></lightning-formatted-date-time>
+                                        </c-formatted-cmp-label> 
+                                    </template>
+                                    <template if:true={item.text}>
+                                        <c-formatted-cmp-label key={item.value} label={item.label}>
+                                            {item.value}
+                                        </c-formatted-cmp-label>
+                                    </template>
+                                </template>                            
+                            </div>
+                        </lightning-layout-item>
+                    </template>
+                    <lightning-layout-item size="2" flexibility="auto, no-grow" padding="horizontal-small">    
+                        <div class="slds-p-around_small">
+                            <c-applied-amount-calculator
+                                total={amount}
+                                applied={applied}
+                                currency-code={currencyCode}
+                                is-multi-currency-enabled={isMultiCurrencyEnabled}>
+                            </c-applied-amount-calculator> 
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="6" flexibility="auto" padding="horizontal-small">
+                        <c-payables-filter 
+                            payable-number={payableNumber} 
+                            payee-reference={payeeReference} 
+                            posting-status={postingStatus}
+                            issue-date-start={payableDateStart}
+                            issue-date-end={payableDateEnd}
+                            due-date-start={dueDateStart}
+                            due-date-end={dueDateEnd}
+                            payable-amount-start={payableAmountStart}
+                            payable-amount-end={payableAmountEnd}
+                            onvaluechange={filterChanged}                            
+                        ></c-payables-filter>
+                    </lightning-layout-item>
+                </lightning-layout> 
+        </lightning-card>        
+        
+        <div class="slds-p-top_medium payables-card">
+            <lightning-card title={payableSectionTitle}>
+                <c-applicable-items
+                    class="payablesGrid"
+                    items={payables}
+                    columns={columns}
+                    object-name="Payable"
+                    key-field={keyField}
+                    max-records-displayed={maxPayablesDisplayed}
+                    sorted-by={sortOpts.sortedBy}
+                    sorted-direction={sortOpts.sortedDirection}
+                    onrowaction={handleRowAction}
+                    oncellchange={handleCellChange}
+                    onsort={handleSort}>
+                </c-applicable-items>
+            </lightning-card>
+        </div>
+    </template>
+    <template if:true={isError}> 
+            <lightning-card title="">
+                <div slot="actions">
+                    <lightning-button-group>
+                        <lightning-button class="btn-cancel" label={labels.commonBack} onclick={handleCancel}></lightning-button>
+                    </lightning-button-group>
+                </div>
+                <div class="slds-p-around_medium">
+                    <c-inline-error-message errors={error}></c-inline-error-message>                    
+                </div>
+            </lightning-card>
+    </template>    
+</template>

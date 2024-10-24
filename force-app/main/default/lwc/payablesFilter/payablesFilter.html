@@ -1,0 +1,144 @@
+<template>
+    <lightning-layout multiple-rows>
+        <lightning-layout-item size="5" padding="around-small">
+            <lightning-layout>
+                <lightning-layout-item size="5" flexibility="auto" padding="around-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.commonPayableNumber}</div>
+                    </label>                
+                </lightning-layout-item>
+                <lightning-layout-item size="7" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        type="text" 
+                        variant="label-hidden" 
+                        onchange={handlePayableNumberChange} 
+                        label={labels.commonPayableNumber} 
+                        value={payableNumber}
+                        class="payableNumber"></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout>
+                <lightning-layout-item size="5" flexibility="auto" padding="around-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.COMMON_PAYEE_REFERENCE}</div>
+                    </label>                
+                </lightning-layout-item>
+                <lightning-layout-item size="7" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        type="text" 
+                        variant="label-hidden" 
+                        onchange={handlePayeeReferenceChange} 
+                        label={labels.COMMON_PAYEE_REFERENCE} 
+                        value={payeeReference}
+                        class="payeeReference"></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout>
+                <lightning-layout-item size="5" flexibility="auto" padding="around-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.commonPostingStatus}</div>            
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="7" flexibility="auto" padding="around-small">
+                    <lightning-combobox
+                        name="postingStatus"
+                        label={labels.commonPostingStatus}
+                        variant="label-hidden"
+                        value={postingStatus}
+                        options={options}
+                        onchange={handleStatusChange}>
+                    </lightning-combobox>
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-layout-item>
+        <lightning-layout-item size="7" padding="around-small">
+            <lightning-layout> 
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.COMMON_ISSUE_DATE_RANGE}</div>
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        type="date" 
+                        date-style="short"
+                        class="issueDateStart" 
+                        variant="label-hidden" 
+                        label={labels.COMMON_ISSUE_DATE_START} 
+                        placeholder={labels.commonFrom}
+                        value={issueDateStart}
+                        onchange={handleIssueDateStartChange}></lightning-input>                  
+                </lightning-layout-item>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        type="date" 
+                        date-style="short"
+                        class="issueDateEnd" 
+                        variant="label-hidden" 
+                        placeholder={labels.commonToDot}
+                        label={labels.COMMON_ISSUE_DATE_END}                         
+                        value={issueDateEnd}
+                        onchange={handleIssueDateEndChange}></lightning-input>                  
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout> 
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.commonDueDateRange}</div>
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        type="date" 
+                        date-style="short"
+                        class="dueDateStart" 
+                        variant="label-hidden" 
+                        label={labels.commonDueDateStart}
+                        placeholder={labels.commonFrom} 
+                        value={dueDateStart}
+                        onchange={handleDueDateStartChange}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        type="date" 
+                        date-style="short"
+                        class="dueDateEnd" 
+                        variant="label-hidden" 
+                        placeholder={labels.commonToDot}
+                        label={labels.commonDueDateEnd} 
+                        value={dueDateEnd}
+                        onchange={handleDueDateEndChange}></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout> 
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.COMMON_PAYABLE_AMOUNT}</div>
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        class="payableAmountStart"
+                        type="number"
+                        value={payableAmountStart}
+                        variant="label-hidden" 
+                        step="0.01"
+                        min="1"
+                        onchange={handlePayableAmountStartChange}>
+                    </lightning-input>                    
+                </lightning-layout-item>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        class="payableAmountEnd"
+                        type="number"
+                        value={payableAmountEnd}
+                        variant="label-hidden" 
+                        step="0.01"
+                        min="1"                        
+                        onchange={handlePayableAmountEndChange}>
+                    </lightning-input>                    
+                </lightning-layout-item>
+            </lightning-layout>        
+        </lightning-layout-item>
+    </lightning-layout>
+</template>

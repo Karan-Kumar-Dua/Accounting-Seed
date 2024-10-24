@@ -1,0 +1,146 @@
+<template>
+    <lightning-layout multiple-rows>
+        <lightning-layout-item size="5" padding="around-small">
+            <lightning-layout>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.customer}</div>
+                    </label>                    
+                </lightning-layout-item>
+                <lightning-layout-item size="8" flexibility="auto" padding="around-small">
+                    <c-custom-lookup-cell
+                        value={customer}
+                        errors={errors}
+                        selected-icon="custom:custom3"
+                        selected-name={customerName}                        
+                        search-object="Account"                                        
+                        hide-selection-icon=true
+                        oncellchange={handleCustomerChange}>
+                    </c-custom-lookup-cell>                    
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.commonBillingNo}</div>
+                    </label>                
+                </lightning-layout-item>
+                <lightning-layout-item size="8" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        type="text" 
+                        variant="label-hidden" 
+                        onchange={handleBillingNumberChange} 
+                        label={labels.commonBillingNo} 
+                        value={billingNumber}
+                        class="billingNumber"></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.commonPostingStatus}</div>            
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="8" flexibility="auto" padding="around-small">
+                    <lightning-combobox
+                        name="postingStatus"
+                        label={labels.commonPostingStatus}
+                        variant="label-hidden"
+                        value={postingStatus}
+                        options={options}
+                        onchange={handleStatusChange}>
+                    </lightning-combobox>
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-layout-item>
+        <lightning-layout-item size="7" padding="around-small">
+            <lightning-layout> 
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.INF_BILLING_DATE_RANGE}</div>
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        type="date" 
+                        date-style="short"
+                        class="billingDateStart" 
+                        variant="label-hidden" 
+                        label={labels.INF_BILLING_DATE_START} 
+                        placeholder={labels.commonFrom}
+                        value={billingDateStart}
+                        onchange={handleBillingDateStartChange}></lightning-input>                  
+                </lightning-layout-item>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        type="date" 
+                        date-style="short"
+                        class="billingDateEnd" 
+                        variant="label-hidden" 
+                        placeholder={labels.commonToDot}
+                        label={labels.INF_BILLING_DATE_END}                         
+                        value={billingDateEnd}
+                        onchange={handleBillingDateEndChange}></lightning-input>                  
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout> 
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.commonDueDateRange}</div>
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        type="date" 
+                        date-style="short"
+                        class="dueDateStart" 
+                        variant="label-hidden" 
+                        label={labels.commonDueDateStart}
+                        placeholder={labels.commonFrom}
+                        value={dueDateStart}
+                        onchange={handleDueDateStartChange}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        type="date" 
+                        date-style="short"
+                        class="dueDateEnd" 
+                        variant="label-hidden" 
+                        placeholder={labels.commonToDot}
+                        label={labels.commonDueDateEnd} 
+                        value={dueDateEnd}
+                        onchange={handleDueDateEndChange}></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout> 
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.commonBillingAmount}</div>
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        class="billingAmountStart"
+                        type="number"
+                        value={billingAmountStart}
+                        variant="label-hidden" 
+                        step="0.01"
+                        min="1"
+                        onchange={handleBillingAmountStartChange}>
+                    </lightning-input>                    
+                </lightning-layout-item>
+                <lightning-layout-item size="4" flexibility="auto" padding="around-small">
+                    <lightning-input 
+                        class="billingAmountEnd"
+                        type="number"
+                        value={billingAmountEnd}
+                        variant="label-hidden" 
+                        step="0.01"
+                        min="1"                        
+                        onchange={handleBillingAmountEndChange}>
+                    </lightning-input>                    
+                </lightning-layout-item>
+            </lightning-layout>        
+        </lightning-layout-item>
+    </lightning-layout>
+</template>

@@ -1,0 +1,33 @@
+<template>
+    <template if:true={show}>
+        <section style={sectionCss} role="dialog" tabindex="-1" 
+                aria-labelledby="modal-heading-01" aria-modal="true" 
+                aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <template if:true={isTaglineTitleNull}>
+                    <header class="slds-modal__header">
+                        <button if:false={crossNotVisible} class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title={labels.commonClose} onclick={close}>
+                            <lightning-icon icon-name="utility:close" variant="inverse" size="medium"></lightning-icon>
+                            <span class="slds-assistive-text">{labels.commonClose}</span>
+                        </button>
+                        <template if:true={titleNotNull}>
+                            <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">{title}</h2>
+                        </template>
+                        
+                        <template if:true={taglineNotNull}>
+                            <p class="slds-m-top_large slds-text-align_left slds-m-left_x-large slds-text-color_weak"><b>{tagline}</b></p>
+                        </template>
+                    </header>
+                </template>
+                
+                <div class="slds-modal__content slds-var-p-around_medium">
+                    <slot name="body"></slot>
+                </div>
+                <footer class="slds-modal__footer">
+                    <slot name="footer"></slot>                        
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

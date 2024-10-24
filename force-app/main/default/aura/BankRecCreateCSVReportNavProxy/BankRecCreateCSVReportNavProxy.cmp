@@ -1,0 +1,3 @@
+<aura:component description="BankRecCreateCSVReportNavProxy" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader">
+  <c:bankRecCreatePdfReport recordId="{!v.recordId}" reportType="csv" onclosedialog="{!c.closeQuickAction}"></c:bankRecCreatePdfReport>
+</aura:component>

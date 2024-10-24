@@ -1,0 +1,221 @@
+<template>
+  <c-modal-popup-base
+    data-jest="opportunityCalcTaxModal"
+    data-id="opportunityCalcTaxModal"
+    is-hide-backdrop="true"
+    onclose={closeQuickAction}
+    onconnected={openModal}
+    size={modalSize}>
+
+    <section
+      title={labels.calculateEstimateTax}
+      data-id="addressValidatorModal"
+      onclose={closeQuickAction}
+    >
+      <div class="slds-is-relative">
+        <template if:true={showSpinner}>
+          <lightning-spinner
+            variant="brand"
+            alternative-text={labels.commonSaving}
+            size="medium">
+          </lightning-spinner>
+        </template>
+
+        <lightning-layout vertical-align="start" multiple-rows="true">
+            <lightning-layout-item size="12">
+              <div class="slds-grid slds-page-header">
+                <h2 class="slds-text-heading_medium slds-col slds-var-m-left_large"><strong>{labels.calculateEstimateTax}</strong></h2>
+                  <div class="slds-float_right slds-col slds-var-m-right_large">
+                      <a key={knowledgeBase.iconAltText}
+                          href={knowledgeBase.url}
+                          target="_blank"
+                          class="slds-var-m-left_small slds-float_right">
+                        <lightning-icon
+                            icon-name={knowledgeBase.iconName}
+                            alternative-text={knowledgeBase.iconAltText}>
+                        </lightning-icon>
+                      </a>
+                  </div>
+              </div>
+            </lightning-layout-item>
+
+          <template if:true={headerData}>
+            <div class="slds-size_12-of-12" if:true={isGlobalErrors}>
+              <div class="slds-box slds-theme_error slds-theme_alert-texture">
+                <ul class="slds-var-m-left_large">
+                  <template for:each={error.globalErrors} for:item="item">
+                    <li key={item.message}>
+                      {item.message}
+                    </li>
+                  </template>
+                </ul>
+              </div>
+            </div>
+
+            <template if:true={isLocalErrors}>
+              <div class="slds-m-around_small slds-size_12-of-12 slds-p-right_large">
+                <c-inline-error-message errors={error.localErrors}></c-inline-error-message>
+              </div>
+            </template>
+
+            <div class="slds-size_12-of-12" if:false={isGlobalErrors}>
+
+            <lightning-layout-item size="12" class="slds-var-m-bottom_medium">
+              <lightning-card>
+                <lightning-layout class="slds-var-p-around_medium slds-var-m-bottom_x-large">
+
+                  <lightning-layout-item class="slds-var-p-right_xx-large slds-border_right slds-size_1-of-3" if:true={isHeaderLevelPost}>
+                    <h2 class="slds-text-heading_small slds-var-m-bottom_large">
+                      <strong>{labels.opportunity}</strong>
+                    </h2>
+                    <c-formatted-cmp-label label={labels.opportunity}>
+                      <lightning-formatted-url label={headerData.record.name} value={headerData.record.url}></lightning-formatted-url>
+                    </c-formatted-cmp-label>
+                    <c-formatted-cmp-label label={labels.customer}>
+                      <lightning-formatted-url label={headerData.customer.name} value={headerData.customer.url}></lightning-formatted-url>
+                    </c-formatted-cmp-label>
+                    <c-lookup-a
+                        data-id="lookup-ledger"
+                        label={labels.accountingHomeLedger}
+                        search-object={ledger.objectApiName}
+                        search-filter={ledgerSearchFilter}
+                        init-value={headerData.ledgerId}
+                        required
+                        field-level-help={labels.taxEstimateLedgerHelpText}
+                        messages={ledgerMessages}
+                        class="slds-form-element slds-form-element_stacked slds-var-m-left_xxx-small"
+                        retrieve-fields={ledgerRetrieveFields}
+                        oninitvalueloaded={handleSelectionChange}
+                        onselectionchange={handleSelectionChange}>
+                    </c-lookup-a>
+                    <c-formatted-cmp-label label={labels.taxMethodOnLedger} required>
+                      <lightning-helptext slot="help-text" content={labels.taxMethodLedgerHelpText}></lightning-helptext>
+                      <lightning-formatted-url if:true={taxMethod} label={taxMethod.name} value={taxMethod.url}></lightning-formatted-url>
+                      <div if:true={error.taxMethod} class="slds-text-color_error">{error.taxMethod.message}</div>
+                    </c-formatted-cmp-label>
+                  </lightning-layout-item>
+
+                  <lightning-layout-item class="slds-var-p-right_xx-large slds-size_1-of-3" if:true={isLineLevelPost}>
+                    <h2 class="slds-text-heading_small slds-var-m-bottom_large">
+                      <strong>{labels.opportunity}</strong>
+                    </h2>
+                    <c-formatted-cmp-label label={labels.opportunity}>
+                      <lightning-formatted-url label={headerData.record.name} value={headerData.record.url}></lightning-formatted-url>
+                    </c-formatted-cmp-label>
+                    <c-formatted-cmp-label label={labels.customer}>
+                      <lightning-formatted-url label={headerData.customer.name} value={headerData.customer.url}></lightning-formatted-url>
+                    </c-formatted-cmp-label>
+                  </lightning-layout-item>
+                  <lightning-layout-item class="slds-var-p-right_xx-large slds-var-m-top_xx-large slds-size_1-of-3" if:true={isLineLevelPost}>
+                    <c-lookup-a
+                        data-id="lookup-ledger"
+                        label={labels.accountingHomeLedger}
+                        search-object={ledger.objectApiName}
+                        init-value={headerData.ledgerId}
+                        messages={ledgerMessages}
+                        required
+                        field-level-help={labels.taxEstimateLedgerHelpText}
+                        class="slds-form-element slds-form-element_stacked slds-var-m-left_xxx-small"
+                        retrieve-fields={ledgerRetrieveFields}
+                        oninitvalueloaded={handleSelectionChange}
+                        onselectionchange={handleSelectionChange}>
+                    </c-lookup-a>
+
+                    <c-formatted-cmp-label label={labels.taxMethodOnLedger} required>
+                      <lightning-helptext slot="help-text" content={labels.taxMethodLedgerHelpText}></lightning-helptext>
+                      <lightning-formatted-url if:true={taxMethod} label={taxMethod.name} value={taxMethod.url}></lightning-formatted-url>
+                      <div if:true={error.taxMethod} class="slds-text-color_error">{error.taxMethod.message}</div>
+                    </c-formatted-cmp-label>
+                  </lightning-layout-item>
+
+                  <lightning-layout-item class="slds-var-p-right_xx-large slds-var-p-left_xx-large slds-var-m-top_xx-large slds-size_1-of-3" if:true={isHeaderLevelPost}>
+                    <lightning-layout horizontal-align="center" multiple-rows>
+                      <lightning-layout-item size="6" flexibility="auto, no-grow" padding="horizontal-small">
+                        <div class="slds-form-element__label">{labels.subtotal}</div>
+                      </lightning-layout-item>
+                      <lightning-layout-item size="6" flexibility="auto, no-grow" padding="horizontal-small" class="slds-text-align_right">
+                        <c-formatted-currency currency-value={headerSubtotal}
+                                              currency-iso-code={currencyCode}
+                                              is-multi-currency-organization={isMultiCurrencyEnabled}>
+                        </c-formatted-currency>
+                      </lightning-layout-item>
+                      <lightning-layout-item size="6" flexibility="auto, no-grow" padding="around-small">
+                        <div class="slds-form-element__label">{labels.estimatedTaxAmount}</div>
+                      </lightning-layout-item>
+                      <lightning-layout-item size="6" flexibility="auto, no-grow" padding="around-small" class="slds-text-align_right">
+                        <c-formatted-currency currency-value={headerEstimatedTaxAmount}
+                                              currency-iso-code={currencyCode}
+                                              is-multi-currency-organization={isMultiCurrencyEnabled}>
+                        </c-formatted-currency>
+                      </lightning-layout-item>
+                      <lightning-layout-item size="6" flexibility="auto, no-grow" padding="horizontal-small">
+                        <div class="slds-form-element__label">{labels.estimatedTotal}</div>
+                      </lightning-layout-item>
+                      <lightning-layout-item size="6" flexibility="auto, no-grow" padding="horizontal-small" class="slds-text-align_right">
+                        <c-formatted-currency currency-value={headerEstimatedTotal}
+                                              currency-iso-code={currencyCode}
+                                              is-multi-currency-organization={isMultiCurrencyEnabled}>
+                        </c-formatted-currency>
+                      </lightning-layout-item>
+                    </lightning-layout>
+                  </lightning-layout-item>
+                </lightning-layout>
+
+                <template if:true={isLines4Display}>
+                  <template if:true={isHeaderLevelPost}>
+                    <c-opportunity-calc-tax-hlp-table is-avalara-tax={isAvalaraTax}
+                                                      items={data}
+                                                      is-multi-currency-enabled={isMultiCurrencyEnabled}
+                                                      currency-code={currencyCode}
+                                                      ontaxgroupchange={handleTaxGroupChange}>
+
+                    </c-opportunity-calc-tax-hlp-table>
+                  </template>
+
+                  <template if:false={isHeaderLevelPost}>
+                    <c-opportunity-calc-tax-llp-table is-avalara-tax={isAvalaraTax}
+                                                      record-id={recordId}
+                                                      items={data}
+                                                      is-multi-currency-enabled={isMultiCurrencyEnabled}
+                                                      currency-code={currencyCode}>
+
+                    </c-opportunity-calc-tax-llp-table>
+                  </template>
+                </template>
+
+                <template if:false={isLines4Display}>
+                  <div class="slds-box slds-theme_shade slds-theme_alert-texture">
+                    <p>{labels.INF_NO_LINES_TO_DISPLAY}</p>
+                  </div>
+                </template>
+
+              </lightning-card>
+            </lightning-layout-item>
+           </div>
+          </template>
+          </lightning-layout>
+
+          <footer class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+            <div class="slds-float_right">
+              <lightning-button
+                data-id="CancelButton"
+                variant="neutral"
+                label={labels.commonCancel}
+                disabled={showSpinner}
+                onclick={closeQuickAction}>
+              </lightning-button>
+              <lightning-button
+                variant="brand"
+                disabled={isCalcTaxBlocked}
+                label={labels.calculateTax}
+                class="slds-m-left_small"
+                onclick={calculateTax}>
+              </lightning-button>
+            </div>
+          </footer>
+        </div>
+      </section>
+
+  </c-modal-popup-base>
+
+</template>

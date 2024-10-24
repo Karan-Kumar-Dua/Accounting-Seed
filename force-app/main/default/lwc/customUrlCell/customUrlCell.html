@@ -1,0 +1,8 @@
+<template>
+  <template if:true={showLink}>
+    <lightning-formatted-url label={recordName} value={recordLink} target="_blank"></lightning-formatted-url>
+  </template>
+  <template if:false={showLink}>
+    <lightning-formatted-text value={recordName}></lightning-formatted-text>
+  </template>
+</template>

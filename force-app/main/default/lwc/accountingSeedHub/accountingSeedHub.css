@@ -1,0 +1,10 @@
+.divider {
+    margin-left: auto;
+}
+
+.section-holder { 
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(221, 219, 218);
+    border-radius: 0.25rem;
+}

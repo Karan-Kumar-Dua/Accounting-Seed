@@ -1,0 +1,23 @@
+<template>
+    <div class="slds-tabs_default slds-scrollable_x">
+        <ul class="slds-tabs_default__nav" role="tablist">
+            <template for:each={menuItems} for:item="menuItem">
+                <c-navigation-menu-header-item
+                        data-id={menuItem.label}
+                        key={menuItem.label}
+                        menu-item={menuItem}
+                        onshowmenuitembody={showMenuItemBodyHandler}
+                        onhidemenuitembody={hideMenuItemBodyHandler}
+                ></c-navigation-menu-header-item>
+            </template>
+        </ul>
+        <template for:each={menuItems} for:item="menuItem">
+            <c-navigation-menu-body-item
+                    data-id={menuItem.label}
+                    key={menuItem.label}
+                    menu-item={menuItem}
+                    onunselectmenuitemheader={unselectMenuItemHeaderHandler}
+            ></c-navigation-menu-body-item>
+        </template>
+    </div>
+</template>

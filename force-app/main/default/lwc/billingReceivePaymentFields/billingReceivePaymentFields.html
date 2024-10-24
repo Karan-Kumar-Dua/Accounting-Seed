@@ -1,0 +1,279 @@
+<template>
+    <lightning-card>
+        <div class="slds-p-left_xx-large slds-p-right_xx-large slds-p-bottom_large headingStyle">{labels.paymentInfo}</div>
+        <div class="slds-grid">
+            <div class="slds-p-left_xx-large slds-p-right_xx-large fixWidth">
+                <abbr title={labels.commonRequired} class="slds-required">*</abbr>
+                <label>{labels.paymentType}</label>
+                <lightning-helptext class="inlineFlex" content={labels.payTypeHelp}></lightning-helptext>
+                <lightning-combobox 
+                    value={paymentInfo.selectedPaymentType}
+                    variant="label-hidden"
+                    options={paymentTypes} 
+                    onchange={handleValueChange}
+                    required="true"
+                    data-id="payment-type">
+                </lightning-combobox>
+            </div>
+            <template if:true={isElectronic}>
+                <div class="slds-p-left_xx-large slds-p-right_xx-large fixWidth" if:true={paymentInfo.paymentDetails}>
+                    <label>{labels.paymentProcessor}</label>
+                    <lightning-helptext class="inlineFlex" content={labels.payProcHelp}></lightning-helptext>
+                    <lightning-combobox 
+                        value={paymentInfo.paymentDetails.selectedPPId}
+                        variant="label-hidden"
+                        options={paymentInfo.paymentDetails.paymentProcessors} 
+                        onchange={handleValueChange}
+                        data-id="payment-processor">
+                    </lightning-combobox>
+                </div>
+                <div class="slds-p-left_xx-large slds-p-right_xx-large fixWidth" if:true={paymentInfo.paymentDetails}>
+                    <abbr title={labels.commonRequired} class="slds-required">*</abbr>
+                    <label>{labels.paymentMethod}</label>
+                    <lightning-helptext class="inlineFlex" content={labels.payMethodHelp}></lightning-helptext>
+                    <lightning-combobox 
+                        value={paymentInfo.paymentDetails.selectedPMId} 
+                        variant="label-hidden"
+                        options={availablePaymentMethods} 
+                        onchange={handleValueChange}
+                        required="true"
+                        data-id="payment-methods">
+                    </lightning-combobox>
+                </div>
+            </template> 
+            <template if:false={isElectronic}>
+                <div class="slds-p-left_xx-large slds-p-right_xx-large fixWidth">
+                    <abbr title={labels.commonRequired} class="slds-required">*</abbr>
+                    <label>{labels.date}</label>
+                    <lightning-input
+                            type="date"
+                            value={wrappedBilling.crReceiptDate}
+                            variant="label-hidden"
+                            onchange={handleValueChange}
+                            required="true"
+                            data-id="payment-date">
+                    </lightning-input>
+                </div>
+                <div class="slds-p-left_xx-large slds-p-right_xx-large fixWidth">
+                    <abbr title={labels.commonRequired} class="slds-required">*</abbr>
+                    <label>{labels.paymentReference}</label>
+                    <lightning-input
+                            type="text"
+                            value={wrappedBilling.crReference}
+                            variant="label-hidden"
+                            onchange={handleValueChange}
+                            required="true"
+                            data-id="payment-reference">
+                    </lightning-input>
+                </div>
+            </template>
+            <div class="slds-p-left_xx-large slds-p-right_xx-large fixWidth">
+                <label>{labels.ledger}</label>
+                <div>
+                    <c-record-popover
+                            record-id={wrappedBilling.billLedgerName}
+                            object-api-name={ledgerObject}
+                            fields={ledgerFields}
+                    ></c-record-popover>
+                </div>
+            </div>
+            <template if:true={wrappedBilling.isMultiCurrencyEnabled}>
+                <div class="slds-p-left_xx-large fixWidth">
+                    <label>{labels.currency}</label>
+                    <div>
+                        <lightning-formatted-text value={wrappedBilling.billCurrencyIsoCode}></lightning-formatted-text>
+                    </div>
+                </div>
+            </template>
+        </div>
+        <div class="slds-p-left_xx-large slds-p-right_xx-large"><hr></div>
+        <div class="slds-grid slds-p-top_small">
+            <div class="slds-p-left_xx-large slds-p-right_xx-large extendedWidth">
+                <label>{subTotalField}</label>
+                <lightning-helptext class="inlineFlex" content={subTotalHelpText}></lightning-helptext>
+                <div>
+                    <c-x-custom-currency-cell 
+                        currency-code={wrappedBilling.billCurrencyIsoCode}
+                        edit-mode={editMode} value={wrappedBilling.billSubTotal}
+                        is-multi-currency-enabled={wrappedBilling.isMultiCurrencyEnabled}>
+                    </c-x-custom-currency-cell>
+                </div>
+            </div>
+            <template lwc:if={isCardknoxProcessorSelected}>
+                <div class="slds-p-left_xx-large fixWidth">
+                    <label>{labels.bankAccount}</label>
+                    <div>
+                        <c-record-popover
+                                record-id={merchantGlAccount}
+                                object-api-name={glAccountObject}
+                                fields={glAccountFields}
+                        ></c-record-popover>
+                    </div>
+                    <lightning-formatted-url label={merchantGlAccountName} value={merchantGlAccountUrl} target="_blank"></lightning-formatted-url>
+                    <p class="slds-m-top_medium">{labels.infoCardxknoPaymentBankGlReadOnly}</p>
+                </div>
+            </template>
+            <template lwc:else>
+                <div class="slds-p-left_xx-large fixWidth">
+                    <abbr title={labels.commonRequired} class="slds-required">*</abbr>
+                    <label>{labels.bankAccount}</label>
+                    <lightning-combobox 
+                            value={wrappedBilling.crBankAccount} 
+                            variant="label-hidden"
+                            options={bankAccounts} 
+                            onchange={handleValueChange}
+                            data-id="bank-account">
+                    </lightning-combobox>
+                </div>
+            </template>
+        </div>
+        <div class="slds-grid slds-p-top_small">
+            <div class="slds-p-left_xx-large slds-p-right_xx-large extendedWidth">
+                <label>{salesTax2Field}</label>
+                <lightning-helptext class="inlineFlex" content={salesTaxHelpText}></lightning-helptext>
+                <div>
+                    <c-x-custom-currency-cell 
+                        currency-code={wrappedBilling.billCurrencyIsoCode}
+                        edit-mode={editMode} value={wrappedBilling.billSalesTax}
+                        is-multi-currency-enabled={wrappedBilling.isMultiCurrencyEnabled}>
+                    </c-x-custom-currency-cell>
+                </div>
+            </div>
+            <div class="slds-p-left_xx-large fixWidth">
+                <abbr if:true={isAdjustmentGLAccountRequired} title="required" class="slds-required">*</abbr>
+                <label>{labels.adjustmentGl}</label>
+                <c-lookup-a
+                    init-value={wrappedBilling.billCrAdjustmentGlAccount}
+                    search-object={wrappedBilling.billCrObjectName}
+                    onselectionchange={handleValueChange}
+                    data-id="adjustment-gl-account"
+                    required={isAdjustmentGLAccountRequired}>
+                </c-lookup-a>
+            </div>
+        </div>
+        <div class="slds-grid slds-p-top_small">
+            <div class="slds-p-left_xx-large slds-p-right_xx-large extendedWidth">
+                <label>{labels.billingTotal}</label>
+                <div>
+                    <c-x-custom-currency-cell
+                        currency-code={wrappedBilling.billCurrencyIsoCode}
+                        edit-mode={editMode} value={wrappedBilling.billBillingTotal}
+                        is-multi-currency-enabled={wrappedBilling.isMultiCurrencyEnabled}>
+                    </c-x-custom-currency-cell>
+                </div>
+            </div>
+            <div class="slds-p-left_xx-large fixWidth">
+                <label>{labels.discountDueDate}</label>
+                <lightning-helptext class="inlineFlex" content={labels.discountDueDateHelp}></lightning-helptext>
+                <div>
+                    <lightning-formatted-date-time value={wrappedBilling.billDiscountDueDate} year="numeric" month="numeric" day="numeric" time-zone="UTC"></lightning-formatted-date-time>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid">
+            <div class="slds-p-top_large slds-p-left_xx-large slds-p-right_xx-large extendedWidth">
+                <label>{labels.earlyPayment}</label>
+                <lightning-helptext class="inlineFlex" content={labels.earlyPayDiscountHelp}></lightning-helptext>
+                <div>
+                    <c-x-custom-currency-cell
+                        currency-code={wrappedBilling.billCurrencyIsoCode}
+                        edit-mode={editMode} value={wrappedBilling.billCrEarlyDiscount}
+                        is-multi-currency-enabled={wrappedBilling.isMultiCurrencyEnabled}>
+                    </c-x-custom-currency-cell>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid">
+            <div class="slds-p-top_large slds-p-left_xx-large slds-p-right_xx-large extendedWidth">
+                <label>{labels.discountAmount}</label>
+                <lightning-helptext class="inlineFlex" content={labels.discountAmountHelp}></lightning-helptext>
+                <lightning-input 
+                    type="number" variant="label-hidden" 
+                    value={wrappedBilling.billCrAdjustment} step="0.01"
+                    onchange={handleValueChange}
+                    data-id="discount-amount">
+                </lightning-input>
+            </div>
+        </div>
+        <div class="slds-p-top_large slds-p-left_xx-large slds-p-right_xx-large extendedWidth">
+            <label>{labels.receivedAmount}</label>
+            <div>
+                <c-x-custom-currency-cell 
+                    currency-code={wrappedBilling.billCurrencyIsoCode} 
+                    edit-mode={editMode} value={wrappedBilling.billTotalReceivedAmount} 
+                    is-multi-currency-enabled={wrappedBilling.isMultiCurrencyEnabled}>
+                </c-x-custom-currency-cell>
+            </div>
+        </div>
+        <div class="slds-p-top_large slds-p-left_xx-large slds-p-right_xx-large extendedWidth">
+            <label>{labels.balanceOwe}</label>
+            <lightning-helptext class="inlineFlex" content={labels.balanceOwedHelp}></lightning-helptext>
+            <div>
+                <c-x-custom-currency-cell 
+                    currency-code={wrappedBilling.billCurrencyIsoCode} 
+                    edit-mode={editMode} value={wrappedBilling.billTotalBalance} 
+                    is-multi-currency-enabled={wrappedBilling.isMultiCurrencyEnabled}>
+                </c-x-custom-currency-cell>
+            </div>
+        </div>
+        <div class="slds-p-top_large slds-p-left_xx-large slds-p-right_xx-large extendedWidth">
+            <abbr title={labels.commonRequired} class="slds-required">*</abbr>
+            <label class="fontAmount">{labels.commonAmount}</label>
+            <lightning-helptext class="inlineFlex" content={labels.amountHelp}></lightning-helptext>
+            <lightning-input 
+                type="number"
+                variant="label-hidden"
+                value={totalAmount}
+                step="0.01"
+                onchange={handleValueChange}
+                required="true"
+                data-id="amount">
+            </lightning-input>
+        </div>
+        <div class="slds-grid">
+            <div class="slds-p-top_large slds-p-left_xx-large slds-p-right_xx-large extendedWidth">
+                <label>{labels.convenienceFees}</label>
+                <lightning-helptext class="inlineFlex" content={labels.convenienceFeesHelp}></lightning-helptext>
+                <div>
+                    <c-x-custom-currency-cell
+                        data-id="convenienceFees" 
+                        currency-code={wrappedBilling.billCurrencyIsoCode}
+                        edit-mode={editMode} value={wrappedBilling.convenienceFee}
+                        is-multi-currency-enabled={wrappedBilling.isMultiCurrencyEnabled}>
+        `           </c-x-custom-currency-cell>
+                </div>
+            </div>
+            <div class="slds-p-top_large slds-p-left_xx-large fixWidth">
+                <label>{labels.includeConvenienceFees}</label>
+                <lightning-helptext class="inlineFlex" content={labels.includeConvenienceFeesHelp}></lightning-helptext>
+                <lightning-input 
+                    data-id="includeConvenienceFees" 
+                    type="toggle"
+                    disabled={wrappedBilling.disableIncludeFee}
+                    checked={wrappedBilling.includeConFee}
+                    onclick={handleToggleChange}>
+                </lightning-input> <br/>
+            </div>
+        </div>
+        <div class="slds-grid">
+            <div class="slds-p-top_x-small slds-p-left_xx-large slds-p-right_xx-large extendedWidth">
+                <b><label style="font-size:14px">{labels.totalPaymentAmount}</label></b>
+                    <lightning-helptext class="inlineFlex" content={labels.totalPaymentAmountHelp}></lightning-helptext>
+                    <div>
+                        <c-x-custom-currency-cell
+                        data-id="totalPaymentAmount"
+                        currency-code={wrappedBilling.billCurrencyIsoCode}
+                        edit-mode={editMode} value={wrappedBilling.totalPaymentAmount}
+                        is-multi-currency-enabled={wrappedBilling.isMultiCurrencyEnabled}>
+                        </c-x-custom-currency-cell>
+                     </div>
+            </div>
+        </div>
+        <div class="slds-p-top_small slds-p-left_xx-large slds-p-right_xx-large"><hr></div>
+        <div class="slds-p-left_xx-large slds-p-right_xx-large slds-p-bottom_large headingStyle">{labels.accountingInfo}</div>
+        <c-billing-receive-payment-additional-fields 
+                wrapped-data={wrappedBilling}>
+        </c-billing-receive-payment-additional-fields>
+        <div class="slds-p-top_large slds-p-left_xx-large slds-p-right_xx-large"><hr></div>
+    </lightning-card>
+</template>

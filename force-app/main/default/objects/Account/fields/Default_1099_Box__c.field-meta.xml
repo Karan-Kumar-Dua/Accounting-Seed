@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Default_1099_Box__c</fullName>
+    <inlineHelpText>Informational field used on 1099 reports and file export.</inlineHelpText>
+    <label>Default 1099 Box</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>1. Rents</fullName>
+                <default>false</default>
+                <label>1. Rents</label>
+            </value>
+            <value>
+                <fullName>2. Royalties</fullName>
+                <default>false</default>
+                <label>2. Royalties</label>
+            </value>
+            <value>
+                <fullName>3. Other Income</fullName>
+                <default>false</default>
+                <label>3. Other Income</label>
+            </value>
+            <value>
+                <fullName>4. Federal Tax Withheld</fullName>
+                <default>false</default>
+                <label>4. Federal Tax Withheld</label>
+            </value>
+            <value>
+                <fullName>5. Fishing Boat Proceeds</fullName>
+                <default>false</default>
+                <label>5. Fishing Boat Proceeds</label>
+            </value>
+            <value>
+                <fullName>6. Medical Payments</fullName>
+                <default>false</default>
+                <label>6. Medical Payments</label>
+            </value>
+            <value>
+                <fullName>7. Nonemployee Compensation</fullName>
+                <default>false</default>
+                <label>7. Nonemployee Compensation</label>
+            </value>
+            <value>
+                <fullName>8. Substitute Payments</fullName>
+                <default>false</default>
+                <label>8. Substitute Payments</label>
+            </value>
+            <value>
+                <fullName>10. Crop Insurance</fullName>
+                <default>false</default>
+                <label>10. Crop Insurance</label>
+            </value>
+            <value>
+                <fullName>13. Golden Parachute</fullName>
+                <default>false</default>
+                <label>13. Golden Parachute</label>
+            </value>
+            <value>
+                <fullName>14. Attorney Proceeds</fullName>
+                <default>false</default>
+                <label>14. Attorney Proceeds</label>
+            </value>
+            <value>
+                <fullName>15a. Section 409A Deferrals</fullName>
+                <default>false</default>
+                <label>15a. Section 409A Deferrals</label>
+            </value>
+            <value>
+                <fullName>15b. Section 409A Income</fullName>
+                <default>false</default>
+                <label>15b. Section 409A Income</label>
+            </value>
+            <value>
+                <fullName>16. State Tax Withheld</fullName>
+                <default>false</default>
+                <label>16. State Tax Withheld</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

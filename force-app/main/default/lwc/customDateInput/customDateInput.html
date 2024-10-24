@@ -1,0 +1,31 @@
+<!-- Custom Date Input -->
+<template>
+    <template if:true={editMode}>
+        <div class="slds-form-element slds-text-align_center">
+            <div class="slds-form-element__control">
+                <abbr class="slds-required">*</abbr>
+                <lightning-input type="date"
+                                 variant="label-hidden"
+                                 value={date}
+                                 class="custom-input"
+                                 required
+                                 onchange={handleValueChange}>
+
+                </lightning-input>
+            </div>
+        </div>
+
+    </template>
+    <template if:false={editMode}>
+        <div class="slds-form-element slds-text-align_left">
+            <div class="slds-form-element__control">
+                <lightning-formatted-date-time value={date}
+                                               year="numeric"
+                                               month="numeric"
+                                               day="numeric">
+                </lightning-formatted-date-time>
+            </div>
+        </div>
+    </template>
+
+</template>

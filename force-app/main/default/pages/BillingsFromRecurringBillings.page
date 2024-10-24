@@ -1,0 +1,164 @@
+<apex:page standardController="Recurring_Billing__c" title="{!$Label.AcctSeed__COMMON_CREATE_BILLING +' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" recordSetVar="records" extensions="BillingFromRecurringBilling,EnvironmentUtils" sideBar="false" lightningStylesheets="true">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/javascript/Intl.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/locale-data/jsonp/' & DefaultLocale & '.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/> 
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+        AcctSeed.ASModule.currencyIsoCode = "{!JSENCODE(currencyIsoCode)}";
+        AcctSeed.ASModule.isAvalaraTaxCalcEnabled = "{!JSENCODE(IF(isAvalaraTaxCalcEnabled, 'true', 'false'))}";
+    </script>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"/> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/currency-formatter.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/billing-from-recurring-billing.js')}" loadOnReady="true"/>
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/common.css')}" />
+    <script>
+        function setFocusOnLoad() {}
+    </script>
+    <apex:form id="theForm">
+        <apex:actionFunction name="backAction" action="{!cancel}" immediate="true"/>
+        <apex:sectionHeader title="{!$ObjectType.Recurring_Billing__c.labelPlural}" subtitle="{!$Label.AcctSeed__COMMON_CREATE +' '+ $ObjectType.Billing__c.labelPlural}" />
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__COMMON_CREATE +' '+ $ObjectType.Billing__c.labelPlural}">
+            <apex:pageMessages escape="false"/>
+            <apex:pageMessage rendered="{!isNoSelectionError}" severity="error" strength="3" summary="{!$Label.AcctSeed__ERR_NO_RECURRING_BILLING_RECORD_STATUS_ACTIVE}"/>
+            <apex:pageMessage rendered="{!isDmlLimitError}" severity="error" strength="3" summary="{!dmlLimitErrorMsg}"/>
+            <apex:pageBlockButtons id="buttons">
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')" onstop="AcctSeed.ASModule.pageLoad()"/>
+                <!-- Create Billing Button -->
+                <apex:commandButton id="saveButton" 
+                                    action="{!createBilling}" 
+                                    value="{!$Label.AcctSeed__COMMON_CREATE}"
+                                    status="saveStatus" 
+                                    reRender="theForm" 
+                                    rendered="{!AND(!isNoSelectionError, !recordsCreated, !isError, !isDmlLimitError)}" />
+                <!-- Create & Post Billing Button -->
+                <apex:commandButton id="savePostButton"
+                                    action="{!createBillingAndPost}"
+                                    value="{!$Label.AcctSeed__COMMON_CREATE_AND_POST}"
+                                    status="saveStatus"
+                                    reRender="theForm"
+                                    rendered="{!AND(!isNoSelectionError, !recordsCreated, !isError, !isDmlLimitError)}" />
+                <!-- Back Button -->
+                <apex:commandButton id="cancelButton"
+                                    onComplete="AcctSeed.ASModule.customBackToListAction('{!listViewId}', '', '{!SObjectApiName}');"
+                                    value="{!$Label.AcctSeed__COMMON_BACK}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection rendered="{!AND(!isNoSelectionError,!recordsCreated, !isError, !isDmlLimitError)}" columns="1">
+                <!-- ================= LINE LEVEL POSTING MODE ===================================== -->
+                <apex:pageBlockTable value="{!billList}" var="bw" width="100%" rendered="{!NOT(isHeaderLevelPostEnabled)}">
+                    <apex:column value="{!bw.rObj['Name']}"/>
+                    <apex:column value="{!bw.obj['Customer__c']}"/>
+
+                    <apex:column headerValue="{!$ObjectType.Billing__c.fields.Date__c.label}">
+                        <apex:inputField value="{!bw.obj['Date__c']}" required="true" rendered="{!!recordsCreated}">
+                            <apex:actionSupport event="onchange" action="{!updateLinesDates}" reRender=""/>
+                        </apex:inputField>
+                        <apex:outputField value="{!bw.obj['Date__c']}" rendered="{!recordsCreated}"/>
+                    </apex:column>
+
+                    <apex:column headerValue="{!$ObjectType.Recurring_Billing_Line__c.fields.Rate__c.label}">
+                        <apex:inputField id="billLinesRate"
+                                         value="{!bw.objLines[0]['Rate__c']}"
+                                         required="true"
+                                         rendered="{!(bw.RecurringLineCount == 1)}"
+                                         onChange="AcctSeed.ASModule.calculateTotal(); AcctSeed.ASModule.pageLoad();">
+                        </apex:inputField>
+                    </apex:column>
+
+                    <apex:column headerValue="{!$ObjectType.Recurring_Billing_Line__c.fields.Quantity__c.label}">
+                        <apex:inputField id="billLinesHoursUnits"
+                                         value="{!bw.objLines[0]['Hours_Units__c']}"
+                                         required="true"
+                                         rendered="{!(bw.RecurringLineCount == 1)}"
+                                         onChange="AcctSeed.ASModule.calculateTotal(); AcctSeed.ASModule.pageLoad();">
+                        </apex:inputField>
+                    </apex:column>
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_SALES_TAX}" rendered="{!isAvalaraTaxCalcEnabled}" headerClass="align-right" styleClass="align-right">
+                        <apex:outputText id="salesTaxAvalaraWithCurrency" value="{!bw.SalesTaxAmount}">
+                            <apex:outputText style="white-space:pre-wrap;"
+                                             value="{!bw.obj['CurrencyIsoCode']} "
+                                             rendered="{!isMultiCurrencyEnabled}"/>
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_TOTAL}" headerClass="align-right" styleClass="align-right" footerClass="align-right">
+                        <apex:outputText id="billAmountWithCurrency" value="{!bw.Total}">
+                            <apex:outputText style="white-space:pre-wrap;"
+                                             value="{!bw.obj['CurrencyIsoCode']} "
+                                             rendered="{!isMultiCurrencyEnabled}"/>
+                        </apex:outputText>
+                    </apex:column>
+                </apex:pageBlockTable>
+                <!-- ================= HEADER LEVEL POSTING MODE ===================================== -->
+                <apex:pageBlockTable value="{!billList}" var="bw" width="100%" rendered="{!isHeaderLevelPostEnabled}">
+                    <apex:column value="{!bw.rObj['Name']}"/>
+                    <apex:column value="{!bw.obj['Customer__c']}"/>
+
+                    <apex:column headerValue="{!$ObjectType.Billing__c.fields.Date__c.label}">
+                        <apex:inputField value="{!bw.obj['Date__c']}" required="true" rendered="{!!recordsCreated}">
+                            <apex:actionSupport event="onchange" action="{!updateLinesDates}" reRender=""/>
+                        </apex:inputField>
+                        <apex:outputField value="{!bw.obj['Date__c']}" rendered="{!recordsCreated}"/>
+                    </apex:column>
+
+                    <apex:column headerValue="{!$ObjectType.Recurring_Billing_Line__c.fields.Rate__c.label}">
+                        <apex:inputField id="billLinesRate"
+                                         value="{!bw.objLines[0]['Rate__c']}"
+                                         required="true"
+                                         rendered="{!(bw.RecurringLineCount == 1)}"
+                                         onChange="AcctSeed.ASModule.calculateTotal(); AcctSeed.ASModule.pageLoad();">
+                        </apex:inputField>
+                    </apex:column>
+
+                    <apex:column headerValue="{!$ObjectType.Recurring_Billing_Line__c.fields.Quantity__c.label}">
+                        <apex:inputField id="billLinesHoursUnits"
+                                         value="{!bw.objLines[0]['Hours_Units__c']}"
+                                         required="true"
+                                         rendered="{!(bw.RecurringLineCount == 1)}"
+                                         onChange="AcctSeed.ASModule.calculateTotal(); AcctSeed.ASModule.pageLoad();">
+                        </apex:inputField>
+                    </apex:column>
+                    <apex:column headerValue="{!$ObjectType.Recurring_Billing_Line__c.fields.Sub_Total__c.label}" headerClass="align-right" styleClass="align-right">
+                        <apex:outputText id="subTotalWithCurrency" value="{!bw.subTotal}">
+                            <apex:outputText style="white-space:pre-wrap;"
+                                             value="{!bw.obj['CurrencyIsoCode']} "
+                                             rendered="{!isMultiCurrencyEnabled}"/>
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_TAX_AMOUNT}"
+                                 headerClass="align-right"
+                                 styleClass="align-right"
+                                 rendered="{!NOT(isAvalaraTaxCalcEnabled)}">
+                        <apex:outputText id="salesTaxWithCurrency" value="{!bw.SalesTaxAmount}">
+                            <apex:outputText style="white-space:pre-wrap;"
+                                             value="{!bw.obj['CurrencyIsoCode']} "
+                                             rendered="{!isMultiCurrencyEnabled}"/>
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_TAX_AMOUNT}"
+                                 headerClass="align-right"
+                                 styleClass="align-right"
+                                 rendered="{!isAvalaraTaxCalcEnabled}">
+                        <apex:outputText id="salesTaxAvalaraWithCurrency" value="{!bw.SalesTaxAmount}">
+                            <apex:outputText style="white-space:pre-wrap;"
+                                             value="{!bw.obj['CurrencyIsoCode']} "
+                                             rendered="{!isMultiCurrencyEnabled}"/>
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_TOTAL}" headerClass="align-right" styleClass="align-right" footerClass="align-right">
+                        <apex:outputText id="billAmountWithCurrency" value="{!bw.Total}">
+                            <apex:outputText style="white-space:pre-wrap;"
+                                             value="{!bw.obj['CurrencyIsoCode']} "
+                                             rendered="{!isMultiCurrencyEnabled}"/>
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column >
+                        <apex:inputHidden id="taxRate" value="{!bw.TaxRate}" />
+                        <apex:inputHidden id="taxInclusive" value="{!bw.TaxInclusive}" />
+                    </apex:column>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

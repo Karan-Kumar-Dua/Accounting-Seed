@@ -1,0 +1,6 @@
+<aura:component description="PaymentsReceiveNavProxy" implements="lightning:isUrlAddressable">
+    <aura:attribute name="recordIds" type="String" default="false"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+    <lightning:workspaceAPI aura:id="workspace"/>
+    <c:paymentsReceive recordIds="{!v.pageReference.state.AcctSeed__recordIds}"></c:paymentsReceive>
+</aura:component>

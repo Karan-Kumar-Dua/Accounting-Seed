@@ -1,0 +1,24 @@
+<template>
+    <header class="slds-modal__header">
+        <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">{labels.INF_CREATE_BANK_RECONCILIATION} {reportTypeValue}</h2>
+    </header>
+    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+        <p>'{labels.commonCreate} {reportInfoValue}' {labels.INF_WILL_GENERATE_BANK_RECONCILIATION} {reportInfoValue} {reportValue}. {labels.INF_ANY_CHANGES_TO_GL_NOT_REFLECTED_IN_THIS} {reportOrFileValue}. {labels.INF_PLEASE_CHECK_NOTES_FILES_LATER}</p>
+    </div>
+    <footer class="slds-modal__footer">
+        <button class="slds-button slds-button_neutral"
+                data-jest-name="cancelButton"
+                onclick={handleCancel}>
+            {labels.commonCancel}
+        </button>
+        <button class="slds-button slds-button_brand"
+                data-jest-name="createReport"
+                onclick={handleCreateReport}
+                disabled={disableCreateButton}>
+            {labels.commonCreate} {reportInfoValue}
+        </button>
+    </footer>
+    <template if:true={error}>
+        <c-error-panel errors={error}></c-error-panel>
+    </template>
+</template>

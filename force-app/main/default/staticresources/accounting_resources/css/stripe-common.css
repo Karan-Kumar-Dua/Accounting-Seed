@@ -1,0 +1,174 @@
+.StripeElement {
+    background-color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    box-shadow: 0 1px 3px 0 #e6ebf1;
+    -webkit-transition: box-shadow 150ms ease;
+    transition: box-shadow 150ms ease;
+    width: 20%;
+    margin-left: 20px;
+    float: left;
+}
+
+.StripeElement--focus {
+    box-shadow: 0 1px 3px 0 #cfd7df;
+}
+
+.StripeElement--invalid {
+    border-color: #fa755a;
+}
+
+.StripeElement--webkit-autofill {
+    background-color: #fefde5 !important;
+}
+
+.pm-errors {
+    position: relative;
+    color: #de230c;
+    font-weight: bold;
+    margin-left: 400px;
+    display: block;
+}
+
+.card-input {
+    position: relative;
+    color: #000000;
+    font-weight: bold;
+    height: 30px;
+    line-height: 30px;
+    margin-left: 20px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.card-input > span {
+    width: 20%;
+    text-align: right;
+    float: left;
+}
+
+#card-element {
+    margin-left: 37px;
+    border-radius: 4px;
+    border: 1px solid rgb(118,118,118);
+}
+
+.ach-input {
+    position: relative;
+    color: #000000;
+    font-weight: bold;
+    height: 30px;
+    line-height: 30px;
+    margin-left: 20px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.ach-input > span {
+    width: 20%;
+    text-align: right;
+    float: left;
+}
+
+.InputField {
+    border-radius: 4px;
+    border: 1px solid rgb(118,118,118);
+    padding-right: 10px;
+    padding-left: 10px;
+    margin-left: 37px !important;
+    cursor: text;
+    height: 30px;
+    float: left;
+}
+
+.ErrorInputField {
+    border-color: #de230c;
+}
+
+input[type=checkbox].InputField {
+    cursor: pointer;
+}
+
+.customMessage * {
+    color: #fff!important
+}
+.customMessage {
+    margin: 5px 0!important;
+    max-width: 1280px;
+    opacity: 1!important;
+    width: 100%;
+    font-size: 12px;
+    border: 0px;
+    padding-left: 10px;
+}
+
+.processor-select-label {
+    margin-left: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #000000;
+    display: inline-block;
+    width: 20%;
+    text-align: right;
+    margin-right: 2px;
+}
+
+.processor-select-input {
+    height: 26px;
+    border-radius: 4px;
+}
+
+.processor-select-panel {
+    width: 100%;
+    display: block;
+    line-height: 30px;
+}
+
+.asHelpText {
+    display: inline-block;
+    margin-right: 20px;
+}
+.asHelpText a {
+    position: relative;
+}
+.asHelpText a span       {
+    display: none;
+}
+.asHelpText a:hover span {
+    display: block;
+    position: absolute;
+    top: 1.05em;
+    padding: 2px 5px;
+    right: 1em; 
+    width: 17em;  
+    background-color: #FEFDB9;
+    color: black;
+}
+
+.asHelpBubble {
+    text-align:left;
+    z-index: 9000;
+}
+
+.errorM3 table tbody tr td:first-child,
+.confirmM3 table tbody tr td:first-child,
+.warningM3 table tbody tr td:first-child,
+.infoM3 table tbody tr td:first-child {
+    width: 35px;
+}
+
+.asStaticError .message .messageText h4 {
+    color:#de230c;
+}
+
+.comboboxControlledWidth {
+    position: absolute;
+    max-width: 11%;
+    min-width: auto;
+    overflow: hidden;
+}
+
+.selectListWidth {
+    width: -webkit-fill-available;
+}

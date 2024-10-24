@@ -1,0 +1,34 @@
+<template>
+    <template if:true={isShowSpinner}>
+        <lightning-spinner
+                variant="brand"
+                alternative-text={labels.commonLoading}
+                size="medium">
+        </lightning-spinner>
+    </template>
+    <div class="slds-var-m-bottom_medium">
+        <c-page-header
+            title='Configurations'
+            breadcrumbs={breadcrumbs}
+            icon-name="standard:custom"
+            knowledge-base={knowledgeBase}
+        ></c-page-header>
+    </div>
+    <lightning-card>
+        <div class="slds-var-p-around_medium slds-var-m-top_small slds-var-m-left_medium slds-var-m-right_medium section-holder"
+            if:true={isLoaded}>
+            <h2>
+                <strong>{labels.accountingSeedHubAuth}</strong>
+            </h2>
+            <hr class="slds-var-m-horizontal_medium slds-var-m-bottom_small slds-var-m-top_x-small divider" />
+            <div class="slds-var-m-bottom_small">
+                {accountingSettingsInfo.fields.Hub_Username__c.label}
+            </div>
+            <div class="slds-var-m-bottom_small">
+                {accountingSettings.Hub_Username__c}
+            </div>
+            <lightning-button variant="brand" label={authorizeLabel}
+                onclick={authorizeHub} data-id="lightningButton-configure"></lightning-button>
+        </div>
+    </lightning-card>
+</template>

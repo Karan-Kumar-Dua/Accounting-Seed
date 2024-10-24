@@ -1,0 +1,21 @@
+<template>
+    <lightning-datatable
+        data-id="datatable"
+        key-field="Id"
+        data={visibledata}
+        columns={columns}
+        onrowselection={handleSelectedRows}
+        selected-rows={selectedRowIds}>
+    </lightning-datatable>
+
+    <div slot="footer" class="slds-align--absolute-center slds-m-top_medium">
+        <template if:true={hasRecordsForPagination}>
+            <c-paginator
+                total-records={totalNumberOfRecords}
+                page-size={visibleRows}
+                has-go-to-page ="true"
+                onchange={handlePageChange}>
+            </c-paginator>
+        </template>
+    </div>
+</template>

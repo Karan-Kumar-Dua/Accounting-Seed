@@ -1,0 +1,46 @@
+<template>
+    <div class="slds-grid">
+        <div class={stylePageBtns}>
+            <lightning-button-group>
+                <lightning-button 
+                    label={labels.commonPrevious}
+                    icon-name="utility:chevronleft" 
+                    onclick={previousHandler}>
+                </lightning-button>
+                <template for:each={pages} for:item='page'>
+                    <lightning-button 
+                        key={page.idx} 
+                        label={page.num} 
+                        value={page.num}
+                        variant={page.variant}
+                        class={page.class} 
+                        onclick={selectHandler}>
+                    </lightning-button>
+                </template>
+                <lightning-button 
+                    label={labels.commonNext}
+                    icon-name="utility:chevronright" 
+                    icon-position="right" 
+                    onclick={nextHandler}>
+                </lightning-button>
+            </lightning-button-group>
+        </div>
+        <div class="slds-p-left_medium slds-grid" lwc:if={hasGoToPage}>
+            <label class="slds-p-top_xx-small slds-p-right_xx-small">{labels.INFO_GO_TO_PAGE}</label>
+            <lightning-input 
+                class="fixedWidth"
+                lwc:ref="pageNumber"
+                type="number" 
+                variant="label-hidden"
+                onchange={handleChange}
+                onkeypress={handleKeyPress}>
+            </lightning-input>
+            <lightning-button 
+                variant="brand" 
+                label={labels.COMMON_GO}
+                onclick={handleGoClick} 
+                class="slds-m-left_x-small">
+            </lightning-button>
+        </div>
+    </div>
+</template>

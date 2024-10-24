@@ -1,0 +1,25 @@
+<template>
+    <div class={dirtyCell} role="gridcell" data-label={column.label} data-row-id={row.rowKey} data-column-field={column.apiName} onmouseover={handleMouseEnter} onmouseleave={handleMouseOut} data-id="row-datacell"> 
+        <template if:true={inEditMode}>
+            <div>
+                <lightning-input 
+                    type="number" 
+                    label={column.label} 
+                    variant="label-hidden" 
+                    value={fieldValue}
+                    onblur={handleOrderFieldBlur}>
+                </lightning-input>
+            </div>
+        </template>
+        <div class="slds-grid">
+            <template if:false={inEditMode}>
+                <div class="slds-truncate floatCenter">
+                    <lightning-formatted-number value={fieldValue} data-id="cell-number"></lightning-formatted-number>
+                </div>
+                <div class="floatRight">
+                    <lightning-button-icon icon-name="utility:edit" onclick={handleEditClick} variant="bare" class="slds-m-left_xx-small cell-button_container" alternative-text={labels.commonEdit} title={labels.commonEdit} data-id="cell-button"></lightning-button-icon>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

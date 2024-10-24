@@ -1,0 +1,18 @@
+<template>
+  <lightning-quick-action-panel header={labelFactory.PUBLISH_PAYMENT_PROPOSAL_MSG}>
+    
+    <template if:true={isShowSpinner}>
+      <lightning-spinner variant="brand" alternative-text={labelFactory.commonLoading} size="medium">
+      </lightning-spinner>
+    </template>
+
+    <p lwc:ref="ppMsg">{ppStatusMessage}</p>
+
+    <div slot="footer">
+      <lightning-button variant="neutral" label={labelFactory.commonCancel} class="slds-p-right_medium"
+        onclick={closeAction}></lightning-button>
+      <lightning-button variant="brand" label={labelFactory.commonPay} onclick={processJobs} disabled={yesDisabled}></lightning-button>
+    </div>
+    
+  </lightning-quick-action-panel>
+</template>

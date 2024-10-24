@@ -1,0 +1,46 @@
+<template>
+    <div class="slds-border_top"></div>
+
+    <c-inline-error-message errors={errors}></c-inline-error-message>
+
+    <template if:false={errors}>
+        <div class="slds-is-relative datatable_container">
+            <template if:true={showSpinner}>
+                <lightning-spinner
+                        variant="brand"
+                        alternative-text={labels.commonSaving}
+                        size="medium">
+                </lightning-spinner>
+            </template>
+
+            <lightning-datatable
+                    hide-checkbox-column="true"
+                    key-field="period"
+                    data={data}
+                    columns={columns}>
+            </lightning-datatable>
+        </div>
+    </template>
+
+    <footer class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+        <div class="slds-float_right">
+            <lightning-button
+                    variant="neutral"
+                    label={labels.commonBack}
+                    disabled={showSpinner}
+                    onclick={goBack}
+                    data-jest="back-btn">
+            </lightning-button>
+            <template if:true={isAccountingInfoCreateStep}>
+                <lightning-button
+                        variant="brand"
+                        label={labels.commonCreateEntries}
+                        disabled={showSpinner}
+                        onclick={createEntries}
+                        class="slds-m-left_small"
+                        data-jest="create-entries-btn">
+                </lightning-button>
+            </template>
+        </div>
+    </footer>
+</template>

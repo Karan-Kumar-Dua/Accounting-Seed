@@ -1,0 +1,58 @@
+<template>
+    <template if:true={editMode}>
+        <div class="slds-form-element slds-text-align_center">
+            <div class="slds-form-element__control">
+                <lightning-input type="number"
+                                 message-when-range-overflow={labels.INF_NUMBER_IS_TOO_HIGH}
+                                 message-when-range-underflow={labels.INF_NUMBER_IS_TOO_LOW}
+                                 step="any" min="0.00" max="24.00" format-fraction-digits="2"
+                                 value={cellContent.value}
+                                 variant="label-hidden"
+                                 class="custom-input"
+                                 onchange={handleValueChange}>
+
+                </lightning-input>
+                <c-comments-handler internal-comment={cellContent.internalComment}
+                                    is-internal-comment-accessible={cellContent.internalCommentAccessible}
+                                    is-internal-comment-updateable={cellContent.internalCommentUpdateable}
+                                    invoice-comment={cellContent.invoiceComment}
+                                    is-invoice-comment-accessible={cellContent.invoiceCommentAccessible}
+                                    is-invoice-comment-updateable={cellContent.invoiceCommentUpdateable}
+                                    edit-mode
+                                    oncommentschange={handleCommentsChange}>
+
+                </c-comments-handler>
+            </div>
+        </div>
+    </template>
+    <template if:false={editMode}>
+        <div class="slds-form-element slds-text-align_right">
+            <div class="slds-form-element__control">
+                <template if:true={hasComments}>
+                    <lightning-formatted-number value={cellContent.value}
+                                                format-style="decimal"
+                                                minimum-fraction-digits="2"
+                                                maximum-fraction-digits="2">
+                    </lightning-formatted-number>
+                    <c-comments-handler internal-comment={cellContent.internalComment}
+                                        is-internal-comment-accessible={cellContent.internalCommentAccessible}
+                                        is-internal-comment-updateable={cellContent.internalCommentUpdateable}
+                                        invoice-comment={cellContent.invoiceComment}
+                                        is-invoice-comment-accessible={cellContent.invoiceCommentAccessible}
+                                        is-invoice-comment-updateable={cellContent.invoiceCommentUpdateable}>
+
+                    </c-comments-handler>
+                </template>
+                <template if:false={hasComments}>
+                    <lightning-formatted-number class="custom-padding"
+                                                value={cellContent.value}
+                                                format-style="decimal"
+                                                minimum-fraction-digits="2"
+                                                maximum-fraction-digits="2">
+                    </lightning-formatted-number>
+                </template>
+            </div>
+        </div>
+    </template>
+
+</template>

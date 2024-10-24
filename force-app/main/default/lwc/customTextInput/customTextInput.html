@@ -1,0 +1,25 @@
+<!-- Custom Text Input -->
+<template>
+    <template if:true={editMode}>
+        <div class="slds-form-element slds-text-align_center">
+            <div class="slds-form-element__control">
+                <abbr class="slds-required">*</abbr>
+                <lightning-input type="text"
+                                 value={value}
+                                 variant="label-hidden"
+                                 class="custom-input"
+                                 required
+                                 onchange={handleValueChange}>
+
+                </lightning-input>
+            </div>
+        </div>
+    </template>
+    <template if:false={editMode}>
+        <div class="slds-form-element slds-text-align_right">
+            <div class="slds-form-element__control">
+                <lightning-formatted-text value={value}></lightning-formatted-text>
+            </div>
+        </div>
+    </template>
+</template>

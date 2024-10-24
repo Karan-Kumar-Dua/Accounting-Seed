@@ -1,0 +1,8 @@
+.slds-path__nav .slds-is-active:before,
+.slds-path__nav .slds-is-active:after,
+.slds-path__nav .slds-is-active {
+    background: #706E6B;
+}
+.slds-path__nav li:last-child {
+    flex: 2;
+}

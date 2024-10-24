@@ -1,0 +1,95 @@
+<template>
+    <div class="slds-is-relative">
+        <template if:true={showSpinner}>
+            <lightning-spinner variant="brand" alternative-text={label.commonSaving} size="medium"></lightning-spinner>
+        </template>
+
+        <template if:true={error}>
+            <c-inline-error-message class="inline-error-msg" errors={error}></c-inline-error-message>
+        </template>
+
+        <template if:true={isNoAPD}>
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info slds-m-top_medium">
+                <lightning-icon icon-name="utility:info" size="small" variant="inverse"></lightning-icon>
+                <h2 class="slds-p-left_x-small">
+                    {label.DELAPDsInfoNoAPD}
+                </h2>
+            </div>
+        </template>
+
+        <template if:true={showModal}>
+            <header>
+                <div class="slds-box slds-theme_error slds-theme_alert-texture warning-box">
+                    Are you sure...
+                </div>
+            </header>
+
+            <div if:true={isManual} class="slds-var-m-top_x-large slds-var-m-left_large slds-var-m-right_large">
+                <div class="header-text">{label.DELAPDsManual1}</div>
+                <div class="header-text slds-var-m-top_small">{label.DELAPDsManual2}</div>
+                <ul class="slds-var-m-left_large">
+                    <li class="regular-text">
+                        {label.DELAPDsManual21}
+                    </li>
+                    <li class="regular-text">
+                        {label.DELAPDsManual22}
+                    </li>
+                    <li class="regular-text">
+                        {label.DELAPDsManual23}
+                    </li>
+                    <li class="regular-text">
+                        {label.DELAPDsManual24}
+                    </li>
+                </ul>
+            </div>
+
+            <div if:true={isPayable} class="slds-var-m-top_x-large slds-var-m-left_large slds-var-m-right_large">
+                <div class="header-text">{label.DELAPDsPayable1}</div>
+                <ul class="slds-var-m-left_large">
+                    <li class="regular-text">
+                        {label.DELAPDsPayable11}
+                    </li>
+                    <li class="regular-text">
+                        {label.DELAPDsPayable12}
+                    </li>
+                </ul>
+                <div class="header-text">{label.DELAPDsPayable2}</div>
+                <ul class="slds-var-m-left_large">
+                    <li class="regular-text">
+                        {label.DELAPDsPayable21}
+                    </li>
+                    <li class="regular-text">
+                        {label.DELAPDsPayable22}
+                    </li>
+                    <li class="regular-text">
+                        {label.DELAPDsPayable23}
+                    </li>
+                    <li class="regular-text">
+                        {label.DELAPDsPayable24}
+                    </li>
+                </ul>
+            </div>
+
+            <div class="slds-var-m-bottom_large slds-var-m-left_large slds-var-m-top_large warning-action-box">{label.DELARCInfo6}</div>
+        </template>
+
+        <footer class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+            <div class="slds-float_right">
+                <lightning-button
+                        data-id="CancelButton"
+                        variant="neutral"
+                        label={label.commonCancel}
+                        onclick={closeQuickAction}>
+                </lightning-button>
+                <template if:true={showModal}>
+                    <lightning-button
+                            variant="brand"
+                            label={label.commonConfirm}
+                            class="slds-m-left_small"
+                            onclick={deleteAPD}>
+                    </lightning-button>
+                </template>
+            </div>
+        </footer>
+    </div>
+</template>

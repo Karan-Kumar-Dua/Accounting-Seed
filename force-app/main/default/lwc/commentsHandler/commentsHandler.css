@@ -1,0 +1,11 @@
+.no-comments {
+    color: #1B5297;
+}
+
+.has-comments {
+    color:green;
+}
+
+.custom-icon-button {
+    vertical-align: top;
+}

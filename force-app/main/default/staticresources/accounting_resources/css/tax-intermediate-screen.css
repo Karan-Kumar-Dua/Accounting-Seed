@@ -1,0 +1,15 @@
+.parent {
+    padding: 5px;
+    margin: 5px;
+    font-weight: bold;
+}
+.child {
+    padding: 5px;
+    margin: 5px;
+}
+.align {
+    min-width: 80px;
+    float: left;
+    clear: left;
+    text-align: right;
+}

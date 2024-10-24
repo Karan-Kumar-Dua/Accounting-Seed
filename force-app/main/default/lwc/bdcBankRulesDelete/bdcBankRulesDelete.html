@@ -1,0 +1,19 @@
+<template>
+    <lightning-layout horizontal-align="space">
+        <lightning-layout-item padding="around-small">
+            <lightning-button 
+                label={labels.INF_PROCEED} 
+                data-jest-name="proceed"
+                class="slds-m-right_small"
+                variant="brand" 
+                onclick={handleConfirm}>
+            </lightning-button>
+            <lightning-button 
+                label={labels.commonCancel}
+                data-jest-name="cancel" 
+                variant="neutral" 
+                onclick={handleCancel}>
+            </lightning-button>
+        </lightning-layout-item>
+    </lightning-layout>
+</template>

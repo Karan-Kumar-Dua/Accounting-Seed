@@ -1,0 +1,113 @@
+<template>
+  <div class="slds-card">
+      <div class="slds-page-header">
+          <div class="slds-media">
+              <div class="slds-media__figure">
+                  <lightning-icon icon-name="doctype:csv" size="large" alternative-text={labels.commonCSV} ></lightning-icon>
+              </div>
+              <div class="slds-media__body">
+                  <h1 class="slds-page-header__title slds-truncate slds-align-middle" title={labels.commonPayrollImport}>{labels.commonPayrollImport}</h1>
+                  <template if:true={isValidFile}>
+                      <template if:false={isTableLoading}>
+                          <div class="slds-grid slds-float_right">
+                              <h3>{labels.importPayrollFileTitle}</h3> <lightning-formatted-text value={fileName}></lightning-formatted-text>
+                          </div>
+                      </template>
+                  </template>
+              </div>
+          </div>
+      </div>
+      <div class="c-container slds-var-m-left_x-small slds-var-m-right_x-small">
+          <template if:false={isValidFile}>
+              <template if:false={showMessage}>
+                  <div class="slds-var-p-around_medium slds-var-m-left_x-large">
+                      <h1 class="slds-text-body_regular"><b>{labels.importPayrollFileRequirementMessageTitle}</b></h1>
+                      <lightning-formatted-rich-text value={requirementMessage} data-id="formattedRichText-requirementMsg"></lightning-formatted-rich-text>
+                  </div>
+              </template>
+          </template>
+          <template if:true={showMessage}>
+              <div class="slds-var-p-around_medium">
+                  <div class="slds-notify slds-theme_alert-texture slds-theme_error slds-var-p-around_medium">
+                      <h2 class="slds-var-p-left_x-small warn-no-records"><lightning-formatted-rich-text value={message} data-id="formattedRichText-noRecordsWarning"></lightning-formatted-rich-text></h2>
+                  </div>
+              </div>
+          </template>
+          <template if:true={isValidFile}>
+              <lightning-layout>
+                  <lightning-layout-item size="6">
+                      <lightning-layout>
+                          <template if:false={isTableLoading}>
+                          <lightning-layout-item size="5" class="slds-var-p-around_small slds-float_right">
+                              <lightning-combobox
+                                  class="slds-size_medium"
+                                  name="ledger"
+                                  label={labels.accountingHomeLedger}
+                                  value={ledgerId}
+                                  placeholder={labels.COMMON_SELECT_LEDGER}
+                                  options={optionsLedgers}
+                                  onchange={handleLedgerChange}
+                                  data-id="combobox-ledger">
+                          </lightning-combobox>
+                          </lightning-layout-item>
+                          <lightning-layout-item size="5" class="slds-var-p-around_small slds-float_left">
+                              <template if:true={isDepartmentExist}>
+                                  <lightning-combobox
+                                          class="slds-size_medium slds-var-p-left_x-large"
+                                          name="department"
+                                          label={labels.COMMON_DEPARTMENT}
+                                          value={departmentGlavName}
+                                          placeholder={labels.INF_NO_EXISTS_GL_VARIABLE_FOR_DEPARTMENT_COLUMN}
+                                          options={optionsGlavs}
+                                          onchange={handleDepartmentChange}
+                                          data-id="combobox-department">
+                                  </lightning-combobox>
+                              </template>
+                          </lightning-layout-item>
+                      </template> 
+                      </lightning-layout>
+                  </lightning-layout-item>
+              </lightning-layout>
+          </template>
+          <lightning-layout horizontal-align="space">
+              <template if:false={isValidFile}>
+                  <lightning-layout-item flexibility="auto" padding="around-medium">
+                      <lightning-input type="file"
+                                      label={labels.COMMON_CSV_FILE}
+                                      multiple="false"
+                                      name="fileupload"
+                                      accept=".csv"
+                                      message-when-type-mismatch={labels.importPayrollFileTypeMismatchMessage}
+                                      onchange={handleFileUpload}
+                                      class="slds-file-selector__dropzone"
+                                      data-id="input-fileUpload">
+                      </lightning-input>
+                  </lightning-layout-item>
+              </template>
+              <template if:true={isValidFile}>
+                  <template if:false={isTableLoading}>
+                      <lightning-layout-item flexibility="auto" padding="around-medium">
+                          <lightning-button-group>
+                              <lightning-button label={labels.COMMON_CREATE_RECORDS} onclick={createRecord} disabled={isCreatedRec} data-id="button-createRecords"></lightning-button>
+                              <lightning-button label={labels.commonBack} onclick={back} data-id="button-back"></lightning-button>
+                          </lightning-button-group>
+                      </lightning-layout-item>
+                  </template>
+              </template>
+          </lightning-layout>
+          <template if:true={isTableLoading}>
+              <div class="exampleHolder">
+                  <lightning-spinner alternative-text={labels.commonLoadingText} size="large"></lightning-spinner>
+              </div>
+          </template>
+          <template if:true={showTable}>
+              <c-pay-roll-data-table
+                  table-columns={tableColumns}
+                  table-data={lineWrapper}
+                  ontableloaded={handleTableLoaded}
+                  data-id="payRollDataTable-dataPreview">
+              </c-pay-roll-data-table>
+          </template>        
+      </div>
+  </div>
+</template>

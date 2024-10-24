@@ -1,0 +1,36 @@
+<apex:page standardController="Payment_Method__c" title="{!$Label.AcctSeed__COMMON_DELETE_PAYMENT_METHOD + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="PaymentMethodDeleteController" id="PaymentMethodDelete">
+    <apex:form >
+        <apex:pageBlock title="{!$Label.AcctSeed__COMMON_DELETE_PAYMENT_METHOD}">
+            <apex:pageMessage severity="warning" 
+                strength="3" 
+                summary="{!warnMessage}"
+                rendered="{!isConnectedWithStripe}" />
+            <apex:pageMessages escape="false" />
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!deleteViaUI}" value="{!$Label.AcctSeed__COMMON_DELETE}" rendered="{!isConnectedWithStripe}" />
+                <apex:commandButton action="{!forceDelete}" value="{!$Label.AcctSeed__COMMON_FORCE_DELETE}" style="color:red;" rendered="{!NOT(isConnectedWithStripe)}"
+                />
+                <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_CANCEL}" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="2" title="{!$Label.AcctSeed__COMMON_DETAILS}" collapsible="false" rendered="{!!isACH}">
+                <apex:outputField value="{!Payment_Method__c.Customer__c}" />
+                <apex:outputField value="{!Payment_Method__c.Type__c}" />
+                <apex:outputField value="{!Payment_Method__c.Card_Holder_Name__c}" />
+                <apex:outputField value="{!Payment_Method__c.Last_Four_Digits__c}" />
+                <apex:outputField value="{!Payment_Method__c.Status__c}" />
+                <apex:outputField value="{!Payment_Method__c.Expiration_Year__c}" />
+                <apex:outputField value="{!Payment_Method__c.Payment_Processor__c}" />
+                <apex:outputField value="{!Payment_Method__c.Expiration_Month__c}" />
+            </apex:pageBlockSection>
+            <apex:pageBlockSection columns="2" title="{!$Label.AcctSeed__COMMON_DETAILS}" collapsible="false" rendered="{!isACH}">
+                <apex:outputField value="{!Payment_Method__c.Customer__c}" />
+                <apex:outputField value="{!Payment_Method__c.Bank_Name__c}" />
+                <apex:outputField value="{!Payment_Method__c.Card_Holder_Name__c}" />
+                <apex:outputField value="{!Payment_Method__c.Bank_Account_Type__c}" />
+                <apex:outputField value="{!Payment_Method__c.Status__c}" />
+                <apex:outputField value="{!Payment_Method__c.Last_Four_Digits__c}" />
+                <apex:outputField value="{!Payment_Method__c.Payment_Processor__c}" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

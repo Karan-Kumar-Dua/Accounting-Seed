@@ -1,0 +1,89 @@
+<template>
+    <template if:true={showSpinner}>
+        <lightning-spinner
+                variant="brand"
+                alternative-text={labels.commonSaving}
+                size="medium">
+        </lightning-spinner>
+    </template>
+
+    <div class="slds-var-m-bottom_medium">
+        <c-page-header
+            title={labels.defaultLedgerSubtitle}
+            breadcrumbs={breadcrumbs}
+            knowledge-base={knowledgeBase}
+            icon-name="standard:custom"
+        ></c-page-header>
+    </div>
+    <lightning-card if:false={userCanView}>
+        <c-insufficient-privileges></c-insufficient-privileges>
+    </lightning-card>
+    <lightning-card if:true={userCanView}>
+        <div slot="title" class="defaultLedger--header">
+            <span class="slds-text-heading_small"
+                ><strong>{labels.defaultLedgerTitle}</strong></span
+            >
+            <lightning-button-icon
+                class="slds-var-m-left_medium"
+                if:false={isEditable}
+                icon-name="utility:edit"
+                onclick={handleEdit}
+                disabled={userCannotEdit}
+                data-id="lightningButtonIcon-edit"
+            ></lightning-button-icon>
+            <lightning-button
+                class="slds-var-m-left_medium"
+                if:true={isEditable}
+                label={labels.commonCancel}
+                variant="neutral"
+                onclick={handleCancel}
+                disabled={userCannotEdit}
+                data-id="lightningButton-cancel"
+            ></lightning-button>
+            <lightning-button
+                class="slds-var-m-left_medium"
+                if:true={isEditable}
+                label={labels.commonSave}
+                variant="brand"
+                onclick={handleSave}
+                disabled={userCannotEdit}
+                data-id="lightningButton-save"
+            ></lightning-button>
+        </div>
+        <div class="slds-var-p-around_medium" if:true={isLoaded}>
+            <lightning-layout>
+                <lightning-layout-item>
+                    <label
+                        class="slds-form-element__label"
+                        if:true={accountingSettingsInfo}
+                        >{accountingSettingsInfo.fields.Default_Ledger__c.label}</label
+                    >
+                    <lightning-helptext
+                        if:true={accountingSettingsInfo}
+                        class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Default_Ledger__c.inlineHelpText}
+                    ></lightning-helptext>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout>
+                <lightning-layout-item size="2">
+                    <lightning-combobox
+                        if:false={isDisabled}
+                        options={ledgers.data}
+                        value={accountingSettings.Default_Ledger__c}
+                        variant="label-hidden"
+                        data-id="lightningCombobox-defaultLedger"
+                        data-field="Default_Ledger__c"
+                    ></lightning-combobox>
+                    <c-record-popover
+                        if:true={isDisabled}
+                        record-id={accountingSettings.Default_Ledger__c}
+                        object-api-name={ledgerObjectApiName}
+                        fields={ledgerFields}
+                        data-id="popover-defaultLedger"
+                    ></c-record-popover>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+    </lightning-card>
+</template>

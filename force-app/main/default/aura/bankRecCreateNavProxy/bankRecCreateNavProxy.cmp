@@ -1,0 +1,6 @@
+<aura:component description="bankRecCreateNavProxy" implements="lightning:isUrlAddressable">
+    <aura:handler name="init" value="{! this }" action="{! c.onInit }"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+    <lightning:workspaceAPI aura:id="workspace"/>
+    <c:bankRecCreate previousBankRecID="{!v.pageReference.state.AcctSeed__recordId}"></c:bankRecCreate>
+</aura:component>

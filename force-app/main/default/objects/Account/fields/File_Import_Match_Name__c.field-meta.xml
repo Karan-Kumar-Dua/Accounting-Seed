@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>File_Import_Match_Name__c</fullName>
+    <externalId>false</externalId>
+    <inlineHelpText>Used to match the vendor account to a specific record in the Bank Direct Connect and Bank Import.</inlineHelpText>
+    <label>File Import Match Name</label>
+    <length>80</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

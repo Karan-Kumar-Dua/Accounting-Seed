@@ -1,0 +1,124 @@
+<template>
+  <div class="slds-border_top"></div>
+  
+  <c-modal-popup-base  
+      title={labels.INF_CREATE_HIERARCHY}
+      data-id="createHierarchyModal"
+      onclose={closeCreate}>
+    <c-consolidation-create-hierarchy
+            specifications-by-dev-names={specificationsByDevNames}
+            is-multi-currency-enabled={isMultiCurrencyEnabled}
+    ></c-consolidation-create-hierarchy>
+  </c-modal-popup-base>
+
+  <c-modal-popup-base
+        data-jest="addModal"
+        title={labels.INF_ADD_LEDGER}
+        data-id="addLedgerModal"
+        onclose={closeModals}>
+        <c-consolidation-customize-hierarchy
+            ledger-hierarchy-id={editRecordId}
+            parent-ledger-hierarchy-id={parentLedgerHierarchyId}
+            parent-ledger-hierarchy-name={parentLedgerHierarchyName}
+            specifications-by-dev-names={specificationsByDevNames}
+            is-multi-currency-enabled={isMultiCurrencyEnabled}
+            oncancel={closeModals}
+            onsuccess={closeModalsRefresh}>
+        </c-consolidation-customize-hierarchy>
+  </c-modal-popup-base>
+
+  <c-modal-popup-base
+        data-jest="editModal"
+        title={labels.INF_EDIT_LEDGER_HIERARCHY}
+        data-id="editLedgerModal"
+        onclose={closeModals}>
+        <c-consolidation-customize-hierarchy
+            ledger-hierarchy-id={editRecordId}
+            ledger-hierarchy-sort-order={editRecordSortOrder}
+            max-ledger-hierarchy-sort-order={maxEditRecordSortOrder}
+            specifications-by-dev-names={specificationsByDevNames}
+            is-multi-currency-enabled={isMultiCurrencyEnabled}
+            oncancel={closeModals}
+            onsuccess={handleEditSuccess}>
+        </c-consolidation-customize-hierarchy>
+  </c-modal-popup-base>
+
+  <c-modal-popup-base 
+      data-jest="deleteModal"
+      title={labels.INF_REMOVE_LEDGER}
+      data-id="removeLedgerModal"
+      onclose={closeModals}>
+        <c-consolidation-delete-hierarchy
+            delete-record-id={deleteRecordId}
+            elimination-to-delete-name={eliminationToDeleteName}
+            oncancel={closeModals}
+            onsuccess={handleDeleteSuccess}
+            onerror={handleDeleteError}>
+        </c-consolidation-delete-hierarchy>
+  </c-modal-popup-base>
+  <template if:true={error}>
+    <c-inline-error-message class="inline-error-msg" errors={error}></c-inline-error-message>
+  </template>
+  <template if:false={loaded}>
+    <lightning-spinner
+      variant="brand"
+      alternative-text={labels.commonLoading}
+      size="medium">
+    </lightning-spinner>
+  </template>
+  <div class="slds-box slds-p-around_small">
+    <template if:true={showConfigWarning}>
+      <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" data-jest-name="warning">
+        <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+        <h2 class="slds-p-left_x-small warn-max-records">
+          {labels.WRN_CONFIGURATION_REQUIRED}&nbsp;
+          <lightning-formatted-url
+            value="https://support.accountingseed.com/hc/en-us/articles/4406923413651"
+            tooltip={labels.INF_CONSOLIDATION_CONFIGURATION}
+            label={labels.INF_CONSOLIDATION_CONFIGURATION}
+            target="_blank" >
+          </lightning-formatted-url>
+          &nbsp;{labels.INF_KB_ARTICLE_COMPLETE_SETUP}
+        </h2>
+      </div>
+    </template>
+    <div class="slds-m-top_medium slds-m-bottom_medium">
+      <lightning-button 
+        label={labels.INF_CREATE_HIERARCHY}
+        title={labels.INF_CREATE_HIERARCHY}
+        onclick={create}>
+      </lightning-button>
+      <lightning-button 
+        label={labels.commonExpandAll} 
+        title={labels.commonExpandAll} 
+        icon-name="utility:arrowdown" 
+        class="slds-m-left_x-small"
+        onclick={expandAll}>
+      </lightning-button>
+      <lightning-button 
+        label={labels.commonCollapseAll} 
+        title={labels.commonCollapseAll} 
+        icon-name="utility:arrowup" 
+        class="slds-m-left_x-small"
+        onclick={collapseAll}>
+      </lightning-button>
+    </div>
+    <div class="slds-m-bottom_medium">
+      <template if:true={loaded}>
+        <lightning-tree-grid
+          data={data}
+          columns={columns}
+          key-field="Id"
+          hide-checkbox-column
+          onrowaction={handleRowAction}>
+        </lightning-tree-grid>
+        <template if:true={showNoContentPage}>
+          <c-illustration-no-content>
+            <div class="slds-text-heading_medium">{labels.INF_NO_HIERARCHIES_TO_DISPLAY}</div>
+            <p class="slds-p-top_medium">{labels.commonClick} <a style="text-decoration: underline" onclick={create}>{labels.INF_SMALL_CREATE}</a> {labels.INF_TO_GET_STARTED}</p>
+          </c-illustration-no-content>
+        </template>
+      </template>
+    </div>
+  </div>
+</template>

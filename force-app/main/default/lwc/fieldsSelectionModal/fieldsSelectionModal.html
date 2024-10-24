@@ -1,0 +1,23 @@
+<template>
+    <lightning-modal-header label="Select Fields to Display"></lightning-modal-header>
+    <lightning-modal-body>
+        <lightning-dual-listbox
+            name="fieldsSelectionBox"
+            source-label="Available Fields"
+            selected-label="Selected fields"
+            options={availableFields} 
+            value={selectedFields}
+            onchange={handleFieldSelection}
+            disable-reordering>
+        </lightning-dual-listbox>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <lightning-button
+            disabled={isFieldsSelected}
+            variant="brand"
+            label="Save"
+            title="Add fields to datatable"
+            onclick={AddFieldsToDatatable}>
+        </lightning-button>
+    </lightning-modal-footer>
+</template>

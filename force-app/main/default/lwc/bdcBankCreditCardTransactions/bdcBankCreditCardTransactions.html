@@ -1,0 +1,224 @@
+<template>
+    <!-- loading spinner -->
+    <template if:true={isSpinner}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoadingText} size="medium"></lightning-spinner>
+    </template>
+
+    <template if:false={isError}>
+        <lightning-card class="bank-transaction-card">
+            <div slot="title">
+                <c-card-title-stacked
+                    icon-name="custom:custom42"
+                    value={labels.INF_BANK_CREDIT_CARD_TRXNS}>
+                </c-card-title-stacked>
+            </div>
+
+            <!-- validation errors -->
+            <template if:true={error}>
+                <c-inline-error-message class="inline-error-msg" errors={error}></c-inline-error-message>
+            </template>
+
+            <template if:true={isAllBTOverLimit}>
+                <template if:true={showAllTransaction}>
+                    <div class="slds-p-around_medium">
+                        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" role="alert">
+                            {labels.INF_RECENT_RECORDS_DISPLAYED}
+                        </div>
+                    </div>
+                </template>
+            </template>
+
+            <!-- header info -->
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="4" flexibility="auto, no-grow" padding="horizontal-small">
+                    <lightning-layout horizontal-align="center" multiple-rows>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="horizontal-small">
+                            <div class="slds-form-element__label">{labels.INF_FINANCIAL_INSTITUTION_ACCOUNT}</div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="horizontal-small">
+                            <lightning-combobox lwc:ref="financialInsBox"
+                                name="postingStatus"
+                                label={labels.commonFinancialInstitution}
+                                variant="label-hidden"
+                                value={bankAccountValue}
+                                title={bankAccountName}
+                                options={bankAccountOptions}
+                                onchange={handleBankAccountChange}>
+                            </lightning-combobox>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="around-small">
+                            <div class="slds-form-element__label">{bankGlAccount.label}</div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="around-small">
+                            <c-custom-form-field-template field-api-name="AcctSeed__GL_Account__c"
+                                                          record-api-name="AcctSeed__GL_Account_Mapping__c"
+                                                          record-id={bankGlAccount.value}
+                                                          variant="label-hidden"
+                                                          data-jest-name="glAccountValue">
+                            </c-custom-form-field-template>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="horizontal-small">
+                            <div class="slds-form-element__label">{currency.label}</div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="horizontal-small">
+                            <lightning-formatted-text value={currency.value}></lightning-formatted-text>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="around-small">
+                            <div class="slds-form-element__label">{ledger.label}</div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="around-small">
+                            <c-custom-form-field-template field-api-name="AcctSeed__Ledger__c"
+                                                          record-api-name="AcctSeed__GL_Account_Mapping__c"
+                                                          record-id={ledger.value}
+                                                          variant="label-hidden"
+                                                          data-jest-name="ledgerValue">
+                            </c-custom-form-field-template>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </lightning-layout-item>
+                <lightning-layout-item size="4" flexibility="auto" padding="horizontal-small">
+                    <lightning-layout horizontal-align="center" multiple-rows>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="horizontal-small">
+                            <div class="slds-form-element__label">{currentBalance.label}</div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="horizontal-small">
+                            <c-formatted-currency
+                                currency-value={currentBalance.value}
+                                currency-iso-code={currencyCode}
+                                is-multi-currency-organization={isMultiCurrencyEnabled}
+                                data-jest-name="currentBalanceValue">
+                            </c-formatted-currency >
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="around-small">
+                            <div class="slds-form-element__label">{availableBalance.label}</div>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="around-small">
+                            <c-formatted-currency
+                                currency-value={availableBalance.value}
+                                currency-iso-code={currencyCode}
+                                is-multi-currency-organization={isMultiCurrencyEnabled}
+                                data-jest-name="availableBalanceValue">
+                            </c-formatted-currency>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="horizontal-small">
+                            <div class="slds-form-element__label">{lastRefreshedDate.label}</div>
+                            <lightning-helptext content={lastRefreshedDate.helpText}></lightning-helptext>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="horizontal-small">
+                            <lightning-formatted-date-time value={lastRefreshedDate.value}
+                                                           year="numeric"
+                                                           month="2-digit"
+                                                           day="2-digit"
+                                                           hour="2-digit"
+                                                           minute="2-digit"
+                                                           time-zone={timezoneName}
+                                                           data-jest-name="lastRefreshedDateValue">
+                            </lightning-formatted-date-time>
+                        </lightning-layout-item>
+                        <template if:true={showDownloadButton}>
+                            <lightning-layout-item size="6" flexibility="auto, no-grow" class="slds-p-top_small" padding="horizontal-small">
+                                <div class="slds-form-element__label">{labels.BDC_DOWNLOAD_TRANSACTIONS}</div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="6" flexibility="auto, no-grow" class="slds-p-top_small" padding="horizontal-small">
+                                <lightning-button class="btn-download" disabled={downloadDisabled} label={labels.BDC_DOWNLOAD} variant="brand"
+                                    onclick={handleDownload}>
+                                </lightning-button>
+                            </lightning-layout-item>
+                        </template>
+
+                        <template if:true={showFIAStatusMessage}>
+                            <lightning-layout-item size="12" flexibility="auto, no-grow" padding="horizontal-small">
+                                <c-error-panel warning-message={labels.WRN_FIA_FAILED_TO_CONNECT}></c-error-panel>                                
+                            </lightning-layout-item>
+                        </template>   
+                        <template if:true={showMFAMessage}>
+                            <lightning-layout-item size="12" flexibility="auto, no-grow" padding="horizontal-small">
+                                <c-error-panel warning-message={labels.WRN_ACCOUNT_NOT_UPDATE_GO_TO_BANK_SETTINGS}></c-error-panel>                                
+                            </lightning-layout-item>
+                        </template>                        
+
+                    </lightning-layout>
+                </lightning-layout-item>
+
+                <template if:true={showAllTransaction}>
+                    <lightning-layout-item size="4" flexibility="auto" padding="horizontal-small">
+                        <!-- filters -->
+                        <c-bdc-bank-transactions-filter
+                            label={labels.INF_FILTER_BANK_TRANSACTIONS}
+                            customer={filter.customerId}
+                            customer-name={filter.customerName}
+                            reference={filter.reference}
+                            transaction-type={filter.transactionType}
+                            status={filter.status}
+                            gl-account={filter.glAccount}
+                            gl-account-name={filter.glAccountName}
+                            date-start={filter.dateStart}
+                            date-end={filter.dateEnd}
+                            amount-start={filter.amountStart}
+                            amount-end={filter.amountEnd}
+                            onvaluechange={handleFilterChange}>
+                        </c-bdc-bank-transactions-filter>
+                        <lightning-button-group class="slds-p-around_x-small slds-float_right">
+                            <lightning-button class="btn-save-refresh"
+                                              onclick={handleSearch}
+                                              label={labels.commonFilter}>
+                            </lightning-button>
+                        </lightning-button-group>
+                    </lightning-layout-item>
+                </template>
+            </lightning-layout>
+        </lightning-card>
+
+        <!-- transactions grid -->
+        <lightning-card>
+            <lightning-tabset>
+                <lightning-tab label={labels.INF_UNMATCHED_BANK_TRANSACTIONS} onactive={showUnmatchedActive} data-jest-name="unmatchedTab">
+                    <c-custom-data-table columns={unmatchedColumns}
+                                         additional-columns={unmatchedAdditionalColumns}
+                                         items={unmatchedBankTransactions}
+                                         onitemsaction={handleUnmatchedItemsAction}
+                                         onsort={handleUnmatchedSort}
+                                         onpageselect={handlePageSelect}
+                                         max-records-displayed={maxInvoicesDisplayed}
+                                         sorted-by={unmatchedSortOpts.sortedBy}
+                                         sorted-direction={unmatchedSortOpts.sortedDirection}
+                                         default-edit="true"
+                                         class="unmatched-table"
+                                         additional-section-template-name={unmatchedTemplateName}
+                                         data-id="unmatched-data-table">
+                    </c-custom-data-table>
+                </lightning-tab>
+                <lightning-tab label={labels.INF_ALL_BANK_TRANSACTIONS} onactive={showAllActive} data-jest-name="allTab">
+                    <c-custom-data-table columns={transactionColumns}
+                                         additional-columns={transactionAdditionalColumns}
+                                         items={bankTransactions}
+                                         onitemsaction={handleBTItemsAction}
+                                         max-records-displayed={maxInvoicesDisplayed}
+                                         sorted-by={sortOpts.sortedBy}
+                                         sorted-direction={sortOpts.sortedDirection}
+                                         onsort={handleSort}
+                                         class="common-table">
+                    </c-custom-data-table>
+                </lightning-tab>
+            </lightning-tabset>
+        </lightning-card>
+    </template>
+
+    <!-- load errors. ex. not posted -->
+    <template if:true={isError}>
+        <lightning-card title="" class="error-page">
+            <div slot="actions">
+                <lightning-button-group>
+                    <lightning-button class="btn-cancel" label={labels.commonBack}></lightning-button>
+                </lightning-button-group>
+            </div>
+            <div class="slds-p-around_medium">
+                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                    {error}
+                </div>
+            </div>
+        </lightning-card>
+    </template>
+
+
+</template>

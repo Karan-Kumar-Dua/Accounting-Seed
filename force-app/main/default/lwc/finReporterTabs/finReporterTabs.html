@@ -1,0 +1,84 @@
+<template>
+    <lightning-card>
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure" style="padding-top: 5px;">
+                            <span class="slds-icon_container slds-icon-standard-account" title={labels.commonFinancialReports}>
+                               <lightning-icon icon-name={headerIcon} size="medium"></lightning-icon>
+                              <span class="slds-assistive-text">{labels.commonFinancialReports}</span>
+                            </span>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-float_right">
+                                <div class="tooltip">
+                                    <span class="tooltiptext">{labels.accountingHomeManagementReports}</span>
+                                    <lightning-icon alternative-text={labels.accountingHomeManagementReports}
+                                                    icon-name="standard:service_report"
+                                                    onclick={openMR}
+                                                    title={labels.accountingHomeManagementReports}>
+
+                                    </lightning-icon>
+                                </div>
+                                <strong class="slds-m-left_x-small"></strong>
+                                <div class="tooltip">
+                                    <span class="tooltiptext">{labels.knowledgeBase}</span>
+                                    <lightning-icon alternative-text={labels.knowledgeBase}
+                                                    icon-name="standard:question_feed"
+                                                    onclick={openKB}
+                                                    title={labels.knowledgeBase}>
+                                    </lightning-icon>
+                                </div>
+                                <strong class="slds-m-left_x-small"></strong>
+                                <div class="tooltip">
+                                    <span class="tooltiptext">{labels.INF_DASHBOARD}</span>
+                                    <lightning-icon alternative-text={labels.INF_DASHBOARD}
+                                                    icon-name="standard:dashboard"
+                                                    onclick={openDB}
+                                                    title={labels.INF_DASHBOARD}>
+                                    </lightning-icon>
+                                </div>
+                            </div>
+                            <p class="slds-page-header__name-meta">{headerTitle}</p>
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span class="slds-page-header__title slds-truncate" title={headerValue}>{headerValue}</span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slds-p-around_x-large">
+            <lightning-tabset active-tab-value={activeTabValue}>
+                <lightning-tab label={labels.INF_STANDARD_REPORTS} onactive={activeStandardReportsTab} value={tabValues.standardReports} >
+                    <c-fin-reporter-std-reports active-report-value={activeReportValue}
+                                                ledger-id={ledgerId}
+                                                gl-account-id={glAccountId}
+                                                default-acct-period={defaultAcctPeriod}
+                                                defaultglav1={defaultglav1}
+                                                defaultglav2={defaultglav2}
+                                                defaultglav3={defaultglav3}
+                                                defaultglav4={defaultglav4}>
+                    </c-fin-reporter-std-reports>
+                </lightning-tab>
+                <lightning-tab label={labels.commonCustomReports} onactive={activeCustomReportsTab} value={tabValues.customReports} >
+                    <c-fin-reporter-custom-reports></c-fin-reporter-custom-reports>
+                </lightning-tab>
+                <lightning-tab label={labels.accountingHomeReportSettings} onactive={activeSettingsTab} value={tabValues.reportSettings} >
+                    <c-fin-reporter-settings></c-fin-reporter-settings>
+                </lightning-tab>
+                <lightning-tab label={labels.accountingHomeRunConsolidations} onactive={activeRunConsolidationsTab} value={tabValues.runConsolidations} >
+                    <c-consolidation-run ></c-consolidation-run>
+                </lightning-tab>
+                <lightning-tab label={labels.accountingHomeSetupConsolidations} onactive={activeSetupConsolidationsTab} value={tabValues.setupConsolidations} >
+                    <c-consolidation-setup></c-consolidation-setup>
+                </lightning-tab>
+            </lightning-tabset>
+        </div>
+    </lightning-card>
+</template>

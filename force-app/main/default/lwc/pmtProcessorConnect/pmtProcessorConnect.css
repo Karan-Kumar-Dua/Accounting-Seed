@@ -1,0 +1,32 @@
+.testColorCombo {
+    font-size: 16px;
+    width: 60px;
+    height: 36px;
+    background-color: #EB5757;
+    color: white;
+    font-family: sans-serif;
+}
+
+.liveColorCombo {
+    font-size: 16px;
+    width: 55px;
+    height: 36px;
+    background-color: #219653;
+    color: white;
+    font-family: sans-serif;
+}
+
+.leftRightMargin {
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+.fontStyle {
+    font-size: 16px;
+    font-family: sans-serif;
+}
+
+.fontStyleNote {
+    font-size: 14px;
+    font-family: sans-serif;
+}

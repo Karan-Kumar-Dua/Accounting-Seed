@@ -1,0 +1,4 @@
+<aura:component implements="lightning:actionOverride">
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+    <c:timeCardNew></c:timeCardNew>
+</aura:component>

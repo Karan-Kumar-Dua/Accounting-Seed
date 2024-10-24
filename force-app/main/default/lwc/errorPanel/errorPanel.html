@@ -1,0 +1,33 @@
+<template>
+    <template if:true={renderAsWarning}>
+        <div class="slds-p-around_medium slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" role="alert">
+            <span class="slds-icon_container slds-m-right_x-small" title={labels.INF_DESCRIPTION_OF_ITEM_NEEDED}>
+                <lightning-icon icon-name="utility:warning" variant="inverse"></lightning-icon>
+            </span>
+            <h2>{warningMessage}</h2>
+        </div>
+    </template>
+    <template if:false={renderAsWarning}>
+        <div class="slds-p-around_medium">
+            <lightning-icon icon-name="utility:error"></lightning-icon>
+            <div class="slds-p-around_small">
+                <p>{friendlyMessage}</p>
+                <template if:true={errorMessages.length}>
+                    <div class="slds-p-vertical_x-small">
+                        <lightning-input
+                                label={labels.INF_SHOW_DETAILS}
+                                type="checkbox"
+                                onchange={handleCheckboxChange}
+                        ></lightning-input>
+                    </div>
+                    <template if:true={viewDetails}>
+                        <template for:each={errorMessages} for:item="message">
+                            <p key={message} class="error-message">{message}</p>
+                        </template>
+                    </template>
+                </template>
+            </div>
+        </div>
+    </template>
+    
+</template>

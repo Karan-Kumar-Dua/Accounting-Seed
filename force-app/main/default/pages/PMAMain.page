@@ -1,0 +1,6 @@
+<apex:page title="{!$Label.AcctSeed__COMMON_ACCOUNTING_SETTINGS + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" 
+    tabStyle="Accounting_Settings__tab"
+    controller="PMAMainControllerExt"
+    action="{!redirectToStripeSettings}">
+    <p>{!$Api.Session_ID}</p>
+</apex:page>

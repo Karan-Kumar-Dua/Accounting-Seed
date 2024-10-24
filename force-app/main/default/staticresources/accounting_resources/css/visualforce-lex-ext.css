@@ -1,0 +1,74 @@
+/*
+*=====================================
+*Temp styling for VF in LEX
+*=====================================
+*/
+
+.pbButton {
+    text-align: left !important;
+}
+.pbButtonb {
+    padding-left: 13px !important;
+    text-align: left !important;
+}
+.pbTitle {
+    width: 30% !important;
+    display: table-cell !important;
+}
+
+.fieldCommentLEX {
+    height: 33px;
+}
+
+.message {
+    justify-content: left !important;
+}
+
+.emptyDependentLookup {
+    background-color: white;
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+    width: inherit !important;
+    -webkit-transition: border 0.1s linear, background-color 0.1s linear;
+    transition: border 0.1s linear, background-color 0.1s linear;
+    display: inline-block;
+    padding: 0 1rem 0 0.75rem;
+    line-height: 1.875rem;
+    min-height: calc(1.875rem + (1px * 2));
+}
+
+td.cell-width-limit-large {
+    width: 50%;
+}
+
+td.cell-width-limit-medium {
+    width: 40%;
+}
+
+td.cell-width-limit-small {
+    width: 30%;
+}
+
+table.slds-vf-data-table.dataTable td.cell-nowrap {
+    white-space: nowrap;
+}
+
+table.slds-vf-data-table.dataTable td.cell-vertical-align {
+    vertical-align: middle;
+}
+
+table.slds-vf-data-table.dataTable.auto-layout {
+    table-layout: auto;
+}
+
+.helpImg.lex-m-right_small {
+    margin-right: 7px;
+}
+.helpImg.lex-m-left_none {
+    margin-left: unset;
+}
+
+/*
+*=======================================
+*=======================================
+*/

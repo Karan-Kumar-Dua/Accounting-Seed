@@ -1,0 +1,130 @@
+:host {
+  --lwc-tableColorBackgroundHeader: white;
+  --firstColumnWidth: 23em;
+  --leftMarginWidth: 3em;
+}
+.custom-button {
+  --sds-c-button-text-color: #0070d2;
+  --sds-c-button-text-color-hover: #0070d2;
+  --sds-c-button-text-color-active: #0070d2;
+  --sds-c-button-shadow: white;
+  --sds-c-button-shadow-focus: white;
+}
+
+.group-text-color {
+  color: #0070d2;
+}
+
+.table-border-collapse {
+  border-collapse: separate;
+}
+
+.borders-solid {
+  border-color: black;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-width: 2px;
+  border-bottom-width: 1px
+}
+
+.border-top-solid {
+  border-color: black;
+  border-top-style: solid;
+  border-bottom-style: double;
+  border-top-width: 2px;
+}
+
+.border-top-single {
+  border-color: black;
+  border-top-style: solid;
+  border-top-width: 1px;
+}
+
+.borders-single {
+  border-color: black;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-width: 1px;
+  border-bottom-width: 1px
+}
+
+.header-height {
+  height: 32px;
+}
+
+.row-height {
+  height: 40px;
+}
+
+.custom-theme_shade {
+  background-color: #f3f2f2 !important;
+}
+
+div.custom-table {
+  width: available;
+  overflow-x: scroll;
+  margin-left: var(--firstColumnWidth);
+}
+
+.headcol {
+  width: var(--firstColumnWidth);
+  left: var(--leftMarginWidth);
+  position: absolute;
+  top: auto;
+}
+
+.headcol-header {
+  width: var(--firstColumnWidth);
+  left: var(--leftMarginWidth);
+  position: absolute;
+  top: auto;
+  height: auto;
+  min-height: 32px;
+}
+
+.headcol-last {
+  width: var(--firstColumnWidth);
+  left: var(--leftMarginWidth);
+  position: absolute;
+  top: auto;
+  height: 40px;
+}
+
+.min-column-width {
+  min-width: 170px;
+}
+
+.custom-border-none {
+  border: none;
+}
+
+.header-font {
+  font-weight:bold;
+  font-size:18px;
+}
+
+.sub-category-1-font {
+  font-weight:bold;
+  font-size:16px;
+}
+
+.sub-category-2-font {
+  font-size:13px;
+}
+
+.child-font {
+  font-size:13px;
+}
+
+.header-total-font {
+  font-weight:bold;
+  font-size:16px;
+}
+
+.bold-font {
+  font-weight:bold;
+}
+
+.normal-font {
+  font-weight:normal;
+}

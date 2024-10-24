@@ -1,0 +1,145 @@
+<!-- Expense Report Line Edit Form -->
+<template>
+    <lightning-record-edit-form record-id={expenseLineId} object-api-name={objectApiName} onerror={handleError} onsubmit={handleSave} onsuccess={handleFormSuccess}>
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <lightning-messages></lightning-messages>
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                            <span if:true={expenseLineId}>
+                                {labels.INF_EDIT_EXPENSE_LINE}
+                                <lightning-output-field field-name="Name" variant="label-hidden"></lightning-output-field>
+                            </span>
+                            <span if:false={expenseLineId}>
+                                {labels.INF_NEW_EXPENSE_LINE}
+                            </span>
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1" style="height: 500px;">
+                        <template if:false={dataLoaded}>
+                            <div class="slds-spinner_container slds-is-relative" style="height: 350px;">
+                                <lightning-spinner alternative-text={labels.commonLoadingText} size="large"></lightning-spinner>
+                            </div>
+                        </template>
+                        <template if:true={dataLoaded}>
+                            <template if:true={error}>
+                                <c-error-panel friendly-message={labels.INF_EXPENSE_LINE_NOT_SAVED} errors={error}></c-error-panel>
+                            </template>
+                            <div class="slds-grid slds-gutters slds-wrap">
+                                <div class="slds-col slds-size_2-of-2">
+                                    <c-project-with-task-selection record-id={expenseLineId}
+                                                                   object-api-name={objectApiName}
+                                                                   project-id={projectId}
+                                                                   project-task-id={projectTaskId}
+                                                                   edit-mode={editMode}>
+
+                                    </c-project-with-task-selection>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input-field class="slds-m-around--medium"
+                                                           field-name='AcctSeed__Billable__c'
+                                                           value={AcctSeed__Billable__c}>
+                                    </lightning-input-field>
+                                    <lightning-input-field class="slds-m-around--medium"
+                                                           field-name='AcctSeed__Employee_Reimburse__c'
+                                                           value={AcctSeed__Employee_Reimburse__c}>
+                                    </lightning-input-field>
+                                    <template if:true={isShowCreditCardVendor}>
+                                        <lightning-combobox id="creditCardVendorComboBox"
+                                                            class="ccVendor"
+                                                            label={labels.commonCreditVendor}
+                                                            value={ccVendorId}
+                                                            placeholder={labels.INF_SELECT_CREDIT_CARD_VENDOR}
+                                                            options={expenseReportData.creditCardVendors}
+                                                            disabled={isCreditCardVendorNotUpdateable}
+                                                            onchange={handleCCVendorSelection}>
+                                        </lightning-combobox>
+                                    </template>
+                                    <lightning-input-field class="slds-m-around--medium"
+                                                           field-name='AcctSeed__Internal_Comment__c'
+                                                           value={AcctSeed__Internal_Comment__c}>
+                                    </lightning-input-field>
+                                    <lightning-input-field class="slds-m-around--medium"
+                                                           field-name='AcctSeed__Invoice_Comment__c'
+                                                           value={AcctSeed__Invoice_Comment__c}>
+                                    </lightning-input-field>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input-field field-name='AcctSeed__Date__c'
+                                                           value={AcctSeed__Date__c}>
+                                    </lightning-input-field>
+                                    <lightning-combobox id="expenseTypeComboBox"
+                                                        class="expenseType"
+                                                        label={labels.commonExpenseType}
+                                                        value={expenseGLAccountId}
+                                                        placeholder={labels.INF_SELECT_EXPENSE_TYPE}
+                                                        message-when-value-missing={labels.ERR_EXPENSE_TYPE_REQ}
+                                                        options={expenseTypeOptions}
+                                                        onchange={handleExpenseTypeSelection}
+                                                        required>
+                                    </lightning-combobox>
+                                    <template if:true={isMileage}>
+                                        <lightning-input label={labels.commonMileageOrigin}
+                                                         class="mileageOrigin"
+                                                         type="text"
+                                                         value={mileageOrigin}
+                                                         required
+                                                         message-when-value-missing={labels.ERR_MILEAGE_ORIGIN_REQ}
+                                                         onchange={handleMileageOriginChange}>
+
+                                        </lightning-input>
+                                        <lightning-input label={labels.commonMileageDestination}
+                                                         class="mileageDestination"
+                                                         type="text"
+                                                         value={mileageDestination}
+                                                         required
+                                                         message-when-value-missing={labels.ERR_MILEAGE_DESTINATION_REQ}
+                                                         onchange={handleMileageDestinationChange}>
+
+                                        </lightning-input>
+                                        <lightning-input label={labels.commonMiles}
+                                                         class="miles"
+                                                         type="number"
+                                                         formatter="decimal"
+                                                         step="any"
+                                                         value={miles}
+                                                         required
+                                                         message-when-value-missing={labels.ERR_MILES_REQ}
+                                                         onchange={handleMilesChange}>
+
+                                        </lightning-input>
+                                    </template>
+                                    <template if:false={isMileage}>
+                                        <lightning-input-field field-name='AcctSeed__Amount__c'
+                                                               value={AcctSeed__Amount__c}>
+                                        </lightning-input-field>
+                                    </template>
+                                    <template for:each={extraFields} for:item="extraField">
+                                        <lightning-input-field field-name={extraField.fieldPath} key={extraField.label} value={extraField.value}>
+                                        </lightning-input-field>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <template if:true={saveInProgress}>
+                            <div class="slds-spinner_container slds-is-relative" style="top:5px;">
+                                <lightning-spinner alternative-text={labels.commonLoadingText} size="medium"></lightning-spinner>
+                            </div>
+                            <lightning-button class="slds-m-around--xxx-small" type="button" label={labels.commonCancel} disabled></lightning-button>
+                            <lightning-button  class="slds-m-around--xxx-small" type="button" variant="brand" label={labels.commonSave} disabled></lightning-button>
+                        </template>
+                        <template if:false={saveInProgress}>
+                            <lightning-button class="slds-m-around--xxx-small cancel-btn-active" type="button" label={labels.commonCancel} onclick={handleCancel}></lightning-button>
+                            <lightning-button  class="slds-m-around--xxx-small" type="submit" variant="brand" label={labels.commonSave}></lightning-button>
+                        </template>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+
+    </lightning-record-edit-form>
+</template>

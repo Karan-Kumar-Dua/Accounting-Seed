@@ -1,0 +1,23 @@
+<!-- X Data Table Header -->
+<template>
+    <th data-id="header-error" if:true={errorColumn}></th>
+    <th class="slds-is-resizable dv-dynamic-width zeroWidth" scope="col" data-id="_selected" if:true={checkboxColumn}>
+        <div class="slds-truncate" title={labels.commonSelected} >
+            <lightning-input type="checkbox" checked={selectAll} value={selectAll} onchange={handleSelectAll} variant="lebel-hidden" data-id="header-checkbox"></lightning-input>
+        </div>
+    </th>
+    <template if:true={hasDrawerFields}>
+        <th data-id="datatable-swingallopen">
+            <lightning-button-icon icon-name={iconName} variant="bare" alternative-text={labels.commonDrawer} title={labels.commonDrawer} onclick={handleSwingAll} data-id="header-buttonicon"></lightning-button-icon>
+        </th>
+    </template>
+    <template if:true={hasReOrderCols}>
+        <th data-id="datatable-order"></th>
+    </template>
+    <template for:each={columns} for:item="column">
+       <th class="slds-is-resizable dv-dynamic-width rightBorder" scope="col" key={column.apiName} data-id={column.apiName} style={thStyle}>
+            <c-x-data-table-header-column column={column} default-sorting={defaultSorting} show-sort-button={showSortButton} data-id="header-sorting"></c-x-data-table-header-column>
+        </th>
+    </template>
+    <th if:true={actionColumn}></th>
+</template>

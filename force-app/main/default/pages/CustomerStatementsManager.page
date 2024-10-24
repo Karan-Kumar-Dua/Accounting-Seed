@@ -1,0 +1,49 @@
+<apex:page docType="html-5.0" standardController="Account" title="{!$Label.AcctSeed__COMMON_CAPS_STATEMENTS +' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="CustomerStatementsManagerController" recordSetVar="customers" showHeader="true" sidebar="true">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/common.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/post-table.css')}" />
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Account.labelPlural}" subtitle="{!$Label.AcctSeed__INF_CUSTOMER_STATEMENT_PDFS}" />
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__INF_MASS_SAVE_AND_EMAIL_PDFS}">
+            <apex:pageMessages escape="false" />
+            <apex:pageBlockButtons id="buttons">
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')" onstop="AcctSeed.ASModule.pageLoad()" />
+                <apex:commandButton id="saveButton" value="{!$Label.AcctSeed__COMMON_SAVE_PDFS}" action="{!savePDFs}" status="saveStatus" reRender="theForm" rendered="{!!isNoSelectedCustomers}" />
+                <apex:commandButton id="emailButton" value="{!$Label.AcctSeed__COMMON_EMAIL_PDFS}" action="{!emailPDFs}" status="saveStatus" reRender="theForm" rendered="{!!isNoSelectedCustomers}" disabled="{!isAllMiss}"/>
+                <apex:commandButton id="cancelButton" action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection html-data-class="generate-manager-as-of-holder">
+                <apex:pageBlockSectionItem >
+                    <div>
+                        <span>{!$Label.STATEMENT_MANAGER_GENERATE_STATEMENT_AS_OF_LABEL}</span>
+                        <img src="/s.gif" class="helpImg" title="{!$Label.STATEMENT_MANAGER_GENERATE_STATEMENT_AS_OF_HELP_TEXT}" />
+                    </div>
+                    <apex:inputField value="{!generateStatementAsOfProxyRecord.Discount_Due_Date__c}"></apex:inputField>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockTable columns="5" value="{!wrappedCustomers}" var="wrappedCustomer" rendered="{!!isNoSelectedCustomers}">
+                <apex:column headerValue="{!$ObjectType.Account.fields.Name.label}">
+                    <apex:outputLink value="/{!wrappedCustomer.customer.Id}">{!wrappedCustomer.customer.Name}</apex:outputLink>
+                </apex:column>
+                <apex:column headerValue="{!$ObjectType.Ledger__c.label}">
+                    <apex:selectList value="{!wrappedCustomer.selectedLedgerId}" size="1">
+                        <apex:selectOptions value="{!wrappedCustomer.availableLedgers}" />
+                        <apex:actionSupport event="onchange" action="{!changeLedger}" rerender="currency" />
+                    </apex:selectList>
+                </apex:column>
+                <apex:column headerValue="{!$Label.AcctSeed__COMMON_CURRENCY}" rendered="{!isMultiCurrencyEnabled}" id="currency">
+                    <apex:selectList value="{!wrappedCustomer.selectedCurrency}" size="1">
+                        <apex:selectOptions value="{!wrappedCustomer.availableCurrencies}"/>
+                    </apex:selectList>
+                </apex:column>
+                <apex:column headerValue="{!$ObjectType.Account.fields.Billing_Contact__c.label}">
+                    <apex:outputField value="{!wrappedCustomer.customer.Billing_Contact__c}" />
+                </apex:column>
+                <apex:column headerValue="{!$ObjectType.Account.fields.Billing_Contact__c.label} {!$ObjectType.Contact.fields.Email.label}">
+                    <apex:outputField value="{!wrappedCustomer.customer.Billing_Contact__r.Email}" />
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

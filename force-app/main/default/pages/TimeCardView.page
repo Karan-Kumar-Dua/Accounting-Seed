@@ -1,0 +1,92 @@
+<apex:page id="thePage" standardController="Time_Card__c" title="{!Time_Card__c.Name & ' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" tabStyle="Time_Card__c" extensions="TimeCardControllerExt">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery-ui.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/time-card.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/time-card-view.js')}" loadOnReady="true"/>
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/time-card.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/jquery-ui.min.css')}" />
+    <apex:form id="theForm">
+        <apex:pageMessages escape="false"/>
+        <apex:detail relatedlist="false" />
+        <apex:pageBlock id="thePageBlock" rendered="{!NOT(ISBLANK(timeCard))}" title="{!$ObjectType.Time_Card_Line__c.labelPlural}">
+            <apex:pageBlockSection id="pbsection" title="{!$ObjectType.Time_Card_Line__c.label} Detail" columns="1" showheader="false">
+                <apex:outputPanel id="tableSection">
+                    <apex:pageBlockTable id="theTable" value="{!wrapperList}" var="item">
+                        <apex:column style="width:8%" headerValue="{!$Label.AcctSeed__COMMON_LINE}" >
+                            <apex:outputField value="{!item.timeCardLine.name}" />
+                        </apex:column>
+                        <apex:column style="width:12%" headerValue="{!$ObjectType.Time_Card_Line__c.fields.Project__c.Label}">
+                            <apex:outputField value="{!item.timeCardLine.Project__c}"/>
+                        </apex:column>
+                        <apex:column style="width:15%" headerValue="{!$ObjectType.Time_Card_Line__c.fields.Project_Task__c.Label}">
+                            <apex:outputField value="{!item.timeCardLine.Project_Task__c}"/>
+                        </apex:column>
+                        <apex:column width="4%" headerValue="{!$Label.AcctSeed__COMMON_BILLABLE}" rendered="{!uiConfig.showBillable && $ObjectType.Time_Card_Line__c.fields.Billable__c.Accessible}">
+                            <apex:outputField value="{!item.timeCardLine.Billable__c}" rendered="{!uiConfig.showBillable}"/>
+                        </apex:column>
+                        <apex:column width="4%" headerValue="{!$Label.AcctSeed__COMMON_OVERTIME}" rendered="{!$ObjectType.Time_Card_Line__c.fields.Overtime__c.Accessible}">
+                            <apex:outputField value="{!item.timeCardLine.Overtime__c}" />
+                        </apex:column>
+                        <apex:column headerValue="{!uiConfig.variable1Name}" rendered="{!!ISBLANK(uiConfig.variable1Name) && $ObjectType.Time_Card_Line__c.fields.Time_Card_Variable_1__c.Accessible}">
+                            <apex:outputField value="{!item.timeCardLine.Time_Card_Variable_1__c}"/>
+                        </apex:column>
+                        <apex:column headerValue="{!uiConfig.variable2Name}" rendered="{!!ISBLANK(uiConfig.variable2Name) && $ObjectType.Time_Card_Line__c.fields.Time_Card_Variable_2__c.Accessible}">
+                            <apex:outputField value="{!item.timeCardLine.Time_Card_Variable_2__c}"/>
+                        </apex:column>
+                        <apex:repeat id="theRepeatInput" value="{!item.days}" var="day">
+                            <apex:column width="5%" styleClass="align-right">
+                                <span id="timeCardDayCell" class="{!IF(!ISBLANK(day.Invoice_Comment__c) || !ISBLANK(day.Internal_Comment__c),'ui-state-default ui-corner-all','')}">
+                                    <apex:outputField id="timeCardDay" value="{!day.Hours__c}"/>      
+                                </span>
+                                <apex:outputPanel id="dialog" title="{!$Label.AcctSeed__COMMON_COMMENTS}" style="display:none">
+                                    <br/><b>{!$Label.AcctSeed__COMMON_INTERNAL_COMMENT}:</b><br/>{!day.Internal_Comment__c}<br/>
+                                    <br/><b>{!$Label.AcctSeed__INF_INVOICE_COMMENT}:</b><br/>{!day.Invoice_Comment__c}<br/>
+                                </apex:outputPanel>
+                            </apex:column>
+                        </apex:repeat>
+                        <apex:repeat id="theRepeatHeader" value="{!DayHeaders}" var="header">
+                            <apex:column width="5%" styleClass="empty-column-content" headerClass="align-right" footerClass="align-right">
+                                <apex:facet name="header">
+                                    <apex:outputText value="{!header}"/>
+                                </apex:facet>
+                                <apex:facet name="footer">
+                                    <apex:outputText id="dayTotal"/>
+                                </apex:facet>
+                            </apex:column>
+                        </apex:repeat>
+                        <apex:column width="5%" styleClass="align-right" headerClass="align-right" footerClass="align-right" headerValue="{!$Label.AcctSeed__COMMON_TOTAL}">
+                            <apex:outputText id="lineTotal" value="{0, number, ##0.00}">
+                                <apex:param value="{!item.LineTotal}"/>
+                            </apex:outputText>
+                            <apex:facet name="footer">
+                                <apex:outputText id="timeCardTotal" value="{0, number, ##0.00}">
+                                    <apex:param value="{!TimeCardTotal}"/>
+                                </apex:outputText>
+                            </apex:facet>
+                        </apex:column>
+                        <apex:column width="6%" headerClass="align-right" styleClass="align-right" headerValue="{!$Label.AcctSeed__COMMON_COMMENTS}">
+                            <apex:outputPanel rendered="{!!ISBLANK(item.timeCardLine.Id)}">
+                                <apex:actionStatus id="mySaveStatus">
+                                    <apex:facet name="stop">
+                                        <apex:commandLink action="{!$Page.TimeCardLineView}?Id={!item.timeCardLine.Id}" id="Comments" title="{!$Label.AcctSeed__COMMON_SHOW_COMMENTS}" status="mySaveStatus" rerender="theForm" >
+                                            <apex:image url="{!URLFOR($Resource.accounting_resources, 'images/comment.png')}" styleClass=" margin-right"/>
+                                        </apex:commandLink>
+                                    </apex:facet>
+                                    <apex:facet name="start">
+                                        <apex:image url="{!URLFOR($Resource.accounting_resources, 'images/comment.png')}" styleClass=" margin-right"/>
+                                    </apex:facet>
+                                </apex:actionStatus>
+                            </apex:outputPanel>
+                        </apex:column>
+                    </apex:pageBlockTable>
+                </apex:outputPanel>
+                <apex:outputPanel ><span style="font-weight:bold">Note</span> - {!$Label.AcctSeed__INF_COMMENT_ENTERED}</apex:outputPanel>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:outputField value="{!Time_Card__c.Time_Card_Period__r.Start_Date__c}" rendered="false"/>
+        <apex:outputField value="{!Time_Card__c.Time_Card_Period__r.End_Date__c}" rendered="false"/>
+    </apex:form>
+    <apex:relatedList list="ProcessSteps"/>
+    <apex:relatedList list="CombinedAttachments" />
+</apex:page>

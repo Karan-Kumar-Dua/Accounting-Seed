@@ -1,0 +1,208 @@
+<template>
+    <div class="slds-theme_default" data-id="calculator">
+        <template if:true={isSpinner}>
+            <lightning-spinner variant="brand" alternative-text={labels.commonLoadingText} size="medium"></lightning-spinner>
+        </template>
+        <div class="slds-float_right slds-m-right_large slds-m-top_x-small">
+            <button tabindex="-1" onclick={handlePinned} class="slds-button pin-button-container">
+                <lightning-icon icon-name={wu_pinnedIcon}
+                                title={wu_pinnedTitle}
+                                size="xx-small">
+                </lightning-icon>
+            </button>
+        </div>
+        <lightning-record-view-form
+            object-api-name={objectApiName}
+            record-id={recordId}
+            onload={handleLoad}
+            density="comfy">
+            <template if:true={record}>
+                <lightning-layout multiple-rows="true">
+                    <lightning-layout-item size="12" padding="around-small">
+                        <template if:true={isCompleted}>
+                            <template if:true={showArchivedPeriodWarning}>
+                                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning slds-m-top_small">
+                                    <lightning-icon icon-name="utility:info" size="small" variant="inverse"></lightning-icon>
+                                    <h2 class="slds-p-left_x-small">
+                                        {labels.WRN_GL_BALANCE_NOT_CALCULATED_FALLS_IN_ARCHIEVE_PERIOD}
+                                    </h2>
+                                </div>
+                            </template>
+                            <template if:true={isCompletedAndCurrencyMatches}>
+                                <p class="slds-text-title_bold"
+                                   title={labels.INF_RECONCILIATION_CALC_STMT_BALANCE_TO_GL_BALANCE}>{labels.INF_RECONCILIATION_CALC_STMT_BALANCE_TO_GL_BALANCE}
+                                </p>
+                            </template>
+                            <template if:false={isCompletedAndCurrencyMatches}>
+                                <p class="slds-text-title_bold"
+                                   title={labels.INF_RECONCILIATION_CALC_STMT_BALANCE_TO_CALC_BALANCE}>
+                                   {labels.INF_RECONCILIATION_CALC_STMT_BALANCE_TO_CALC_BALANCE}</p>
+                            </template>
+                        </template>
+                        <template if:false={isCompleted}>
+                            <p class="slds-text-title_bold" title={labels.INF_RECONCILIATION_CALC_GL_BALANCE_TO_STMT_BALANCE}>
+                                {labels.INF_RECONCILIATION_CALC_GL_BALANCE_TO_STMT_BALANCE}</p>
+                        </template>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small">
+                        <template if:true={isCompleted}>
+                            <span class="slds-text-heading_small"
+                                  title={endingBalanceLabel}>{endingBalanceLabel}</span>
+                            <lightning-output-field data-jest-name="column1" field-class={endingBalanceClass}
+                                                    field-name={br.ending_balance.fieldApiName} variant="label-hidden">
+                            </lightning-output-field>
+                        </template>
+                        <template if:false={isCompleted}>
+                            <span class="slds-text-heading_small"
+                                  title={beginningBalanceLabel}>{beginningBalanceLabel}</span>
+                            <lightning-output-field data-jest-name="column1" field-class={beginningBalanceClass}
+                                                    field-name={br.beginning_balance.fieldApiName} variant="label-hidden">
+                            </lightning-output-field>
+                        </template>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small">
+                        <p title={labels.INF_OPERATOR1}>&nbsp;</p>
+                        <template if:true={isCredit}>
+                            <lightning-icon data-jest-name="operator1" icon-name="utility:dash" size="small"
+                                            variant="error"></lightning-icon>
+                        </template>
+                        <template if:false={isCredit}>
+                            <lightning-icon data-jest-name="operator1" icon-name="utility:add" size="small"
+                                            variant="warning"></lightning-icon>
+                        </template>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small">
+                        <template if:true={isCompleted}>
+                            <span class="slds-text-heading_small" title={unclearedDepositsLabel}>{unclearedDepositsLabel}</span>
+                            <lightning-output-field data-jest-name="column2" field-class={unclearedDepositsClass}
+                                                    field-name={br.uncleared_deposits.fieldApiName} variant="label-hidden">
+                            </lightning-output-field>
+                        </template>
+                        <template if:false={isCompleted}>
+                            <span class="slds-text-heading_small"
+                                  title={clearedDepositsLabel}>{clearedDepositsLabel}</span>
+                            <lightning-output-field data-jest-name="column2" field-class={clearedDepositsClass}
+                                                    field-name={br.cleared_deposits.fieldApiName} variant="label-hidden">
+                            </lightning-output-field>
+                        </template>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small">
+                        <p title={labels.INF_OPERATOR2}>&nbsp;</p>
+                        <template if:true={isCredit}>
+                            <lightning-icon data-jest-name="operator2" icon-name="utility:add" size="small"
+                                            variant="warning"></lightning-icon>
+                        </template>
+                        <template if:false={isCredit}>
+                            <lightning-icon data-jest-name="operator2" icon-name="utility:dash" size="small"
+                                            variant="error"></lightning-icon>
+                        </template>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small">
+                        <template if:true={isCompleted}>
+                            <span class="slds-text-heading_small" title={unclearedPaymentsLabel}>{unclearedPaymentsLabel}</span>
+                            <lightning-output-field data-jest-name="column3" field-class={unclearedPaymentsClass}
+                                                    field-name={br.uncleared_payments.fieldApiName} variant="label-hidden">
+                            </lightning-output-field>
+                        </template>
+                        <template if:false={isCompleted}>
+                            <span class="slds-text-heading_small" title={clearedDisbLabel}>{clearedDisbLabel}</span>
+                            <lightning-output-field data-jest-name="column3" field-class={clearedDisbursementsClass}
+                                                    field-name={br.cleared_disbursements.fieldApiName}
+                                                    variant="label-hidden">
+                            </lightning-output-field>
+                        </template>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small">
+                        <p title={labels.INF_EQUALS_LOWERCASE}>&nbsp;</p>
+                        <lightning-icon icon-name="utility:assignment" size="small" variant="success"></lightning-icon>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small">
+                        <template if:true={isCompleted}>
+                            <span class="slds-text-heading_small"
+                                  title={calculatedGLBalanceLabel}>{calculatedGLBalanceLabel}</span>
+                            <lightning-output-field data-jest-name="column4" field-class={calculatedGLBalanceClass}
+                                                    field-name={br.calculated_gl_balance.fieldApiName}
+                                                    variant="label-hidden">
+                            </lightning-output-field>
+                        </template>
+                        <template if:false={isCompleted}>
+                            <span class="slds-text-heading_small"
+                                  title={calculatedEndingBalanceLabel}>{calculatedEndingBalanceLabel}</span>
+                            <lightning-output-field data-jest-name="column4" field-class={calculatedEndingBalanceClass}
+                                                    field-name={br.calculated_ending_balance.fieldApiName}
+                                                    variant="label-hidden">
+                            </lightning-output-field>
+                        </template>
+                    </lightning-layout-item>
+                    <template if:false={isCompleted}>
+                        <lightning-layout-item padding="around-small">
+                            <p title={labels.INF_VS_SPACER}>&nbsp;</p>
+                            <p class="slds-text-title_bold" title={labels.INF_VS_LOWERCASE}>{labels.INF_VS}</p>
+                        </lightning-layout-item>
+                    </template>
+                    <template if:true={isCompletedAndCurrencyMatches}>
+                        <lightning-layout-item padding="around-small">
+                            <p title={labels.INF_VS_SPACER}>&nbsp;</p>
+                            <p class="slds-text-title_bold" title={labels.INF_VS_LOWERCASE}>{labels.INF_VS}</p>
+                        </lightning-layout-item>
+                    </template>
+                    <lightning-layout-item padding="around-small">
+                        <template if:true={isCompletedAndCurrencyMatches}>
+                            <span class="slds-text-heading_small"
+                                  title={glEndingBalanceLabel}>{glEndingBalanceLabel}</span>
+                            <lightning-output-field data-jest-name="column5" field-class={glEndingBalanceClass}
+                                                    field-name={br.gl_ending_balance.fieldApiName} variant="label-hidden">
+                            </lightning-output-field>
+                        </template>
+                        <template if:false={isCompleted}>
+                            <span class="slds-text-heading_small"
+                                  title={endingBalanceLabel}>{endingBalanceLabel}</span>
+                            <lightning-output-field data-jest-name="column5" field-class={endingBalanceClass}
+                                                    field-name={br.ending_balance.fieldApiName} variant="label-hidden">
+                            </lightning-output-field>
+                        </template>
+                    </lightning-layout-item>
+                    <template if:false={isCompleted}>
+                        <lightning-layout-item padding="around-small">
+                            <template if:false={noDifference}>
+                                <lightning-icon data-jest-name="warning" icon-name="utility:warning" size="large"
+                                                variant="warning"></lightning-icon>
+                            </template>
+                            <template if:true={noDifference}>
+                                <lightning-icon data-jest-name="success" icon-name="utility:success" size="large"
+                                                variant="success"></lightning-icon>
+                            </template>
+                        </lightning-layout-item>
+                        <lightning-layout-item padding="around-small">
+                            <p class="slds-text-heading_small" title={labels.commonDifference}>{labels.commonDifference}</p>
+                            <lightning-output-field data-jest-name="difference" field-class={differenceClass}
+                                                    field-name={br.uncleared_amount.fieldApiName} variant="label-hidden">
+                            </lightning-output-field>
+                        </lightning-layout-item>
+                    </template>
+                    <template if:true={isCompletedAndCurrencyMatches}>
+                        <lightning-layout-item padding="around-small">
+                            <template if:false={noGLDifference}>
+                                <lightning-icon data-jest-name="glwarning" icon-name="utility:warning" size="large"
+                                                variant="warning"></lightning-icon>
+                            </template>
+                            <template if:true={noGLDifference}>
+                                <lightning-icon data-jest-name="glsuccess" icon-name="utility:success" size="large"
+                                                variant="success"></lightning-icon>
+                            </template>
+                        </lightning-layout-item>
+                        <lightning-layout-item padding="around-small">
+                            <p class="slds-text-heading_small" title={labels.INF_GL_DIFFERENCE}>{labels.INF_GL_DIFFERENCE}</p>
+                            <lightning-output-field data-jest-name="gldifference" field-class={differenceGLClass}
+                                                    field-name={br.gl_difference.fieldApiName} variant="label-hidden">
+                            </lightning-output-field>
+                        </lightning-layout-item>
+                    </template>
+                </lightning-layout>
+            </template>
+        </lightning-record-view-form>
+        <template if:true={error}>
+            <c-error-panel errors={error}></c-error-panel>
+        </template>
+    </div>
+</template>

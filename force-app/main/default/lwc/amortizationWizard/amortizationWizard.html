@@ -1,0 +1,120 @@
+<template>
+    <div class={amortizeRevenueModalClasses}>
+        <c-modal-popup-base
+                data-jest="amortizeRevenueModal"
+                title={title}
+                data-id="amortizeRevenueModal"
+                is-hide-backdrop="true"
+                onclose={closeQuickAction}
+                onconnected={openModal}>
+
+            <div class="slds-border_top"></div>
+
+            <div class="slds-is-relative slds-p-around_small">
+                <template if:true={showSpinner}>
+                    <lightning-spinner variant="brand" alternative-text={labels.commonSaving} size="medium">
+                    </lightning-spinner>
+                </template>
+
+                <template if:true={isSelectMethodStep}>
+                    <div class="select-method--info_container">
+                        <div class="select-method--info_icon">
+                            <lightning-icon icon-name="utility:info"></lightning-icon>
+                        </div>
+                        <div class="select-method--info_text">
+                            {infoMessage}
+                        </div>
+                    </div>
+                </template>
+
+                <c-path items={pathItems} onitemclick={handleItemClick}></c-path>
+
+                <div if:true={commonInfos} class="common-info">
+                    <lightning-layout horizontal-align="spread" class="slds-p-left_small">
+                        <template for:each={commonInfos} for:item="commonInfo">
+                            <lightning-layout-item key={commonInfo.field} size={commonInfo.size}>
+                                <div class={commonInfo.containerClass}>
+                                    <span class="slds-form-element__label">{commonInfo.label}</span>
+                                    <div class="slds-form-element__control">
+                                        <div class="slds-form-element__static">
+                                            <a if:true={commonInfo.isLinkType} target="_blank" href={commonInfo.value}>{commonInfo.displayValue}</a>
+                                            <div if:true={commonInfo.isCurrencyType}>{commonInfo.displayValue}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </lightning-layout-item>
+                        </template>
+                    </lightning-layout>
+                </div>
+
+                <c-inline-error-message errors={errors}></c-inline-error-message>
+
+                <template if:true={isSelectMethodStep}>
+                    <c-amortization-wizard-select-method method-options={methodOptions} values={currentStep}
+                        s-object-name={sObjectName}
+                            data-wizard-step
+                    ></c-amortization-wizard-select-method>
+                </template>
+
+                <template if:true={isTermInformationStep}>
+                    <c-amortization-wizard-term-info
+                            accounting-setting-data={accountingSettingData}
+                            values={currentStep}
+                            sobject-label={sobjectLabel}
+                            existing-amounts-sum={existingAmountsSum}
+                            total={total}
+                            s-object-name={sObjectName}
+                            record-name={recordName}
+                            acct-method-data={acctMethodData}
+                            data-wizard-step
+                            onchangetoggle={handleToggle}>
+                    </c-amortization-wizard-term-info>
+                </template>
+
+                <template if:true={isAccountingInfoCreateStep}>
+                    <c-amortization-wizard-accounting-info values={currentStep}
+                        ltng-out={ltngOut}
+                            s-object-name={sObjectName}
+                            data-wizard-step
+                    ></c-amortization-wizard-accounting-info>
+                </template>
+            </div>
+            <footer class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+                <div class="slds-float_right">
+                    <template if:true={isSelectMethodStep}>
+                        <lightning-button variant="neutral" label={labels.commonCancel} disabled={showSpinner}
+                            onclick={closeQuickAction} data-jest="cancel-btn">
+                        </lightning-button>
+                    </template>
+                    <template if:false={isSelectMethodStep}>
+                        <lightning-button variant="neutral" label={labels.commonBack} disabled={showSpinner}
+                            onclick={goBack} data-jest="back-btn">
+                        </lightning-button>
+                        <lightning-button variant="neutral" label={labels.commonPreviewCalculations}
+                            disabled={showSpinner} onclick={handlePreviewCalculations} class="slds-m-left_small"
+                            data-jest="preview-calculations-btn">
+                        </lightning-button>
+                    </template>
+
+                    <template if:false={isAccountingInfoCreateStep}>
+                        <lightning-button variant="brand" label={labels.commonNext} disabled={isDisableNextBtn}
+                            onclick={goNext} class="slds-m-left_small" data-jest="next-btn">
+                        </lightning-button>
+                    </template>
+                    <template if:true={isAccountingInfoCreateStep}>
+                        <lightning-button variant="brand" label={labels.commonCreateEntries} disabled={showSpinner}
+                            onclick={createEntries} class="slds-m-left_small" data-jest="create-entries-btn">
+                        </lightning-button>
+                    </template>
+                </div>
+            </footer>
+        </c-modal-popup-base>
+    </div>
+
+    <c-modal-popup-base data-jest="previewCalculationsModal" title={labels.commonPreviewCalculations}
+        data-id="previewCalculationsModal" is-hide-backdrop="true" onclose={closePreviewCalculations}>
+        <c-amortization-wizard-preview-calculations is-accounting-info-create-step={isAccountingInfoCreateStep}
+            current-step={currentStep} onclose={closePreviewCalculations}
+            oncreateentries={createEntriesPreviewCalculations}></c-amortization-wizard-preview-calculations>
+    </c-modal-popup-base>
+</template>

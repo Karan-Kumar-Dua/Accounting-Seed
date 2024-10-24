@@ -1,0 +1,16 @@
+<template>
+    <div class="label">
+        <template if:true={column.isRequired}>
+            <abbr title={labels.commonRequired} class="slds-required" data-id="modal-required">*</abbr>
+        </template>
+        {column.label}
+    </div>
+    <div class="lookup">
+        <template if:true={isCurrency}>
+            <c-x-custom-currency-cell edit-mode="true" col-id={column.apiName} row-id={row.rowKey} value={fieldValue} data-id="cell-currency" disabled={isReadOnly} oncellblur={handleInputFocusout} step={step} minimum-fraction-digits={column.typeAttributes.minimumFractionDigits}></c-x-custom-currency-cell>
+        </template>
+        <template if:false={isCurrency}>
+            <lightning-input type="number" value={fieldValue} onfocus={handleChange} onblur={handleBlur} variant="label-hidden" disabled={isReadOnly} onchange={handleChange} data-id="cell-input" step={step}></lightning-input>
+        </template>
+    </div>
+</template>

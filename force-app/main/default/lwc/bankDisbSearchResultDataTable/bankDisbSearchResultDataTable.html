@@ -1,0 +1,24 @@
+<template>
+    <lightning-datatable lwc:ref="stdtable" key-field="objId" data={visibledata} columns={columns}
+        onrowselection={getSelectedRows} onrowaction={handleRowAction}>
+    </lightning-datatable>
+    
+    <div slot="footer" class="leftAlign slds-m-top_medium">
+        <template if:true={hasRecordsForPagination}>
+            <c-paginator
+                total-records={totalNumberOfRecords}
+                page-size={visibleRows}
+                has-go-to-page ="true"
+                onchange={handlePageChange}>
+            </c-paginator>
+        </template>
+    </div>
+
+    <template if:true={isModalOpen}>
+        <c-bank-disbursement-record-viewer-pop-up detailrecordid={detailRecordId} 
+                                detailrecordname = {detailRecordName}
+                                is-modal-open={isModalOpen}
+                                onclosepopup={closeModal}>
+        </c-bank-disbursement-record-viewer-pop-up>
+    </template>
+</template>

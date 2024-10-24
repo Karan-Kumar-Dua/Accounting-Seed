@@ -1,0 +1,55 @@
+<template>
+    <div class="slds-theme_default">
+        <template if:true={openModal}>
+            <div class="demo-only">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse closeButton" title={labels.commonClose} onclick={cancelMethod} data-id="modal-button">
+                                <lightning-icon icon-name="utility:close" size="medium" data-id="modal-icon"></lightning-icon>
+                                <span class="slds-assistive-text" data-id="modal-span">{commonClose}</span>
+                            </button>
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate heading" data-id="modal-heading">
+                                {selectTemplate}
+                                <c-csv-knowledge-base-help help-u-r-l={selectTemplateHelpURL}></c-csv-knowledge-base-help>
+                            </h2>
+                        </header>
+                        <lightning-spinner alternative-text={labels.commonLoading} variant="brand" class={spinnerClass} data-id="modal-spinner"></lightning-spinner>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1" style="overflow: visible !important;">
+                            <template if:true={hasTemplates}>
+                                <lightning-combobox 
+                                    label={comboLabel}
+                                    value={picklistValue}
+                                    options={importTemplateOptions} 
+                                    dropdown-alignment="auto"
+                                    onchange={handleTemplateChange}>
+                                </lightning-combobox>
+                            </template>
+                            <template if:false={hasTemplates}>
+                                <div class="slds-text-heading_small slds-text-align_center slds-p-top_medium">{noTemplate}</div>
+                            </template>
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning-helptext 
+                                class={helpText}
+                                style="position:fixed;"
+                                icon-variant="error" 
+                                icon-name="utility:error" 
+                                title={error}>
+                            </lightning-helptext>
+                            <lightning-button label={cancelButtonText} class="cancelButton" variant="neutral" onclick={cancelMethod} data-id="modal-cancel">
+                            </lightning-button>
+                            <lightning-button label={createMapFields} variant="neutral" class="slds-m-left_small " onclick={handleCreateTemplate} data-id="modal-Create">
+                            </lightning-button>
+                            <lightning-button label={actionButtonText} class="slds-m-left_small saveButton" variant="brand" onclick={handleSelectTemplateAction} data-id="modal-save" disabled={hasSelectedTemplate}>
+                            </lightning-button>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open" data-id="modal-backdrop"></div>
+            </div>
+        </template>
+        <c-csv-import-data data-id="import-data" onsave={handleRecordSave} onerror={handleErrorInSave} onnoobject={handleErrorInSave}></c-csv-import-data>
+        <c-csv-import-mapping data-id="import-mapping" onready={handleMappingReady}></c-csv-import-mapping>
+    </div>
+</template>

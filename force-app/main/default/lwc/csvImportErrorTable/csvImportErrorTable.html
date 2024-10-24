@@ -1,0 +1,20 @@
+<template>
+    <template if:true={showTable}>
+        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+            <header class="slds-modal__header">
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate heading" data-id="modal-heading">
+                    {modalHeader}
+                    <c-csv-knowledge-base-help help-u-r-l={helpURL}></c-csv-knowledge-base-help>
+                </h2>
+            </header>
+            <template if:false={hasErrorMessage}>
+                <c-csv-import-preview-table columns={columns} row-data={rowData}></c-csv-import-preview-table>
+            </template>
+            <template if:true={hasErrorMessage}>
+                <div class="slds-text-heading_small slds-text-align_center slds-p-top_medium">{message}</div>
+            </template>
+        </div>
+        <footer class="slds-float_right slds-p-around_small">
+        </footer>
+    </template>
+</template>

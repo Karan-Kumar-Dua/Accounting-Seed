@@ -1,0 +1,64 @@
+<template>
+    <lightning-record-edit-form object-api-name={bankRuleConditionObjectApiName}>
+        <lightning-messages></lightning-messages>
+        <lightning-layout>
+            <lightning-layout-item padding="horizontal-small">
+                <lightning-input-field 
+                    data-name={targetField.apiName}
+                    field-name={targetField.apiName} 
+                    value={targetField.value} 
+                    variant="label-hidden"
+                    onchange={handleChange}>
+                </lightning-input-field>
+            </lightning-layout-item>
+            <lightning-layout-item padding="horizontal-small">
+                <lightning-input-field 
+                    data-name={operatorField.apiName}
+                    field-name={operatorField.apiName}
+                    value={operatorField.value} 
+                    variant="label-hidden"
+                    onchange={handleChange}>
+                </lightning-input-field>
+            </lightning-layout-item>
+            <lightning-layout-item flexibility="auto" padding="horizontal-small">
+                <template if:true={displayCriteria}>
+                    <lightning-record-edit-form object-api-name={bankRuleConditionObjectApiName}>
+                        <lightning-input-field
+                            data-name={criteriaField.apiName}
+                            data-jest="conditionValue"
+                            value={criteriaField.value} 
+                            field-name={criteriaField.apiName}
+                            variant="label-hidden"
+                            onchange={handleChange}>
+                        </lightning-input-field>
+                    </lightning-record-edit-form>
+                </template>
+                <template if:true={displayCreditDebitField}>
+                    <div class="slds-size_1-of-6">
+                        <lightning-combobox
+                            data-name={criteriaField.apiName}
+                            data-jest="conditionValue"
+                            variant="label-hidden"
+                            value={criteriaField.value}
+                            options={options}
+                            onchange={handleChange}
+                            required="true">
+                        </lightning-combobox>
+                    </div>
+                </template>
+            </lightning-layout-item>
+            <lightning-layout-item>
+                <template if:true={displayDeleteBtn}>
+                    <lightning-button-icon 
+                        data-jest="delete"
+                        alternative-text={labels.automatedJobsDelete}
+                        title={labels.automatedJobsDelete}
+                        variant="border-filled"
+                        icon-name="utility:dash"
+                        onclick={handleRemove}>
+                    </lightning-button-icon>
+                </template>
+            </lightning-layout-item>
+        </lightning-layout>
+    </lightning-record-edit-form>
+</template>

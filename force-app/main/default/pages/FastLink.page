@@ -1,0 +1,12 @@
+<apex:page sidebar="false" showHeader="false" controller="FastLinkHandler" lightningStyleSheets="true">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/fastlink.min.js')}"/>
+    <body>
+        <div id="container-fastlink">   
+            <div style="text-align: center;"></div>
+        </div>
+        <script>
+            let escapedFastLinkPropsObject = JSON.parse("{!JSENCODE(fastLinkProperties)}");
+            window.fastlink.open(escapedFastLinkPropsObject, 'container-fastlink');
+        </script>
+    </body>
+</apex:page>

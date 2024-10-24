@@ -1,0 +1,5 @@
+import INF_REPORT_STATISTICS from '@salesforce/label/c.INF_REPORT_STATISTICS';
+
+export default {
+    INF_REPORT_STATISTICS: INF_REPORT_STATISTICS
+}

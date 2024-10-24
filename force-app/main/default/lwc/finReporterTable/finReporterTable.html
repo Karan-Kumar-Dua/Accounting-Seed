@@ -1,0 +1,41 @@
+<template>
+  <c-modal-popup 
+        class ="deleteReportsConfirm"
+        popup-title={labels.INF_DELETE_REPORTS}
+        popup-subtitle={labels.WRN_DELETING_REPORTS}
+        popup-body=""
+        action-button-text={labels.commonYes}
+        cancel-button-text={labels.commonNo}
+        onmodalactionclick={handleDeleteAll}
+        onmodalcancelclick={handlePopupCancel}            
+        open-modal={showPopup}>
+    </c-modal-popup>
+  <template if:true={isSpinner}>
+    <lightning-spinner variant="brand" alternative-text={labels.commonLoadingText} size="medium"></lightning-spinner>
+  </template>
+  <template if:true={error}>
+    <c-inline-error-message class="inline-error-msg" errors={error}></c-inline-error-message>
+  </template>
+  <lightning-card title={labels.INF_REPORTS}>
+    <div class="slds-p-around_medium">
+      <div class="slds-p-bottom_small">
+        <lightning-button label={labels.INF_DELETE_REPORTS} class="deleteReports"
+                          onclick={handleConfirmDelete} disabled={deleteDisabled}>
+        </lightning-button>
+      </div>
+      <c-applicable-items
+        items={recItems}
+        columns={columns}
+        key-field={keyField}
+        max-records-displayed={maxItemsDisplayed}
+        page-size={pageSize}
+        sorted-by={sortOpts.sortedBy}
+        sorted-direction={sortOpts.sortedDirection}
+        object-name="item"
+        suppress-more-records-message
+        show-checkbox-column
+        onsort={handleSort}>
+      </c-applicable-items>
+    </div>
+  </lightning-card>
+</template>

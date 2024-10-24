@@ -1,0 +1,259 @@
+<template>
+    <c-modal-popup
+            popup-title={DUPLICATE_LEDGERS_POPUP_TITLE}
+            popup-body={duplicateConfirmationMessage}
+            action-button-text={labels.commonOk}
+            cancel-button-text={labels.commonCancel}
+            onmodalactionclick={handleDuplicationConfirm}
+            onmodalcancelclick={handleDuplicationCancel}
+            open-modal={showDuplicateConfirmation}>
+    </c-modal-popup>
+
+    <div class="slds-p-around_medium" data-jest="report-display-section">
+        <span class="heading-text-main">{labels.INF_REPORT_DISPLAY}</span>
+        <template if:true={isEditAllowed}>
+            <template if:true={read}>
+                <lightning-button-icon icon-name="utility:edit"
+                                       alternative-text={labels.commonEdit}
+                                       title={labels.commonEdit}
+                                       class="slds-m-left_medium"
+                                       onclick={handleEdit}>
+
+                </lightning-button-icon>
+            </template>
+            <template if:false={read}>
+                <lightning-button label={labels.commonCancel}
+                                  title={labels.commonCancel}
+                                  class="slds-m-left_medium slds-"
+                                  onclick={handleCancel}>
+                </lightning-button>
+                <lightning-button variant="brand"
+                                  label={labels.commonSave}
+                                  title={labels.commonSave}
+                                  class="slds-m-left_x-small"
+                                  onclick={handleSave}>
+                </lightning-button>
+            </template>
+        </template>
+
+        <template if:true={isError}>
+            <lightning-card title="">
+                <div class="slds-p-around_medium">
+                    <c-inline-error-message errors={error}></c-inline-error-message>
+                </div>
+            </lightning-card>
+        </template>
+
+    </div>
+
+    <div class="slds-box slds-p-around_small box-shadow">
+        <section class="slds-border_bottom slds-p-top_medium slds-p-bottom_40" data-jest="ledger-input-section">
+            <div class="heading-text slds-m-bottom_medium">{labels.COMMON_SELECT_LEDGER}</div>
+            <lightning-layout class="slds-is-relative">
+                <lightning-layout-item>
+                    <template if:true={isLedgerSpinner}>
+                        <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+                    </template>
+                    <template if:false={isLedgerSpinner}>
+                        <c-lookup-a search-object={ledger.objectApiName}
+                                  search-filter={transactionLedgerLookupFilter}
+                                  init-value={ledgerId}
+                                  errors={ledgerErrors}
+                                  data-jest="ledger-lookup"
+                                  onselectionchange={setCurrentLedgerId}>
+                        </c-lookup-a>
+                    </template>
+                </lightning-layout-item>
+            </lightning-layout>
+        </section>
+        <section class="slds-border_bottom slds-p-top_40 slds-p-bottom_40" data-jest="name-logo-section">
+            <div class="heading-text slds-m-bottom_medium">{labels.INF_COMPANY_NAME_LOGO}</div>
+            <template if:true={isSpinner}>
+                <div class="slds-is-relative">
+                    <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+                </div>
+            </template>
+            <template if:false={isSpinner}>
+                <lightning-layout class="slds-m-bottom_medium">
+                    <lightning-layout-item>
+                        <template if:true={read}>
+                            <label class="slds-form-element__label">{labels.INF_COMPANY_NAME}</label>
+                            <div>
+                                <lightning-formatted-text value={companyName}>
+                                </lightning-formatted-text>
+                            </div>
+                        </template>
+                        <template if:false={read}>
+                            <lightning-record-edit-form record-id={settingsDTO.settings.Id}
+                                                        object-api-name={financialReporterSettings.objectApiName}>
+
+                                <lightning-input-field field-name={financialReporterSettings.company_name}
+                                                       onchange={setCompanyName}>
+                                </lightning-input-field>
+                            </lightning-record-edit-form>
+                        </template>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout class="slds-p-bottom_large">
+                    <lightning-layout-item>
+                        <template if:true={read}>
+                            <div class="slds-form-element__label">{labels.INF_LOGO}</div>
+                            <div class="sublabel-text">{labels.INF_DIEMENSION_CONSTRAINTS}: 200 W X 55 H</div>
+                            <div><span style="font-style: italic;">{logoFileName}</span> selected</div>
+                        </template>
+                        <template if:false={read}>
+                            <div class="slds-form-element__label">{labels.INF_LOGO}</div>
+                            <div class="sublabel-text">{labels.INF_DIEMENSION_CONSTRAINTS}: 200 W X 55 H</div>
+                            <lightning-file-upload label=""
+                                                   name="file-uploader"
+                                                   accept={acceptedFormats}
+                                                   record-id={settingsDTO.settings.Id}
+                                                   onuploadfinished={handleUploadFinished}>
+
+                            </lightning-file-upload>
+                        </template>
+                        <div class="slds-form-element__label slds-m-top_medium">{labels.INF_ACTUAL_SIZE_PREVIEW}</div>
+                        <div class="image-preview-container">
+                            <img src={logoUrl}/>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout if:false={read}>
+                    <lightning-layout-item>
+                        <lightning-input data-name="duplicate-name-and-logo"
+                                         type="toggle"
+                                         variant="label-hidden"
+                                         disabled={read}
+                                         message-toggle-active={labels.commonOn}
+                                         message-toggle-inactive={labels.commonOff}
+                                         onchange={handleDuplicateNameLogoToggle}>
+
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="horizontal-small">
+                        <label class="slds-form-element__label">{labels.INF_DUPLICATE_ON_ALL_LEDGERS}</label>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </template>
+        </section>
+        <section class="slds-border_bottom slds-p-top_40 slds-p-bottom_40" data-jest="column-header-section">
+            <div class="heading-text slds-m-bottom_medium">{labels.INF_COLUMN_HEADER_FOR_PERIOD_NAME}</div>
+            <template if:true={isSpinner}>
+                <div class="slds-is-relative">
+                    <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+                </div>
+            </template>
+            <template if:false={isSpinner}>
+                <lightning-layout class="slds-m-bottom_medium" >
+                    <lightning-layout-item class="slds-size_1-of-6">
+                        <template if:true={read}>
+                            <label class="slds-form-element__label">{labels.INF_DISPLAY_ON_DEFAULT}</label>
+                            <div>
+                                <lightning-formatted-text value={selectedColumnHeaderVariantLabel}>
+                                </lightning-formatted-text>
+                            </div>
+                        </template>
+                        <template if:false={read}>
+                            <lightning-combobox label={labels.INF_DISPLAY_ON_DEFAULT}
+                                                options={settingsDTO.columnHeaderVariantOptions}
+                                                value={selectedColumnHeaderVariantValue}
+                                                onchange={setColumnHeaderVariant}>
+                            </lightning-combobox>
+                        </template>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout if:false={read}>
+                    <lightning-layout-item>
+                        <lightning-input data-name="duplicate-column-headers"
+                                         type="toggle"
+                                         variant="label-hidden"
+                                         disabled={read}
+                                         message-toggle-active={labels.commonOn}
+                                         message-toggle-inactive={labels.commonOff}
+                                         onchange={handleDuplicateAccountingPeriodToggle}>
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="horizontal-small">
+                        <label class="slds-form-element__label">{labels.INF_DUPLICATE_ON_ALL_LEDGERS}</label>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </template>
+        </section>
+        <section class="slds-border_bottom slds-p-top_40 slds-p-bottom_40" data-jest="column-header-section">
+            <div class="heading-text slds-m-bottom_medium">{labels.INF_DISPLAY_REPORT_DISPLAY}</div>
+            <template if:true={isSpinner}>
+                <div class="slds-is-relative">
+                    <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+                </div>
+            </template>
+            <template if:false={isSpinner}>
+                <lightning-layout class="slds-m-bottom_medium" >
+                    <lightning-layout-item>
+                        <lightning-input data-name="duplicate-expand-report-rows"
+                                         type="toggle"
+                                         checked={selectedExpandReportRowsValue}
+                                         variant="label-hidden"
+                                         disabled={read}
+                                         message-toggle-active={labels.commonOn}
+                                         message-toggle-inactive={labels.commonOff}
+                                         onchange={setExpandReportRows}>
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="horizontal-small">
+                        <label class="slds-form-element__label">{labels.INF_EXPAND_REPORT_ROWS}</label>
+                        <lightning-helptext content={labels.finRepSettingsExpandRepRowsHelp}></lightning-helptext>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout if:false={read}>
+                    <lightning-layout-item>
+                        <lightning-input data-name="duplicate-expand-report"
+                                         type="toggle"
+                                         variant="label-hidden"
+                                         disabled={read}
+                                         message-toggle-active={labels.commonOn}
+                                         message-toggle-inactive={labels.commonOff}
+                                         onchange={handleExpandReportRowsLedgerToggle}>
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="horizontal-small">
+                        <label class="slds-form-element__label">{labels.INF_DUPLICATE_ON_ALL_LEDGERS}</label>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </template>
+        </section>
+        <section class="slds-p-top_40 slds-m-bottom_medium" data-jest="rounding-section">
+            <div class="heading-text slds-m-bottom_medium">{labels.INF_DEFAULT_ROUNDING}
+                <lightning-helptext class="slds-m-left_small" content={roundingHelpText}></lightning-helptext>
+            </div>
+            <template if:true={isSpinner}>
+                <div class="slds-is-relative">
+                    <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+                </div>
+            </template>
+            <template if:false={isSpinner}>
+                <lightning-layout>
+                    <lightning-layout-item>
+                        <template if:true={read}>
+                            <label class="slds-form-element__label">{labels.INF_DISPLAY_ON_DEFAULT}</label>
+                            <div>
+                                <lightning-formatted-text value={selectedRoundingLabel}>
+                                </lightning-formatted-text>
+                            </div>
+                        </template>
+                        <template if:false={read}>
+                            <lightning-record-edit-form record-id={settingsDTO.settings.Id}
+                                                        object-api-name={financialReporterSettings.objectApiName}>
+
+                                <label class="slds-form-element__label">{labels.INF_DISPLAY_ON_DEFAULT}</label>
+                                <lightning-input-field field-name={financialReporterSettings.rounding}
+                                                       variant="label-hidden"
+                                                       onchange={setRounding}>
+                                </lightning-input-field>
+                            </lightning-record-edit-form>
+                        </template>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </template>
+        </section>
+    </div>
+</template>

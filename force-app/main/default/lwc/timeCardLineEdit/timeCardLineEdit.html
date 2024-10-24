@@ -1,0 +1,87 @@
+<template>
+    <lightning-record-edit-form record-id={timeCardLineId} object-api-name={objectApiName} onsubmit={handleSave}>
+        <lightning-messages></lightning-messages>
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                            <span if:true={timeCardLineId}>
+                                {labels.INF_EDIT_TIME_CARD_LINE} {line.timeCardLine.Name}
+                            </span>
+                            <span if:false={timeCardLineId}>
+                                {labels.INF_NEW_TIME_CARD_LINE}
+                            </span>
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1" style="height: 400px;">
+                        <template if:false={dataLoaded}>
+                            <div class="slds-spinner_container slds-is-relative" style="height: 350px;">
+                                <lightning-spinner alternative-text={labels.commonLoadingText} size="large"></lightning-spinner>
+                            </div>
+                        </template>
+                        <template if:true={dataLoaded}>
+                            <template if:true={error}>
+                                <c-error-panel friendly-message={labels.INF_TIME_CARD_LINE_NOT_SAVED} errors={error}></c-error-panel>
+                            </template>
+                            <template if:true={line}>
+                                <div class="slds-grid slds-gutters slds-wrap">
+                                    <div class="slds-col slds-size_2-of-2">
+                                        <c-project-with-task-selection record-id={line.timeCardLine.id}
+                                                                       object-api-name={objectApiName}
+                                                                       project-id={line.timeCardLine.AcctSeed__Project__c}
+                                                                       project-task-id={line.timeCardLine.AcctSeed__Project_Task__c}
+                                                                       edit-mode={isEditMode}>
+
+                                        </c-project-with-task-selection>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <template if:true={timeCardData.uiConfig.showBillable}>
+                                            <lightning-input-field class="slds-m-around_medium"
+                                                                   field-name='AcctSeed__Billable__c'
+                                                                   value={line.timeCardLine.AcctSeed__Billable__c}>
+                                            </lightning-input-field>
+                                        </template>
+                                        <template if:true={timeCardData.uiConfig.showTCVariable1}>
+                                            <lightning-input-field field-name='AcctSeed__Time_Card_Variable_1__c'
+                                                                   value={line.timeCardLine.AcctSeed__Time_Card_Variable_1__c}>
+                                            </lightning-input-field>
+                                        </template>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <template if:true={timeCardData.uiConfig.showOvertime}>
+                                            <lightning-input-field class="slds-m-around_medium"
+                                                                   field-name='AcctSeed__Overtime__c'
+                                                                   value={line.timeCardLine.AcctSeed__Overtime__c}>
+                                            </lightning-input-field>
+                                        </template>
+                                        <template if:true={timeCardData.uiConfig.showTCVariable2}>
+                                            <lightning-input-field field-name='AcctSeed__Time_Card_Variable_2__c'
+                                                                   value={line.timeCardLine.AcctSeed__Time_Card_Variable_2__c}>
+                                            </lightning-input-field>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                        </template>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <template if:true={saveInProgress}>
+                            <div class="slds-spinner_container slds-is-relative" style="top:5px;">
+                                <lightning-spinner alternative-text={labels.commonLoadingText} size="medium"></lightning-spinner>
+                            </div>
+                            <lightning-button class="slds-m-around_xxx-small cancel-btn-disabled" type="button" label={labels.commonCancel} disabled></lightning-button>
+                            <lightning-button  class="slds-m-around_xxx-small save-btn-disabled" type="button" variant="brand" label={labels.commonSave} disabled></lightning-button>
+                        </template>
+                        <template if:false={saveInProgress}>
+                            <lightning-button class="slds-m-around_xxx-small cancel-btn-active" type="button" label={labels.commonCancel} onclick={handleCancel}></lightning-button>
+                            <lightning-button  class="slds-m-around_xxx-small save-btn-active" type="submit" variant="brand" label={labels.commonSave}></lightning-button>
+                        </template>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+
+    </lightning-record-edit-form>
+</template>

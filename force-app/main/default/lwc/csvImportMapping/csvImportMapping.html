@@ -1,0 +1,35 @@
+<template>
+    <lightning-spinner alternative-text={labels.commonLoading} variant="brand" class={spinnerClass} data-id="modal-spinner"></lightning-spinner>
+    <template if:true={showMapping}>
+        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+            <header class="slds-modal__header">
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate heading" data-id="modal-heading">
+                    {modalHeader}
+                    <c-csv-knowledge-base-help help-u-r-l={helpURL}></c-csv-knowledge-base-help>
+                </h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium">
+                <c-csv-import-preview-table record={record} field-definitions={fieldDefinitions} columns={columns} row-data={_data} onselectionchange={handleSelectionChange} ongroupbychange={handleGroupByChange}></c-csv-import-preview-table>
+            </div>
+        </div>
+        <footer class="slds-float_right slds-p-around_small">
+            <div class="slds-float_left">
+                <lightning-helptext 
+                    class={helpText}
+                    style="position:inherit;"
+                    icon-variant="error" 
+                    icon-name="utility:error" 
+                    title={error}>
+                </lightning-helptext>
+            </div>
+            <lightning-button label={cancelLabel} class="slds-m-left_small cancelButton" variant="neutral" onclick={handleCancelButton} data-id="modal-cancel">
+            </lightning-button>
+            <lightning-button label={previewLabel} class="slds-m-left_small" variant="neutral" onclick={handlePreviewButton} data-id="modal-preview" disabled={hasDataForPreview}>
+            </lightning-button>
+            <lightning-button label={actionLabel} class="slds-m-left_small" variant="brand" onclick={handleActionButton} data-id="modal-save" disabled={hasErrors}>
+            </lightning-button>
+        </footer>
+    </template>
+    <c-csv-import-preview data-id="previewComp" onback={handleBack}></c-csv-import-preview>
+    <c-csv-import-error-table data-id="error-table"></c-csv-import-error-table>
+</template>

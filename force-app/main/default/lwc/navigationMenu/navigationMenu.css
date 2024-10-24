@@ -1,0 +1,11 @@
+@media only screen and (max-width: 390px){
+    :host {
+        width: 100%;
+    }
+}
+.slds-tabs_default__nav {
+    align-items: center;
+    font-size: 16px;
+    border: 0;
+    font-weight: 500;
+}

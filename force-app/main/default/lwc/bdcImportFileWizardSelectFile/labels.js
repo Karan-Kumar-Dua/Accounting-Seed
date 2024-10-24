@@ -1,0 +1,5 @@
+import ERR_UPLOAD_VALID_OFX_FILE from '@salesforce/label/c.ERR_UPLOAD_VALID_OFX_FILE';
+
+export default {
+    ERR_UPLOAD_VALID_OFX_FILE: ERR_UPLOAD_VALID_OFX_FILE,
+}

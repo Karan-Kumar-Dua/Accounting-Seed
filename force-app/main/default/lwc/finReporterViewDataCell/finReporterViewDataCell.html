@@ -1,0 +1,8 @@
+<template>
+  <template if:true={showLink}>
+    <lightning-formatted-url style="text-decoration: underline" class={urlClass} label={itemValue} value={itemLink} target="_blank"></lightning-formatted-url>
+  </template>
+  <template if:false={showLink}>
+    <lightning-formatted-text class={textClass} value={itemValue}></lightning-formatted-text>
+  </template>
+</template>

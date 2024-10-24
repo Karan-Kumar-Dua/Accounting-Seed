@@ -1,0 +1,42 @@
+<template>
+        <td colspan={colSpan}>
+            <lightning-layout horizontal-align="end" class="width90">
+                <lightning-layout-item padding="around-small">
+                    <c-x-data-table-buttons 
+                        actions={subGridActions}
+                        onactionclick={handleActionClick}
+                        data-id="datatable-subgrid-action">
+                    </c-x-data-table-buttons>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout horizontal-align="center">
+                <lightning-layout-item class="layoutItemWidth slds-p-bottom_x-large slds-p-top_small slds-p-right_small">
+                    <div class="layoutItemInnerDiv"> 
+                        <c-x-data-table-header
+                                columns={columns} 
+                                select-all={selectAll}
+                                show-selected-columns={columnsToDisplay}
+                                row-number-column={rowNumberColumn}
+                                has-drawer-fields={hasDrawer}
+                                onselectall={handleSelectAll}>
+                        </c-x-data-table-header>
+                    
+                        <template for:each={gridData} for:item="row">
+                            <c-x-data-table-row child-reference={childReference} 
+                                    has-drawer-fields={hasDrawer} 
+                                    initial-data={row._row}
+                                    key={row.rowKey}
+                                    show-selected-columns={columnsToDisplay}
+                                    key-field={keyField} 
+                                    columns={columns} 
+                                    row={row} 
+                                    data-id="datatable-row"
+                                    onmutation={handleMutation} 
+                                    oncellblur={handleCurrencyCellChange}>
+                            </c-x-data-table-row>
+                        </template>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+        </td>
+</template>

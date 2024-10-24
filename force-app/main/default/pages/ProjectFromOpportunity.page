@@ -1,0 +1,84 @@
+<apex:page id="thePage" standardController="Opportunity" title="{!$Label.AcctSeed__COMMON_CREATE_PROJECT + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" sidebar="false" extensions="ProjectFromOpportunity,EnvironmentUtils" lightningStylesheets="true">
+
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/common.css')}" />
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/javascript/Intl.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/locale-data/jsonp/' & DefaultLocale & '.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" />
+
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+        AcctSeed.ASModule.currencyIsoCode = "{!JSENCODE(currencyIsoCode)}";
+    </script>
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/currency-formatter.js')}" loadOnReady="true" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/project-from-opp.js')}" loadOnReady="true" />
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Opportunity.label}" subtitle="{!Opportunity.Name}" />
+        <apex:actionRegion rendered="{!!isShowProductsTable}">
+            <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__COMMON_CREATE_PROJECT}">
+                <apex:outputPanel id="blockMessages">
+                    <apex:pageMessages escape="false" />
+                </apex:outputPanel>
+                <apex:pageBlockButtons >
+                    <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('Creating Project...')"/>
+                    <apex:commandButton action="{!createOrAddProject}" value="{!$Label.AcctSeed__COMMON_CREATE_PROJECT}" status="saveStatus" reRender="theForm" rendered="{!!isError}" oncomplete="AcctSeed.ASModule.formatCurrency()"/>
+                    <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true" />
+                </apex:pageBlockButtons>
+                <apex:pageBlockSection id="theCreateOrAddSection" rendered="{!!isError}">
+                    <apex:pageBlockSectionItem id="theCreateItem">
+                        <apex:outputLabel value="{!$Label.AcctSeed__COMMON_PROJECT_TEMPLATE}" />
+                        <apex:selectList id="createFromTemplateList" value="{!selectedTemplateProject}" size="1" onchange="AcctSeed.ASModule.clearInput('{!$Component.theAddItem.addToProjectLookup}')">
+                            <apex:selectOptions value="{!projOptions}" />
+                        </apex:selectList>
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem >
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem id="theAddItem" rendered="{!!isNoOppProducts}">
+                        <apex:outputLabel value="{!$Label.AcctSeed__COMMON_PROJECT}" />
+                        <apex:inputField id="addToProjectLookup" value="{!emptyProduct.Project__c}" onchange="AcctSeed.ASModule.clearInput('{!$Component.theCreateItem.createFromTemplateList}')" required="false" />
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+            </apex:pageBlock>
+        </apex:actionRegion>
+        <apex:actionRegion rendered="{!isShowProductsTable}">
+            <apex:pageBlock id="theAddProjectTableBlock" title="{!$Label.AcctSeed__COMMON_MAP_OPPORTUNITY_PRODUCT}" >
+                <apex:outputPanel id="blockMessagesMap">
+                    <apex:pageMessages escape="false" />
+                </apex:outputPanel>
+                <apex:pageBlockButtons >
+                    <apex:actionStatus id="addProjectStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_ADDING_TO_PROJECT}')"/>
+                    <apex:actionStatus id="backToProjectStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_REFRESH_PROJECT}')"/>
+                    <apex:commandButton action="{!saveMapping}" value="{!$Label.AcctSeed__COMMON_CREATE_PROJECT}" status="addProjectStatus" reRender="theForm" oncomplete="AcctSeed.ASModule.formatCurrency()"/>
+                    <apex:commandButton action="{!backToProjectSelect}" value="{!$Label.AcctSeed__COMMON_BACK}" reRender="theForm" status="backToProjectStatus" immediate="true" />
+                </apex:pageBlockButtons>
+                <apex:pageBlockSection columns="1">
+                    <apex:pageBlockTable value="{!productsWrapper.products}" var="item" width="100%">
+                        <apex:column headerValue="{!$ObjectType.OpportunityLineItem.fields.Name.label}">
+                            <apex:outputField value="{!item.product.Name}" />
+                        </apex:column>
+                        <apex:column headerValue="{!$ObjectType.OpportunityLineItem.fields.Quantity.Label}" headerClass="align-right" styleClass="align-right">
+                            <apex:outputField value="{!item.product.Quantity}" />
+                        </apex:column>
+                        <apex:column headerValue="{!$ObjectType.OpportunityLineItem.fields.UnitPrice.Label}" headerClass="align-right" styleClass="align-right">
+                            <apex:outputText id="totalPrice" value="{!item.product.UnitPrice}"/>
+                        </apex:column>
+                        <apex:column headerValue="{!$ObjectType.Project_Task__c.Label}">
+                            <apex:selectList value="{!item.task}" size="1">
+                                <apex:selectOptions value="{!tasks}" />
+                            </apex:selectList>
+                        </apex:column>
+                    </apex:pageBlockTable>
+                </apex:pageBlockSection>
+            </apex:pageBlock>
+        </apex:actionRegion>
+        <apex:outputField value="{!Opportunity.Name}" rendered="false" />
+        <apex:outputField value="{!Opportunity.Account.Name}" rendered="false" />
+        <apex:outputField value="{!Opportunity.AccountId}" rendered="false" />
+    </apex:form>
+</apex:page>

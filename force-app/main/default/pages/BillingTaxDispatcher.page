@@ -1,0 +1,4 @@
+<apex:page id="BillingTaxDispatcher" title="{!Billing__c.Name & ' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}"
+           standardController="Billing__c" extensions="TaxDispatcherExt" action="{!redirectTo}">
+
+</apex:page>

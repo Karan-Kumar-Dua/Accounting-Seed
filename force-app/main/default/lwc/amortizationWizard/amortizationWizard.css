@@ -1,0 +1,46 @@
+.select-method--info_container {
+    background: #F3F2F2;
+    padding: 12px;
+    display: flex;
+    margin-bottom: 22px;
+}
+.select-method--info_container .select-method--info_icon {
+    padding-right: 12px;
+    display: flex;
+    align-items: center;
+}
+.select-method--info_container .select-method--info_text {
+    color: #080707;
+    line-height: 20px;
+}
+.common-info {
+    margin-top: 20px;
+    margin-bottom: 13px;
+}
+.common-info .slds-form-element__static a {
+    text-decoration: underline;
+    cursor: pointer;
+}
+.common-info .common-info--name .slds-form-element__static a,
+.common-info .common-info--customer .slds-form-element__static a,
+.common-info .common-info--value .slds-form-element__static div,
+.common-info .common-info--ledger .slds-form-element__static a,
+.common-info .common-info--help .slds-form-element__static a {
+    font-size: 12px;
+}
+.common-info .common-info--name .slds-form-element__static a,
+.common-info .common-info--customer .slds-form-element__static a,
+.common-info .common-info--ledger .slds-form-element__static a {
+    color: #080707;
+}
+.common-info .common-info--help .slds-form-element__label {
+    visibility: hidden;
+}
+.common-info .common-info--name,
+.common-info .common-info--customer,
+.common-info .common-info--value,
+.common-info .common-info--ledger,
+.common-info .common-info--help {
+    display: flex;
+    align-items: center;
+}

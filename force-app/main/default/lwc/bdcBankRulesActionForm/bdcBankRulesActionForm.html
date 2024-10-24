@@ -1,0 +1,25 @@
+<template>
+    <template for:each={actions} for:item="action" for:index="index">
+        <div key={action.idx} class="slds-box slds-box_x-small slds-theme_shade slds-m-top_small">
+            <c-bdc-bank-rules-action-form-item
+                index={action.idx}
+                object-api-name={bankRuleSourceDocType}
+                object-defaults={srcDoc}
+                field-options={actionFieldOptions}
+                position={index}
+                values={action.action}
+                ondelete={handleDelete}
+                onchange={handleChange}>
+            </c-bdc-bank-rules-action-form-item>
+        </div>
+    </template>
+    
+    <lightning-button 
+        label={labels.commonNew}
+        title={labels.commonNew}
+        icon-name="utility:add"
+        icon-position="right"
+        class="slds-m-top_medium slds-float_right"
+        onclick={handleAddAction}>
+    </lightning-button>
+</template>

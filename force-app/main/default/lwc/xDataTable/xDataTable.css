@@ -1,0 +1,20 @@
+.cardBody{
+    max-height: 40%;
+}
+.cardBody::-webkit-scrollbar{
+    display: none;
+}
+.cardBorder{
+    display: block;
+    z-index: 0;
+    border: 1px solid rgb(208 208 208);
+}
+.leftAlign{
+    text-align: left;
+}
+c-x-data-table-row:hover{
+    background-color: #F3F3F3;
+}
+c-x-data-table-drawer{
+    background-color: #F3F3F3;
+}

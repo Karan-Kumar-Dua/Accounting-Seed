@@ -1,0 +1,6 @@
+import INF_CLONE_TAX_GROUP from '@salesforce/label/c.INF_CLONE_TAX_GROUP';
+import COMMON_TAX_GROUP_NAME from '@salesforce/label/c.COMMON_TAX_GROUP_NAME';
+export default {
+    INF_CLONE_TAX_GROUP : INF_CLONE_TAX_GROUP,
+    COMMON_TAX_GROUP_NAME : COMMON_TAX_GROUP_NAME
+}

@@ -1,0 +1,39 @@
+<template>
+    <template if:true={showTable}>
+        <template if:true={moreRecordsExist}>
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning">
+                <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+                <h2 class="slds-p-left_x-small warn-max-records">
+                    {labels.INF_THE_FIRST} {maxRecordsDisplayed} {labels.INF_RECORDS_OF_SEARCH_DISPLAYED_BELOW}. 
+                    {labels.INF_REDEFINE_SEARCH_CRITERIA_TO_RETRIEVE_LESS_RECORDS}
+                </h2>
+            </div>
+        </template>
+        <c-applicable-items-custom-datatable
+            key-field={keyField}
+            data={page}
+            columns={columns}
+            sorted-by={sortedBy}
+            sorted-direction={sortedDirection}
+            onrowaction={handleRowAction}
+            oncellchange={handleCellChange}
+            onsort={handleSort}
+            hide-checkbox-column={hideCheckboxColumn}
+            suppress-bottom-bar>
+        </c-applicable-items-custom-datatable>
+        
+        <div class="slds-p-around_medium">
+            <c-paginator
+                total-records={totalRecords}
+                page-size={pageSize}
+                onchange={handlePageChange}>
+            </c-paginator>
+        </div>
+    </template>
+    <template if:false={showTable}>
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning">
+            <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+            <h2 class="slds-p-left_x-small warn-no-records">{labels.commonNo} {objectName}s {labels.INF_FOUND_THAT_MATCH_FILTER_CRITERIA}</h2>
+        </div>
+    </template>
+</template>

@@ -1,0 +1,62 @@
+.action-col {
+    width: 45px;
+    font-size: 10px;
+}
+
+.project-col {
+    width: 160px;
+}
+
+.project-task-col {
+    width: 170px;
+}
+
+.bill-reim-col {
+    width: 60px
+}
+
+.date-col {
+    width: 150px
+}
+
+.mileage-col {
+    width: 140px
+}
+
+.miles-col {
+    width: 60px
+}
+
+.amt-col {
+    width: 80px
+}
+
+.com-col {
+    width: 160px;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.footer-row {
+    font-weight: bold;
+    background-color: #e3e3d7;
+}
+
+.apexp .totalRow {
+    background-color: #e3e3d7;
+    font-weight: bold;
+    padding-bottom: 4px;
+    padding-top: 4px;
+}
+.btn.refreshButton {
+    height: 18px;
+    background: url(/img/alohaSkin/sync.png) top left no-repeat;
+    width: 22px;
+    vertical-align: bottom;
+    background-position: 2px 1px;
+} 
+.btn.refreshButton:hover {
+    background-position: 2px 1px;
+}

@@ -1,0 +1,94 @@
+<template>
+    <div class="accounting-info--container">
+        <div class="accounting-info--container_label">
+            {labels.commonAccountingInformation}
+        </div>
+        <lightning-record-edit-form object-api-name={amortizationEntry.objectApiName}>
+            <lightning-messages></lightning-messages>
+            <lightning-layout>
+                <lightning-layout-item size="6" padding="horizontal-small">
+                    <lightning-input-field
+                            field-name={amortizationEntry.debit_gl_account}
+                            value={debit_gl_account}
+                            data-jest="debitGlAccount"
+                            required
+                    >
+                    </lightning-input-field>
+                </lightning-layout-item>
+                <lightning-layout-item size="6" padding="horizontal-small">
+                    <lightning-input-field
+                            field-name={amortizationEntry.credit_gl_account}
+                            value={credit_gl_account}
+                            data-jest="creditGlAccount"
+                            required
+                    >
+                    </lightning-input-field>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout>
+                <lightning-layout-item size="6" padding="horizontal-small">
+                    <lightning-input-field
+                            field-name={amortizationEntry.product}
+                            value={product}
+                    >
+                    </lightning-input-field>
+                </lightning-layout-item>
+                <lightning-layout-item size="6" padding="horizontal-small">
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout>
+                <lightning-layout-item size="6" padding="horizontal-small">
+                    <lightning-input-field
+                            field-name={amortizationEntry.project}
+                            value={project}
+                            onchange={handleProjectChange}
+                    >
+                    </lightning-input-field>
+                </lightning-layout-item>
+                <lightning-layout-item size="6" padding="horizontal-small">
+                    <c-lookup label={projectTaskLabel}
+                              field-level-help={projectTaskHelp}
+                              search-object={projectTask.objectApiName}
+                              search-display-field={projectTask.name_field.fieldApiName}
+                              init-value={project_task}
+                              class={projectTaskContainerClasses}
+                              data-field-name={amortizationEntry.project_task.fieldApiName}
+                              placeholder={labels.INF_SEARCH_PROJECT_TASKS}>
+                    </c-lookup>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout>
+                <lightning-layout-item size="6" padding="horizontal-small">
+                    <lightning-input-field
+                            field-name={amortizationEntry.gl_variable1}
+                            value={gl_variable1}
+                    >
+                    </lightning-input-field>
+                </lightning-layout-item>
+                <lightning-layout-item size="6" padding="horizontal-small">
+                    <lightning-input-field
+                            field-name={amortizationEntry.gl_variable2}
+                            value={gl_variable2}
+                    >
+                    </lightning-input-field>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout>
+                <lightning-layout-item size="6" padding="horizontal-small">
+                    <lightning-input-field
+                            field-name={amortizationEntry.gl_variable3}
+                            value={gl_variable3}
+                    >
+                    </lightning-input-field>
+                </lightning-layout-item>
+                <lightning-layout-item size="6" padding="horizontal-small">
+                    <lightning-input-field
+                            field-name={amortizationEntry.gl_variable4}
+                            value={gl_variable4}
+                    >
+                    </lightning-input-field>
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-record-edit-form>
+    </div>
+</template>

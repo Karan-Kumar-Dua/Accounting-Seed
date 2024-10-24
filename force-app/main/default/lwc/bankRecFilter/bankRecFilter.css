@@ -1,0 +1,16 @@
+:host {
+--lwc-colorTextError: white;
+}
+
+.color-black {
+color:black;
+}
+
+.color-white {
+color:white;
+}
+
+.filter-result {
+background: #fcf7ac;
+color: #1B5297;
+}

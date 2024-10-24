@@ -1,0 +1,198 @@
+<template>
+
+    <c-modal-popup 
+        popup-title={labels.commonAreYouSure}
+        popup-body={labels.WRN_CHANGING_SOURCE_TYPE_REMOVE_REMAINING_ACTIONS}
+        action-button-text={labels.INF_PROCEED}
+        cancel-button-text={labels.commonCancel}
+        onmodalactionclick={handleSrcDocTypeChangeConfirmed}
+        onmodalcancelclick={handleSrcDocTypeChangeCanceled}            
+        open-modal={showSrcDocTypeChangePopup}>
+    </c-modal-popup>
+
+    <template if:true={isSpinner}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+    </template>
+
+    <c-inline-error-message generic-error={error.title} errors={error.msg}></c-inline-error-message>
+
+    <template if:true={error.fatal}>
+        <div class="slds-align_absolute-center">
+            <lightning-button 
+                label={labels.commonClose} 
+                variant="brand" 
+                onclick={handleCancel}>
+            </lightning-button>
+        </div>
+    </template>
+
+    <template if:false={error.fatal}>
+
+        <!-- SECTION: bank rule -->
+        <section>
+            <lightning-record-edit-form object-api-name={bankRuleObjectApiName}>
+                <lightning-messages></lightning-messages>
+                <lightning-layout>
+                    <lightning-layout-item flexibility="auto" padding="horizontal-medium">
+                        <lightning-input-field 
+                            data-name={nameField.apiName}
+                            field-name={nameField.apiName} 
+                            value={nameField.value}
+                            onchange={handleChange}
+                            required>
+                        </lightning-input-field>
+                        <lightning-input-field 
+                            data-name={typeField.apiName}
+                            field-name={typeField.apiName} 
+                            value={typeField.value}
+                            onchange={handleChange}
+                            disabled>
+                        </lightning-input-field>
+                        <lightning-input-field 
+                            data-name={priorityField.apiName}
+                            field-name={priorityField.apiName}
+                            value={priorityField.value}
+                            onchange={handleChange}>
+                        </lightning-input-field>
+                        <lightning-input-field 
+                            data-name={activeField.apiName}
+                            field-name={activeField.apiName}
+                            value={activeField.value}
+                            onchange={handleChange}>
+                        </lightning-input-field>
+                    </lightning-layout-item>
+                    <lightning-layout-item flexibility="auto" padding="horizontal-medium">
+                        <div class="slds-p-bottom_small">
+                            <label class="slds-text-heading_small slds-p-right_small">
+                                <span class="slds-required" title={labels.commonRequired}>* </span>
+                                {labels.INF_FINANCIAL_INSTITUTION_ACCOUNTS}
+                            </label>
+                            <lightning-helptext content={labels.INF_FIA_APPLIES_TO_BANK_RULE}></lightning-helptext>
+                        </div>
+                        <lightning-input 
+                            type="checkbox"
+                            data-name={applyToAllField.apiName}
+                            checked={applyToAllField.value}
+                            label={labels.INF_SELECT_ALL_FIAS}
+                            onchange={handleSelectAllFIAChange}>
+                        </lightning-input>
+                        <lightning-dual-listbox 
+                            source-label={labels.INF_AVAILAIBLE}
+                            selected-label={labels.commonSelected}
+                            options={financialInstitutionOptions}
+                            value={glams}
+                            onchange={handleFIAChange}
+                            disable-reordering
+                            disabled={applyToAllField.value}>
+                        </lightning-dual-listbox>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <div class="slds-p-right_small slds-p-left_small">
+                    <lightning-input-field 
+                        data-name={descriptionField.apiName}
+                        field-name={descriptionField.apiName}
+                        value={descriptionField.value}
+                        onchange={handleChange}>
+                    </lightning-input-field>
+                </div>
+            </lightning-record-edit-form>
+        </section>
+
+        <div class="slds-border_top slds-m-top_large slds-m-bottom_large"></div>
+
+        <!-- SECTION: bank rule conditions -->
+        <section class="slds-clearfix">  
+            <h2 class="slds-text-heading_medium slds-p-bottom_small">{labels.INF_CONDITIONS}</h2>
+            <lightning-record-edit-form object-api-name={bankRuleObjectApiName}>
+                <lightning-layout>
+                    <lightning-layout-item padding="around-small">
+                        <div class="slds-text-title">{labels.INF_IF}</div>
+                    </lightning-layout-item>
+                    <lightning-layout-item>
+                        <div style="width:75px;">
+                            <lightning-input-field 
+                                data-name={evaluationTypeField.apiName}
+                                field-name={evaluationTypeField.apiName}
+                                value={evaluationTypeField.value}
+                                variant="label-hidden"
+                                onchange={handleChange}>
+                            </lightning-input-field>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item padding="around-small">
+                        <div class="slds-text-title">{labels.INF_OF_FOLLOWING_CONDITIONS_MET}</div>
+                    </lightning-layout-item>
+                    <lightning-layout-item>
+                        <div class="slds-p-top_x-small">
+                            <lightning-helptext content={labels.INF_BANK_RULES_PROCESSES_CONDITION}></lightning-helptext>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>            
+            </lightning-record-edit-form>
+            <c-bdc-bank-rules-condition-form
+                values={conditions}
+                onchange={handleConditionChange}>
+            </c-bdc-bank-rules-condition-form>
+        </section>
+
+        <div class="slds-border_top slds-m-top_large slds-m-bottom_large"></div>
+        
+        <!-- SECTION: bank rule actions -->
+        <section class="slds-clearfix">
+            <h2 class="slds-text-heading_medium slds-p-bottom_small">{labels.commonActions}</h2>
+            <template if:true={renderSrcDocTypeInput}>
+                <div class="slds-box slds-box_x-small slds-theme_shade slds-m-top_small">
+                    <lightning-record-edit-form object-api-name={bankRuleObjectApiName}>
+                        <lightning-layout>
+                            <lightning-layout-item padding="horizontal-small">
+                                <div class="slds-text-title slds-p-top_x-small">{labels.INF_SET_THE_RECORD_TYPE}:</div>
+                            </lightning-layout-item>
+                            <lightning-layout-item>
+                                <span hidden><lightning-input-field 
+                                    data-name={typeField.apiName}
+                                    field-name={typeField.apiName} 
+                                    value={typeField.value}
+                                    disabled>
+                                </lightning-input-field></span>
+                                <lightning-input-field 
+                                    data-name={sourceRecordTypeField.apiName} 
+                                    field-name={sourceRecordTypeField.apiName}
+                                    value={sourceRecordTypeField.value}
+                                    variant="label-hidden"
+                                    onchange={handleSrcDocTypeChange} >
+                                </lightning-input-field>
+                            </lightning-layout-item>
+                        </lightning-layout>            
+                    </lightning-record-edit-form>
+                </div>
+            </template>
+            <c-bdc-bank-rules-action-form
+                values={actions}
+                bank-rule-type={typeField.value}
+                bank-rule-source-doc-type={sourceRecordTypeField.value}
+                onchange={handleActionChange}>
+            </c-bdc-bank-rules-action-form>
+        </section>
+
+        <div class="slds-border_top slds-m-top_large slds-m-bottom_large"></div>
+
+        <!-- SECTION: footer buttons -->
+        <footer class="slds-m-top_medium">
+            <div class="slds-align_absolute-center">
+                <lightning-button 
+                    label={labels.commonSave}
+                    data-jest="save"
+                    class="slds-m-right_small"
+                    variant="brand" 
+                    onclick={handleSave}>
+                </lightning-button>
+                <lightning-button 
+                    label={labels.commonCancel}
+                    variant="neutral" 
+                    onclick={handleCancel}>
+                </lightning-button>
+            </div>
+        </footer>   
+
+    </template>     
+</template>

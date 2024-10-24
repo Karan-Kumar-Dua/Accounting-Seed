@@ -1,0 +1,7 @@
+:host .pageHeader-iconHolder {
+    --lwc-squareIconMediumBoundary: 36px;
+}
+.slds-media .slds-media__figure {
+    margin-top: auto;
+    margin-bottom: auto;
+}

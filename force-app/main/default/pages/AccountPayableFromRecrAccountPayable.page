@@ -1,0 +1,107 @@
+<apex:page standardController="Recurring_Account_Payable__c" title="{!$Label.AcctSeed__COMMON_CREATE_PAYABLE + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="AccountPayableFromRecrAccountPayable,EnvironmentUtils" sideBar="false" lightningStylesheets="true">
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/common.css')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/javascript/Intl.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/locale-data/jsonp/' & DefaultLocale & '.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/> 
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+        AcctSeed.ASModule.currencyIsoCode = "{!JSENCODE(currencyIsoCode)}";
+    </script>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/currency-formatter.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/ap-from-recurring-ap.js')}" loadOnReady="true"/>
+    <script>
+        function setFocusOnLoad() {}
+    </script>
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Recurring_Account_Payable__c.label}" subtitle="{!Recurring_Account_Payable__c.Name}" /> 
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__COMMON_CREATE +' '+ $ObjectType.Account_Payable__c.label}"> 
+            <apex:pageMessages escape="false"/>
+            <apex:pageMessage rendered="{!isInActiveError}" severity="error" strength="3" summary="{!$Label.AcctSeed__COMMON_YOU_CANNOT_CREATE_A +' '+ $ObjectType.Account_Payable__c.label +' '+ $Label.AcctSeed__COMMON_FROM_AN_INACTIVE +' '+ $ObjectType.Recurring_Account_Payable__c.label +' '+ $Label.AcctSeed__COMMON_RECORD}" />
+            <apex:pageBlockButtons id="buttons">
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')" onstop="AcctSeed.ASModule.pageLoad()"/>
+                <apex:commandButton id="saveButton"
+                                    action="{!createPayable}"
+                                    value="{!$Label.AcctSeed__COMMON_CREATE}"
+                                    status="saveStatus"
+                                    rendered="{!!isInActiveError && !isError}"
+                                    reRender="theForm" />
+                <apex:commandButton id="savePostButton"
+                                    action="{!createPayableAndPost}"
+                                    value="{!$Label.AcctSeed__COMMON_CREATE_AND_POST}"
+                                    status="saveStatus"
+                                    reRender="theForm"
+                                    rendered="{!!isInActiveError && !isError}" />
+                <apex:commandButton id="cancelButton" action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true" status="saveStatus"/>
+            </apex:pageBlockButtons>   
+            <apex:pageBlockSection rendered="{!!isInActiveError && !isError}" columns="1">
+                <apex:pageBlockTable value="{!payableList}" var="bw" width="100%">
+                    <apex:column value="{!bw.rObj['Name']}"/>
+                    <apex:column headerValue="{!$ObjectType.Account_Payable__c.fields.Payee__c.label}">
+                        <apex:outputField value="{!bw.obj['Vendor__c']}"
+                                          rendered="{!(bw.obj['Vendor__c'] != null)}"
+                        />
+                        <apex:outputField value="{!bw.obj['Contact__c']}"
+                                          rendered="{!(bw.obj['Contact__c'] != null)}"
+                        />
+                        <apex:outputField value="{!bw.obj['Employee__c']}"
+                                          rendered="{!(bw.obj['Employee__c'] != null)}"
+                        />
+                    </apex:column>
+                    <apex:column headerValue="{!$ObjectType.Account_Payable__c.fields.Date__c.label}">
+                        <apex:inputField value="{!bw.obj['Date__c']}" required="true">
+                            <apex:actionSupport event="onchange" action="{!updateLinesDates}" reRender=""/>
+                        </apex:inputField>
+                    </apex:column>
+                    <apex:column headerValue="{!$ObjectType.Account_Payable_Line__c.fields.Quantity__c.label}">
+                        <apex:inputField id="payableQuantity"
+                                         value="{!bw.objLines[0]['Quantity__c']}"
+                                         rendered="{!(bw.recurringLineCount == 1)}"
+                                         required="true"
+                                         onChange="AcctSeed.ASModule.calculateTotal(); AcctSeed.ASModule.pageLoad();">
+                        </apex:inputField>
+                    </apex:column>
+                    <apex:column headerValue="{!$ObjectType.Account_Payable_Line__c.fields.Unit_Cost__c.label}">
+                        <apex:inputField id="payableAmount"
+                                         value="{!bw.objLines[0]['Unit_Cost__c']}"
+                                         rendered="{!(bw.recurringLineCount == 1)}"
+                                         required="true"
+                                         onChange="AcctSeed.ASModule.calculateTotal(); AcctSeed.ASModule.pageLoad();">
+                        </apex:inputField>
+                    </apex:column>
+                    <apex:column headerValue="{!$ObjectType.Recurring_Account_Payable_Line__c.fields.Sub_Total__c.label}"
+                                 rendered="{!isHeaderLevelPostEnabled}">
+                        <apex:outputText id="subTotalWithCurrency"
+                            value="{!bw.SubTotalAmount}">
+                            <apex:outputText style="white-space:pre-wrap;"
+                                             value="{!bw.obj['CurrencyIsoCode']} "
+                                             rendered="{!isMultiCurrencyEnabled}"/>
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_TAX_AMOUNT}" rendered="{!isHeaderLevelPostEnabled}">
+                        <apex:outputText id="taxAmountWithCurrency"
+                            value="{!bw.TaxAmount}">
+                            <apex:outputText style="white-space:pre-wrap;"
+                                             value="{!bw.obj['CurrencyIsoCode']} "
+                                             rendered="{!isMultiCurrencyEnabled}"/>
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_TOTAL}" headerClass="align-right" footerClass="align-right" styleClass="align-right">
+                        <apex:outputText id="apAmountWithCurrency" value="{!bw.total}">
+                            <apex:outputText style="white-space:pre-wrap;"
+                                             value="{!bw.obj['CurrencyIsoCode']} "
+                                             rendered="{!isMultiCurrencyEnabled}"/>
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column >
+                        <apex:inputHidden id="taxRate" value="{!bw.TaxRate}" />
+                        <apex:inputHidden id="taxInclusive" value="{!bw.TaxInclusive}" />
+                    </apex:column>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

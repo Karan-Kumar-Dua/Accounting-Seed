@@ -1,0 +1,44 @@
+<template>
+    <lightning-spinner if:true={showSpinner} variant="brand" alternative-text={labels.commonSaving} size="large"></lightning-spinner>
+    <c-page-header
+        title={labels.receivePayment}
+        subtitle={labels.commonBilling}
+        knowledge-base={knowledgeBase}
+        icon-name="custom:custom42"
+    ></c-page-header>
+    <lightning-card>
+        <template if:true={warningMessages} for:each={warningMessages} for:item="warningMessage">
+            <div key={warningMessage.message} class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning slds-m-bottom_x-small">
+                <lightning-icon icon-name="utility:warning" size="small" variant="inverse"></lightning-icon>
+                <h2 class="slds-p-left_x-small warn-max-records">
+                    {warningMessage.message}
+                </h2>
+            </div>
+        </template>
+        <c-inline-error-message errors={errors} if:true={hasErrors}></c-inline-error-message>
+        <template if:true={keyIsValid}>
+            <lightning-layout multiple-rows="true">
+                <lightning-layout-item size="12">
+                    <template if:true={wrappedBilling}>
+                        <c-billing-receive-payment-fields 
+                            wrapped-billing={wrappedBilling}
+                            payment-info={paymentInfo}
+                            labels={labels}
+                            onvaluechange={handleValueChange}
+                            onselectionchange={handleSelectionChange}
+                            onmutation={handleAdditionFieldDataChange}>
+                        </c-billing-receive-payment-fields>
+                    </template>
+                </lightning-layout-item>
+                <lightning-layout-item size="12">
+                    <div class="slds-float_right">
+                        <lightning-button label={labels.commonCancel} class="slds-p-around_small" onclick={handleCancelEvt} data-id="cancel-button"></lightning-button>
+                        <template lwc:if={wrappedBilling}>
+                            <lightning-button disabled={showSpinner} label={labels.receivePayment} onclick={handleReceivePayment} variant="brand" class="slds-p-around_small"></lightning-button>
+                        </template>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+        </template>
+    </lightning-card>
+</template>

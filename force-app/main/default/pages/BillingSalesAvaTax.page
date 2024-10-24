@@ -1,0 +1,89 @@
+<apex:page id="BillingSalesAvaTax" title="{!Billing__c.Name & ' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" standardController="Billing__c"
+           extensions="BillingSalesAvaTax,EnvironmentUtils" action="{!estimateTax}" lightningStylesheets="true">
+
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, 'css/common.css')}" />
+    <apex:variable var="customLEX" value="customLEXOn" rendered="{!$User.UIThemeDisplayed = 'Theme4d' || $User.UIThemeDisplayed = 'Theme4u'}">
+        <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/visualforce-lex-ext.css')}" />
+    </apex:variable>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/avatax-intermediate-screen.js')}" loadOnReady="true"/>
+
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+        AcctSeed.ASModule.currencyIsoCode = "{!JSENCODE(currencyIsoCode)}";
+    </script>
+
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$Label.AcctSeed__COMMON_ALVARA}" subTitle="{!$Label.AcctSeed__COMMON_BILLING_SALES_TAX}"/>
+        <apex:pageBlock title="{!pageBlockTitle}">
+            <apex:pageMessages escape="false"/>
+            <apex:pageMessage severity="info" strength="3"
+                              summary="{!$Label.AcctSeed__INF_TAX_LINE_CREATED_CLICK_CALC}"
+                              rendered="{!AND(NOT(isHeaderLevelPostEnabled), NOT(isProcessed))}"/>
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="processingStatus"
+                                   onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}');"/>
+                <apex:commandButton value="{!$Label.AcctSeed__COMMON_CALC_TAX}" action="{!commitTax}" status="processingStatus" reRender="theForm" rendered="{!NOT(isProcessed)}"/>
+                <apex:commandButton value="{!$Label.AcctSeed__COMMON_BACK}" action="{!cancel}" immediate="true"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection title="{!$ObjectType.Billing__c.Label}" collapsible="false" columns="2"
+                                   rendered="{!AND(NOT(isProcessed), isHeaderLevelPostEnabled)}">
+
+                <apex:outputField value="{!Billing__c.Customer__c}"/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$ObjectType.Billing__c.fields.Sub_Total__c.label}"/>
+                    <apex:outputText value="{!Billing__c.Sub_Total__c}" styleClass="jsFormattedCurrency"/>
+                </apex:pageBlockSectionItem>
+                <apex:outputField value="{!Billing__c.Opportunity__c}"/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__ESTIMATED_TAX_AMOUNT}"/>
+                    <apex:outputText value="{!estimatedTaxAmount}" styleClass="jsFormattedCurrency"/>
+                </apex:pageBlockSectionItem>
+                <apex:outputField value="{!Billing__c.Ledger__c}"/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__ESTIMATED_TOTAL}"/>
+                    <apex:outputText value="{!estimatedTotal}" styleClass="jsFormattedCurrency"/>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="{!$ObjectType.Billing_Line__c.labelPlural}" collapsible="false" columns="1" rendered="{!NOT(isProcessed)}">
+                <!-- ================= LINE LEVEL POSTING MODE ================================== -->
+                <apex:pageBlockSectionItem rendered="{!NOT(isHeaderLevelPostEnabled)}">
+                    <apex:pageBlockTable value="{!billingLinesWithEstimatedTaxAmount}" var="wrappedLine">
+                        <apex:column value="{!billingLinesWithEstimatedTaxAmount[wrappedLine].billingLine.Billing__c}"/>
+                        <apex:column value="{!billingLinesWithEstimatedTaxAmount[wrappedLine].billingLine.Product__c}"/>
+                        <apex:column headerValue="{!$Label.AcctSeed__INF_AVALARA_TAX_GL_ACCOUNT}" value="{!billingLinesWithEstimatedTaxAmount[wrappedLine].billingLine.Revenue_GL_Account__c}"/>
+                        <apex:column headerValue="{!$Label.AcctSeed__INF_TOTAL_TAX_AMOUNT}">
+                            <apex:outputText value="{0, number, ###,###,###,##0.00}">
+                                <apex:param value="{!billingLinesWithEstimatedTaxAmount[wrappedLine].billingLine.Rate__c}"/>
+                            </apex:outputText>
+                        </apex:column>
+                    </apex:pageBlockTable>
+                </apex:pageBlockSectionItem>
+                <!-- ================= HEADER LEVEL POSTING MODE ================================ -->
+                <apex:pageBlockSectionItem rendered="{!isHeaderLevelPostEnabled}">
+                    <apex:pageBlockTable value="{!billingLinesWithEstimatedTaxAmount}" var="wrappedLine">
+                        <apex:column value="{!billingLinesWithEstimatedTaxAmount[wrappedLine].billingLine.Name}"/>
+                        <apex:column value="{!billingLinesWithEstimatedTaxAmount[wrappedLine].billingLine.Product__c}" styleClass="cell-width-limit-medium"/>
+                        <apex:column value="{!billingLinesWithEstimatedTaxAmount[wrappedLine].billingLine.Hours_Units__c}" headerClass="align-right" styleClass="align-right"/>
+                        <apex:column value="{!billingLinesWithEstimatedTaxAmount[wrappedLine].billingLine.Rate__c}" headerClass="align-right" styleClass="align-right"/>
+                        <apex:column headerValue="{!$ObjectType.Billing_Line__c.fields.Sub_Total__c.Label}" headerClass="align-right" styleClass="align-right">
+                            <apex:outputText value="{!billingLinesWithEstimatedTaxAmount[wrappedLine].billingLine.Sub_Total__c}" styleClass="jsFormattedCurrency"/>
+                        </apex:column>
+                        <apex:column headerValue="{!$Label.AcctSeed__ESTIMATED_TAX_AMOUNT}" headerClass="align-right" styleClass="align-right">
+                            <span style="color:green; font-weight: bold;">
+                                <apex:outputField value="{!billingLinesWithEstimatedTaxAmount[wrappedLine].billingLine.Tax_Amount2__c}"/>
+                            </span>
+                        </apex:column>
+                        <apex:column headerValue="{!$Label.AcctSeed__ESTIMATED_TOTAL}" headerClass="align-right" styleClass="align-right">
+                            <apex:outputText value="{!billingLinesWithEstimatedTaxAmount[wrappedLine].EstimatedTotal}" styleClass="jsFormattedCurrency"/>
+                        </apex:column>
+                    </apex:pageBlockTable>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,20 @@
+<template>
+    <div class="slds-scrollable">
+        <table class="slds-table slds-table_bordered slds-border_left slds-border_right" data-id="datatable-table">                                
+            <thead>
+                <template for:each={columns} for:item="column">
+                    <th key={column.label} scope="col">
+                        <div class="slds-truncate">{column.label}</div>
+                    </th>
+                </template>
+            </thead>
+            <tbody>
+                <template if:true={rows}>
+                    <template for:each={rows} for:item="row">
+                        <c-csv-import-preview-table-row record={record} key={row.header} columns={columns} row-data={row} field-definitions={fieldDefinitions}></c-csv-import-preview-table-row>
+                    </template>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</template>

@@ -1,0 +1,148 @@
+<template>
+    <div class="slds-p-top_medium formHeadings">
+        {labels.baAddress}
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-input
+                data-field="baStreet"
+                label={labels.baStreet}
+                value={formData.baStreet}
+                pattern="^.{1,64}$"
+                message-when-pattern-mismatch={labels.errMustBe64CharactersOrLess}
+                required="true"
+                class="slds-p-right_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+        <div class="width35">
+            <lightning-input
+                data-field="baCity"
+                label={labels.baCity}
+                value={formData.baCity}
+                pattern="^.{1,64}$"
+                message-when-pattern-mismatch={labels.errMustBe64CharactersOrLess}
+                required="true"
+                class="slds-p-left_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-combobox
+                data-field="baState"
+                label={labels.baState}
+                value={formData.baState}
+                required="true"
+                options={states}
+                class="slds-p-right_x-large validate"
+                onchange={handleDataChange}>
+            </lightning-combobox>
+        </div>
+        <div class="width35">
+            <lightning-input
+                data-field="baZip"
+                label={labels.baZip}
+                value={formData.baZip}
+                pattern="^\d{5}$"
+                message-when-pattern-mismatch={labels.errMustBe5Digits}
+                required="true"
+                class="slds-p-left_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-p-top_medium width50">
+        <div class="width70 slds-float_right">
+            <lightning-combobox
+                data-field="baCountry"
+                label={labels.baCountry}
+                value={formData.baCountry}
+                required="true"
+                options={countries}
+                class="slds-p-right_x-large validate"
+                onchange={handleDataChange}>
+            </lightning-combobox>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-p-top_large width100">
+        <div class="inputCheckbox slds-float_right">
+            <lightning-input 
+                type="checkbox" 
+                label={labels.baMaSame}
+                data-field="baMaSame"
+                checked={formData.baMaSame}
+                onchange={handleAddressSameCheckboxClick}
+                data-id="same-address">
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-p-top_medium formHeadings">
+        <div>{labels.maAddress}</div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-input
+                data-field="maStreet"
+                label={labels.baStreet}
+                value={formData.maStreet}
+                pattern="^.{1,64}$"
+                message-when-pattern-mismatch={labels.errMustBe64CharactersOrLess}
+                required="true"
+                class="slds-p-right_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+        <div class="width35">
+            <lightning-input
+                data-field="maCity"
+                label={labels.baCity}
+                value={formData.maCity}
+                pattern="^.{1,64}$"
+                message-when-pattern-mismatch={labels.errMustBe64CharactersOrLess}
+                required="true"
+                class="slds-p-left_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-combobox
+                data-field="maState"
+                label={labels.baState}
+                value={formData.maState}
+                required="true"
+                options={states}
+                class="slds-p-right_x-large validate"
+                onchange={handleDataChange}>
+            </lightning-combobox>
+        </div>
+        <div class="width35">
+            <lightning-input
+                data-field="maZip"
+                label={labels.baZip}
+                value={formData.maZip}
+                pattern="^\d{5}$"
+                message-when-pattern-mismatch={labels.errMustBe5Digits}
+                required="true"
+                class="slds-p-left_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-p-top_medium width50">
+        <div class="width70 slds-float_right">
+            <lightning-combobox
+                data-field="maCountry"
+                label={labels.baCountry}
+                value={formData.maCountry}
+                required="true"
+                options={countries}
+                class="slds-p-right_x-large validate"
+                onchange={handleDataChange}>
+            </lightning-combobox>
+        </div>
+    </div>
+</template>

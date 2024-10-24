@@ -1,0 +1,29 @@
+.headingStyle {
+    font-size: 16px;
+    font-weight: bold;
+    color: #181818;
+}
+
+.fixWidth {
+    width: 20%;
+    color: #181818;
+}
+
+.inlineFlex {
+    display: inline-flex;
+    margin-left: 3px;
+}
+
+.noQualifiedBillings ul {
+    list-style-type: disc;
+}
+
+.noQualifiedBillings, .isCreatedSuccess, .isBothModes, .isCreatedSuccessInfo {
+    display: flex;
+    align-items: center;
+}
+
+c-page-header {
+    --lwc-pageHeaderTitleFontWeight: 700;
+    color: #181818;
+}

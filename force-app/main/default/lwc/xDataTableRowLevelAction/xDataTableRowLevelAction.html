@@ -1,0 +1,7 @@
+<template>
+    <lightning-button-menu alternative-text={labels.commonMenu} menu-alignment="auto" icon-size="x-small" onclick={handleMenuClick} data-id="row-buttonmenu">
+        <template for:each={actions} for:item="action">
+            <lightning-menu-item key={action.value} value={action.value} label={action.label} data-id="row-menuitem"></lightning-menu-item>
+        </template>
+    </lightning-button-menu>
+</template>

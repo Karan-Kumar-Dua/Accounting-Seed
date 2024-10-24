@@ -1,0 +1,33 @@
+<!-- Bdc Import File Wizard -->
+<template>
+
+    <lightning-card>
+        <div class="slds-box slds-text-align_left slds-theme_info">
+            {labels.INF_FINANCIAL_FILE_IMPORT_UTILITIES_SUPPORT}
+        </div>
+
+        <div class="slds-m-top_small slds-m-bottom_large">
+            <lightning-progress-indicator current-step={currentStep} type="path" variant="base">
+                <lightning-progress-step label={labels.commonSelectFile} value="selectFile"></lightning-progress-step>
+                <lightning-progress-step label={labels.INF_CHANGE_SETTINGS} value="changeSettings"></lightning-progress-step>
+            </lightning-progress-indicator>
+        </div>
+
+        <template if:true={isSelectFileStep}>
+            <c-bdc-import-file-wizard-select-file onnextstepsuccess={handleNextStepSuccess} onfocusnextbtn={handleFocusNextBtn}>
+            </c-bdc-import-file-wizard-select-file>
+        </template>
+
+        <template if:true={isChangeSettingsStep}>
+            <c-bdc-import-file-wizard-change-settings import-file-dto={importFileDto}
+                                                      onnextstepsuccess={handleNextStepSuccess}>
+            </c-bdc-import-file-wizard-change-settings>
+        </template>
+
+        <div slot="footer">
+            <lightning-button onclick={handleCloseWizard} label={labels.commonCancel}></lightning-button>
+            <lightning-button data-id="nextStepBtn" onclick={goToNextStep} label={nextStepBtnLabel} variant="brand"></lightning-button>
+        </div>
+    </lightning-card>
+
+</template>

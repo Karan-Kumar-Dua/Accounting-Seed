@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Default_Bank_Account__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <inlineHelpText>This is the account that the majority of payments are made from and that deposits are made to. When entering a cash receipt it will default to this bank account.</inlineHelpText>
+    <label>Default Bank Account</label>
+    <lookupFilter>
+        <active>true</active>
+        <errorMessage>Only GL Accounts with Bank checked are allowed.</errorMessage>
+        <filterItems>
+            <field>GL_Account__c.Bank__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>GL_Account__c</referenceTo>
+    <relationshipLabel>Ledgers</relationshipLabel>
+    <relationshipName>Default_Bank_Accounts</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

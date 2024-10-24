@@ -1,0 +1,23 @@
+<apex:page standardController="Cash_Disbursement_Batch__c" title="{!$Label.AcctSeed__COMMON_PRINT + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" applyHtmlTag="false" sidebar="false" showHeader="false" standardStylesheets="false" renderAs="pdf">
+    <html>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+            <style> 
+            @page { 
+                size: auto;   /* auto is the initial value */ 
+                
+                /* this affects the top and right margin in the printer settings */ 
+                margin-top: 4mm; 
+                margin-right: 10mm;
+            } 
+            body {
+                font-family: Arial Unicode MS;
+                margin:0px
+            }
+            </style>
+        </head>
+        <body>
+            <c:PrintchecksComponent cashDisbursementBatch="{!Cash_Disbursement_Batch__c.Id}" />
+        </body>
+    </html>
+</apex:page>

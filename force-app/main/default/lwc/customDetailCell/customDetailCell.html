@@ -1,0 +1,18 @@
+<template>
+    <template if:true={showDetails}>
+        <lightning-input type="text"
+                         value={value.details}
+                         variant="label-hidden"
+                         readonly
+                         style={valueStyle}>
+        </lightning-input>
+    </template>
+    <template if:true={showLink}>
+        <lightning-formatted-url label={value.recordName} value={value.recordURL} target="_blank"></lightning-formatted-url>
+    </template>
+    <template if:true={showDate}>
+        <c-custom-date-cell class="slds-p-left_xx-small"
+                            value={value.recordDate}>
+        </c-custom-date-cell>
+    </template>
+</template>

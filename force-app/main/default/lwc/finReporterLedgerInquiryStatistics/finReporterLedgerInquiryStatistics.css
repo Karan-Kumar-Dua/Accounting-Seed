@@ -1,0 +1,4 @@
+.statistics-font {
+  font-weight: bold;
+  color: var(--lwc-colorTextLabel,rgb(62, 62, 60));
+}

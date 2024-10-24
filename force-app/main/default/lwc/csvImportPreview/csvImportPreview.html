@@ -1,0 +1,23 @@
+<template>
+    <template if:true={showPreview}>
+        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+            <header class="slds-modal__header">
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate heading" data-id="modal-heading">
+                    {modalHeader}
+                    <c-csv-knowledge-base-help help-u-r-l={helpURL}></c-csv-knowledge-base-help>
+                </h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium">
+                <lightning-spinner alternative-text={labels.commonLoading} variant="brand" class={spinnerClass} data-id="modal-spinner"></lightning-spinner>
+                <div class="slds-p-bottom_small">
+                    {message}
+                </div>
+                <c-csv-import-preview-table columns={headers} row-data={data}></c-csv-import-preview-table>
+            </div>
+        </div>
+        <footer class="slds-float_right slds-p-around_small">
+            <lightning-button label={actionLabel} class="slds-m-left_small" onclick={handleActionButton} data-id="modal-save">
+            </lightning-button>
+        </footer>
+    </template>
+</template>

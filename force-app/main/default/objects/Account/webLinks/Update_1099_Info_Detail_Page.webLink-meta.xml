@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebLink xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Update_1099_Info_Detail_Page</fullName>
+    <availability>online</availability>
+    <displayType>button</displayType>
+    <encodingKey>UTF-8</encodingKey>
+    <linkType>url</linkType>
+    <masterLabel>Update 1099 Info</masterLabel>
+    <openType>replace</openType>
+    <protected>false</protected>
+    <url>/apex/AcctSeed__AccountUpdateDefault1099Info?ids={!Account.Id}</url>
+</WebLink>

@@ -1,0 +1,8 @@
+<apex:page standardController="Billing__c" title="{!$Label.AcctSeed__INF_RECEIVE_PAYMENTS + ' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="EnvironmentUtils" sideBar="true" showHeader="true" recordSetVar="billings">
+
+    <apex:pageMessage summary="{!$Label.AcctSeed__INF_PAGE_UPDATED}" severity="info" strength="3">
+        <apex:outputLink value="https://support.accountingseed.com/hc/en-us/articles/15741884914067">
+            <h3>{!$Label.AcctSeed__COMMON_ACCOUNTING_SEED_KNOWLEDGE_BASE}</h3>
+        </apex:outputLink>
+    </apex:pageMessage>
+</apex:page>

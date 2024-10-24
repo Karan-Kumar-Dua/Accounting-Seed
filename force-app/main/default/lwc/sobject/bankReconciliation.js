@@ -1,0 +1,82 @@
+import STATUS from '@salesforce/schema/Bank_Reconciliation2__c.Status__c';
+import TYPE1 from '@salesforce/schema/Bank_Reconciliation2__c.Type__c';
+import BANK_ACCOUNT from '@salesforce/schema/Bank_Reconciliation2__c.Bank_Account__c';
+import UNCLEARED_AMOUNT from '@salesforce/schema/Bank_Reconciliation2__c.Uncleared_Amount__c';
+import GL_DIFFERENCE from '@salesforce/schema/Bank_Reconciliation2__c.GL_Difference__c';
+import CLEARED_DEPOSITS from '@salesforce/schema/Bank_Reconciliation2__c.Cleared_Deposits__c';
+import UNCLEARED_DEPOSITS from '@salesforce/schema/Bank_Reconciliation2__c.UnCleared_Deposits__c';
+import UNCLEARED_PAYMENTS from '@salesforce/schema/Bank_Reconciliation2__c.UnCleared_Payments__c';
+import CLEARED_DISBURSEMENT from '@salesforce/schema/Bank_Reconciliation2__c.Cleared_Disbursements__c';
+import ENDING_BALANCE from '@salesforce/schema/Bank_Reconciliation2__c.Ending_Balance__c';
+import GL_ENDING_BALANCE from '@salesforce/schema/Bank_Reconciliation2__c.GL_Ending_Balance__c';
+import CALCULATED_ENDING_BALANCE from '@salesforce/schema/Bank_Reconciliation2__c.Calculated_Ending_Balance__c';
+import CALCULATED_GL_BALANCE from '@salesforce/schema/Bank_Reconciliation2__c.Calculated_GL_Balance__c';
+import BEGINNING_BALANCE from '@salesforce/schema/Bank_Reconciliation2__c.Beginning_Balance__c';
+import NAME_FIELD from '@salesforce/schema/Bank_Reconciliation2__c.Name';
+import OWNERID from '@salesforce/schema/Bank_Reconciliation2__c.OwnerId';
+import END_DATE from '@salesforce/schema/Bank_Reconciliation2__c.End_Date__c';
+import LEDGER from '@salesforce/schema/Bank_Reconciliation2__c.Ledger__c';
+import OVERRIDE_BEGINNING_BALANCE from '@salesforce/schema/Bank_Reconciliation2__c.Override_Beginning_Balance__c';
+import MODERN_BR from '@salesforce/schema/Bank_Reconciliation2__c.Modern_BR__c';
+import GL_ACCOUNT_VARIABLE_1 from '@salesforce/schema/Bank_Reconciliation2__c.GL_Account_Variable_1__c';
+import GL_ACCOUNT_VARIABLE_2 from '@salesforce/schema/Bank_Reconciliation2__c.GL_Account_Variable_2__c';
+import GL_ACCOUNT_VARIABLE_3 from '@salesforce/schema/Bank_Reconciliation2__c.GL_Account_Variable_3__c';
+import GL_ACCOUNT_VARIABLE_4 from '@salesforce/schema/Bank_Reconciliation2__c.GL_Account_Variable_4__c';
+
+import { CommonUtils } from 'c/utils';
+
+export default class BankReconciliation {
+  static packageQualifier = CommonUtils.getPackageQualifier(STATUS.fieldApiName);
+  packageQualifier = CommonUtils.getPackageQualifier(STATUS.fieldApiName);
+
+  static status = STATUS;
+  static type1 = TYPE1;
+  static bank_account = BANK_ACCOUNT;
+  static uncleared_amount = UNCLEARED_AMOUNT;
+  static gl_difference = GL_DIFFERENCE;
+  static cleared_deposits = CLEARED_DEPOSITS;
+  static uncleared_deposits = UNCLEARED_DEPOSITS;
+  static uncleared_payments = UNCLEARED_PAYMENTS;
+  static cleared_disbursements = CLEARED_DISBURSEMENT;
+  static ending_balance = ENDING_BALANCE;
+  static gl_ending_balance = GL_ENDING_BALANCE;
+  static calculated_ending_balance = CALCULATED_ENDING_BALANCE;
+  static calculated_gl_balance = CALCULATED_GL_BALANCE;
+  static beginning_balance = BEGINNING_BALANCE;
+  static name_field = NAME_FIELD;
+  static ownerid = OWNERID;
+  static end_date = END_DATE;
+  static ledger = LEDGER;
+  static override_beginning_balance = OVERRIDE_BEGINNING_BALANCE;
+  static modern_br = MODERN_BR;
+  static gl_account_variable_1 = GL_ACCOUNT_VARIABLE_1;
+  static gl_account_variable_2 = GL_ACCOUNT_VARIABLE_2;
+  static gl_account_variable_3 = GL_ACCOUNT_VARIABLE_3;
+  static gl_account_variable_4 = GL_ACCOUNT_VARIABLE_4;
+
+  status = STATUS.fieldApiName;
+  type1 = TYPE1.fieldApiName;
+  bank_account = BANK_ACCOUNT.fieldApiName;
+  uncleared_amount = UNCLEARED_AMOUNT.fieldApiName;
+  gl_difference = GL_DIFFERENCE.fieldApiName;
+  cleared_deposits = CLEARED_DEPOSITS.fieldApiName;
+  uncleared_deposits = UNCLEARED_DEPOSITS.fieldApiName;
+  uncleared_payments = UNCLEARED_PAYMENTS.fieldApiName;
+  cleared_disbursements = CLEARED_DISBURSEMENT.fieldApiName;
+  ending_balance = ENDING_BALANCE.fieldApiName;
+  gl_ending_balance = GL_ENDING_BALANCE.fieldApiName;
+  calculated_ending_balance = CALCULATED_ENDING_BALANCE.fieldApiName;
+  calculated_gl_balance = CALCULATED_GL_BALANCE.fieldApiName;
+  beginning_balance = BEGINNING_BALANCE.fieldApiName;
+  name_field = NAME_FIELD.fieldApiName;
+  ownerid = OWNERID.fieldApiName;
+  end_date = END_DATE.fieldApiName;
+  ledger = LEDGER.fieldApiName;
+  override_beginning_balance = OVERRIDE_BEGINNING_BALANCE.fieldApiName;
+  modern_br = MODERN_BR.fieldApiName;
+  gl_account_variable_1 = GL_ACCOUNT_VARIABLE_1.fieldApiName;
+  gl_account_variable_2 = GL_ACCOUNT_VARIABLE_2.fieldApiName;
+  gl_account_variable_3 = GL_ACCOUNT_VARIABLE_3.fieldApiName;
+  gl_account_variable_4 = GL_ACCOUNT_VARIABLE_4.fieldApiName;
+
+}

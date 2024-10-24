@@ -1,0 +1,1 @@
+<apex:page id="BillingPaymentsReceive" standardController="Billing__c" title="{!$Label.AcctSeed__INF_RECEIVE_PAYMENTS + ' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="BillingPaymentsReceive,EnvironmentUtils" sideBar="false" recordSetVar="billings" action="{!urlRedirection}"></apex:page>

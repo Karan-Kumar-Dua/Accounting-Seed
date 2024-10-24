@@ -1,0 +1,35 @@
+<apex:page tabStyle="Financial_Report_Result__c" title="{!$Label.AcctSeed__COMMON_VIEW + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" standardController="Financial_Report_Result__c" extensions="ReportViewerController" sidebar="false" renderAs="html" readOnly="true">
+
+    <apex:sectionHeader title="{!$Label.AcctSeed__COMMON_FINANCIAL_REPORT_VIEWER}" subtitle="{!report.Name}" />
+
+    <apex:pageMessages escape="false"/>
+
+    <apex:form rendered="{!showPage}">
+        <table cellpadding="6" cellspacing="6">
+            <tr>
+                <td>
+                    <apex:outputPanel rendered="{!IF(frw.viewModeInPDF = 'Landscape', true, false)}">
+                        <a href="{!$Page.ReportViewerPDF}?id={!report.Id}&layout=landscape&output=pdf" target="_blank">
+                            {!$Label.AcctSeed__COMMON_PRINT_SCREEN}
+                        </a>
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!IF(frw.viewModeInPDF = 'Portrait', true, false)}">
+                        <a href="{!$Page.ReportViewerPDF}?id={!report.Id}&layout=portrait&output=pdf"  target="_blank">
+                            {!$Label.COMMON_PRINT_SCREEN}
+                        </a>
+                    </apex:outputPanel>
+                </td>
+                <td>
+                    <a href="{!$Page.ReportViewerPDF}?id={!report.Id}&output=xls" target="_blank">
+                        {!$Label.AcctSeed__COMMON_EXPORT_EXCEL}
+                    </a>
+                </td>
+            </tr>
+        </table>
+        <div>
+            <c:ReportTableComponent financialReportWrapper="{!frw}"
+                                    reportName="{!frw.reportDefinition.Name}"
+                                    acctPeriodName="{!report.Accounting_Period__r.Name}" isPDFFormat="false" isXLSFormat="false" />
+        </div>
+    </apex:form>
+</apex:page>

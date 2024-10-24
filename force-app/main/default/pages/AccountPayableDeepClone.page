@@ -1,0 +1,30 @@
+<apex:page id="thePage" title="{!Account_Payable__c.Name & ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" standardController="Account_Payable__c" extensions="AccountPayableDeepClone" lightningStylesheets="true">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/>
+    <apex:variable var="customLEX" value="customLEXOn" rendered="{!$User.UIThemeDisplayed = 'Theme4d' || $User.UIThemeDisplayed = 'Theme4u'}">
+        <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/visualforce-lex-ext.css')}" />
+    </apex:variable>
+    <script>
+        function setFocusOnLoad() {}
+    </script>
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$Label.AcctSeed__COMMON_CLONE + $ObjectType.Account_Payable__c.label}" subtitle="{!Account_Payable__c.Name}" />  
+        <apex:pageBlock id="thePageBlock">
+            <apex:pageMessage summary="{!$Label.AcctSeed__INF_CLONE_FUNCTION +' '+ $ObjectType.Account_Payable__c.label +' '+ $Label.AcctSeed__INF_AND_ALL_ASSOCIATED +' '+ $ObjectType.Account_Payable__c.label +' '+ $Label.AcctSeed__COMMON_LINES +'.'}" severity="info" strength="3" />
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}');"/>
+                <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true"/>
+                <apex:commandButton action="{!cloneWithlines}" status="saveStatus" reRender="theForm" value="{!$Label.AcctSeed__COMMON_CLONE +' '+ $ObjectType.Account_Payable__c.label}" style="background-color: #1B5297; color: white" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="1">
+                <apex:inputField label="{!$Label.AcctSeed__COMMON_ISSUE_DATE}" value="{!tempPayable.Date__c}" />
+                <apex:inputField label="{!$Label.AcctSeed__COMMON_DUE_DATE}" value="{!tempPayable.Due_Date__c}" required="true" rendered="{!ISNULL(tempPayable.Vendor__c)}"/>
+                <apex:inputField value="{!tempPayable['CurrencyIsoCode']}" rendered="{!isMultiCurrencyEnabled}"/>
+                <div class="slds-grid slds-gutters slds-p-around_x-small">
+                    <apex:inputCheckbox value="{!makeCreditMemo}" label="{!$Label.AcctSeed__COMMON_CLONE_AS_CREDIT_MEMO}" rendered="{!!isCreditMemo}" />
+                </div>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

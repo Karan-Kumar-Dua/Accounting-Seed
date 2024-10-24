@@ -1,0 +1,93 @@
+<template>
+    <div class="slds-box cardBorder">
+    <lightning-card title={labelFactory.HEADER_FOR_BANK_DISBURSEMENT_MANAGER_LWC} icon-name="standard:related_list">
+
+        <template if:true={isShowSpinner}>
+            <lightning-spinner variant="brand" alternative-text={labelFactory.commonLoading} size="medium">
+            </lightning-spinner>
+        </template>
+        <div class="slds-float_right slds-m-right_small">
+            <lightning-button variant="brand" label={labelFactory.COMMON_SEARCH}
+                    title={labelFactory.COMMON_SEARCH} class="slds-p-left_small" onclick={handleSearch}>
+            </lightning-button>
+            <lightning-button variant="brand" data-id="associateSelectedBtn" label={labelFactory.COMMON_ASSOCIATE}
+                    class="slds-p-left_small" onclick={handleButtonClick} disabled>
+            </lightning-button>
+            <lightning-button variant="brand" data-id="unassociateSelectedBtn" label={labelFactory.COMMON_UNASSOCIATE}
+                    class="slds-p-left_small" onclick={handleButtonClick} disabled>
+            </lightning-button>
+        </div>
+        <div class="cardBody">
+            <lightning-layout horizontal-align="space" size="12">
+                <lightning-layout-item padding="around-small">
+                    <lightning-input class='inputFlds' type="date" label={labelFactory.AUTOMATED_JOBS_SCHEDULED_JOBS_START_DATE} data-id="startDate" required></lightning-input>
+                    <div class="slds-m-top_medium">
+                        {labelFactory.BANK_DISB_AMOUNT_HEADING_FOR_BANKDISB_MANAGER_LWC} : {currencyISOCode} {amount}
+                    </div>
+                </lightning-layout-item>
+                
+                <lightning-layout-item padding="around-small">
+                    <lightning-input class='inputFlds' type="date" label={labelFactory.COMMON_END_DATE} data-id="endDate" required></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small">
+                    <lightning-combobox class='inputFlds' label={labelFactory.COMMON_TYPE} options={objecttypeOptions} data-id="objectType" required></lightning-combobox>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small">
+                    <lightning-input class='inputFlds' type="number" step="0.01" label={labelFactory.COMMON_AMOUNT} data-id="amount" onchange={handleAmountChange}></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+                
+            <lightning-layout multiple-rows>
+                <lightning-layout-item size="8" class="slds-p-horizontal_small" style="padding: 0.1px;">
+                    <span>
+                        <lightning-tabset active-tab-value={currentTab}>
+                            <lightning-tab label={labelFactory.TAB_HEADER_FOR_ASSOCIATED_RECORDS_BANK_DIS_LWC} 
+                                           id={labelFactory.COMMON_ASSOCIATE} 
+                                           data-id={labelFactory.COMMON_ASSOCIATE} 
+                                           onactive={handleTabChange} 
+                                           value={labelFactory.COMMON_ASSOCIATE}
+                                           style="padding: 0 !important; ">
+                            </lightning-tab>
+                            <lightning-tab label={labelFactory.TAB_HEADER_FOR_UNASSOCIATED_RECORDS_BANK_DIS_LWC} 
+                                           id={labelFactory.COMMON_UNASSOCIATE} 
+                                           data-id={labelFactory.COMMON_UNASSOCIATE} 
+                                           onactive={handleTabChange} 
+                                           value={labelFactory.COMMON_UNASSOCIATE}
+                                           style="padding: 0 !important;">
+                            </lightning-tab>
+                        </lightning-tabset>
+                    </span>
+                </lightning-layout-item>
+             
+                <lightning-layout-item size="4" class="slds-align_absolute-right slds-grid slds-grid_align-end" style="border-bottom: 1px solid #00000073; margin-top: 5px;">
+                    <label class="slds-m-right_x-small"> {labelFactory.FILTER_RESULTS_HEADER} </label>
+                    <lightning-input type="search" 
+                                     variant="label-hidden" 
+                                     label={labelFactory.FILTER_RESULTS_HEADER}  
+                                     onchange={handleinputValueChange} 
+                                     data-id="input-searchTerm"
+                                     class="slds-m-left_x-small"
+                                     style="margin-bottom: 2px;">
+                    </lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+            
+            <div class="slds-m-top_medium">
+                <c-bank-disb-search-result-data-table lwc:ref="searchTable" 
+                        columns={columns} 
+                        result={resultData}
+                        total-records-count={totalRecordsCount}
+                        has-more-records-to-load={hasMoreRecordsToLoad}
+                        table-data={resultData}
+                        onloadmore={handleLoadMoreRecords}
+                        onrowselect={handleRowSelection}>
+                </c-bank-disb-search-result-data-table>
+
+                <div class="slds-align_absolute-center">
+                    {errorMessageIfNoRecordsFound}
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+</div>
+</template>

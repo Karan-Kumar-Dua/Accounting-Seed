@@ -1,0 +1,11 @@
+.my-button-menu {
+  --sds-c-button-text-color: black;
+  --sds-c-button-text-color-hover: black;
+  --sds-c-button-text-color-active: black;
+  --sds-c-button-shadow: white;
+  --sds-c-button-shadow-focus: white;
+  font-weight:bold;
+  font-size:13px;
+}
+
+.box-shadow{box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.10);}

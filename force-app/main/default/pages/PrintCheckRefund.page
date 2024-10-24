@@ -1,0 +1,31 @@
+<apex:page standardController="Cash_Receipt__c" title="{!$Label.AcctSeed__COMMON_PRINT + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" sidebar="false" showHeader="false" applyHtmlTag="false" standardStylesheets="false" lightningStylesheets="{!IF(Cash_Receipt__c.Amount__c > 0, true, false)}" renderAs="{!IF(Cash_Receipt__c.Amount__c > 0, '', 'pdf')}">
+    <html>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+            <style> 
+            @page { 
+                size: auto;   /* auto is the initial value */ 
+
+                /* this affects the top and right margin in the printer settings */ 
+                margin-top: 4mm; 
+                margin-right: 10mm;
+            } 
+            body {
+                font-family: Arial Unicode MS;
+                margin:0px
+            }
+            </style>
+        </head>
+        <body>
+            <apex:pageBlock rendered="{!Cash_Receipt__c.Amount__c > 0}">
+                <apex:pageMessage summary="{!$Label.AcctSeed__INF_PRINT_CHECK_SUPPORT_REFUNDS}" 
+                                  severity="error" 
+                                  strength="3"/>
+                <apex:form >        
+                    <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true"/>
+                </apex:form>
+            </apex:pageBlock>
+            <c:PrintCheckRefundCmp cashReceiptId="{!Cash_Receipt__c.Id}" rendered="{!Cash_Receipt__c.Amount__c <= 0}"/>
+        </body>
+    </html>
+</apex:page>

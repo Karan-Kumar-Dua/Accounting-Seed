@@ -1,0 +1,65 @@
+<template>
+    <template if:true={showContent}>
+        <lightning-spinner class={spinnerClass} variant="brand"></lightning-spinner>
+        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+            <header class="slds-modal__header">
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate heading" data-id="modal-heading">
+                    {labels.merchantHeader}
+                </h2>
+            </header>
+            <div class="slds-p-top_medium width100">
+                <div class="slds-float_right">
+                    <a href={helpURL} target="_blank">{labels.commonHelp}</a>
+                </div>
+            </div>
+            <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+                <div class="width35 slds-p-right_x-large">
+                    <abbr title={labels.commonRequired} class="slds-required">*</abbr>
+                    <label>{labels.xKey}</label>
+                    <lightning-helptext class="inlineFlex" content={labels.keysHelpText}></lightning-helptext>
+                    <lightning-input 
+                        type="password"
+                        value={keys.xKey}
+                        variant="label-hidden"
+                        max-length="255"
+                        required="true"
+                        autocomplete="off"
+                        onfocus={handleInputFocus}
+                        onblur={handleValueChange}
+                        data-field={labels.xKey}>
+                    </lightning-input>
+                </div>
+                <div class="width35 slds-p-left_x-large">
+                    <abbr title={labels.commonRequired} class="slds-required">*</abbr>
+                    <label>{labels.iFields}</label>
+                    <lightning-helptext class="inlineFlex" content={labels.keysHelpText}></lightning-helptext>
+                    <lightning-input 
+                        type="password"
+                        value={keys.iFieldsKey}
+                        variant="label-hidden"
+                        max-length="255"
+                        autocomplete="off"
+                        required="true"
+                        onfocus={handleInputFocus}
+                        onblur={handleValueChange}
+                        data-field={labels.iFields}>
+                    </lightning-input>
+                </div>
+            </div>
+            <!-- <div class="slds-grid slds-wrap slds-p-top_medium" if:true={isShowMerchantForm}>
+                <div class="slds-p-right_x-large formHeadingsMerchant">
+                    {labels.haveAnAccount}
+                    <a href='#' onclick={openMerchantForm} data-field="anchor"> {labels.createAccount}</a>
+                </div>
+            </div> -->
+        </div>
+        <div class="slds-modal__footer slds-p-around_small slds-clearfix">
+            <footer class="slds-float_right">
+                <lightning-button label={labels.commonCancel} class="slds-m-left_small" variant="neutral" onclick={handleCancelButton} data-id="modal-cancel">
+                </lightning-button>
+                <lightning-button label={labels.commonSave} class="slds-m-left_small" variant="brand" onclick={handleActionButton} data-id="modal-save">
+                </lightning-button>
+            </footer>
+        </div>
+    </template>
+</template>

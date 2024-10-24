@@ -1,0 +1,10 @@
+.slds-icon-utility-pinned {
+    --sds-c-icon-color-foreground-default: var(--sds-c-button-text-color, var(--lwc-brandAccessible,rgb(1, 118, 211)));
+}
+.pin-button-container:focus {
+    box-shadow: none;
+}
+.pin-button-container:hover .slds-icon-utility-pin,
+.pin-button-container:hover .slds-icon-utility-pinned {
+    --sds-c-icon-color-foreground-default: var(--sds-c-button-text-color-hover, var(--lwc-brandAccessibleActive,rgb(1, 68, 134)));
+}

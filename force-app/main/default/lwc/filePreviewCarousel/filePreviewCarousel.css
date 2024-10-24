@@ -1,0 +1,147 @@
+* {
+    box-sizing: border-box;
+}
+
+:host {
+    --arrow-color: var(--lwc-brandPrimaryActive);
+    --arrow-pointer-events: auto;
+    --arrow-container-hover: lightblue;
+}
+
+img {
+    object-fit: fill;
+    top: 0;
+    left: 0;
+    max-width: 100%;
+}
+
+.slds-box {
+    padding-top: 0 !important;
+}
+
+.cardBorder {
+    display: block;
+    z-index: 0;
+    border: 1px solid rgb(208 208 208);
+}
+
+.fileTitle {
+    font-size: initial;
+    display: flex;
+    flex-direction: row-reverse;
+    padding: 10px;
+}
+
+.fileBody {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+    height: 400px;
+    overflow: auto
+}
+
+.DefaultFileText-Container {
+    border: 1px solid #747474;
+    border-radius: 5px;
+    background-color: #3ba755;
+    padding-left: 16px;
+    padding-right: 20px;
+
+    display: flex;
+    align-items: center;
+}
+
+.slds-button_brand {
+    height: 36px !important;
+}
+
+
+.DefaultFileText {
+    color: white;
+    padding: 5px;
+}
+
+/* Slideshow container */
+.slideshow-container {
+    width: 100%;
+    position: relative;
+}
+
+.header-text {
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
+.arrowContainer {
+    display: inline-flex;
+    justify-content: right;
+    font-size: x-large;
+    padding: 2px 5px;
+    transition: 0.8s ease;
+}
+
+.arrowContainer:hover {
+    background-color: var(--arrow-container-hover);
+}
+
+.arrow {
+    user-select: none;
+    pointer-events: var(--arrow-pointer-events);
+    color: var(--arrow-color);
+}
+
+.file-numbers {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dot {
+    cursor: pointer;
+    height: 20px;
+    width: 20px;
+    margin: 0 2px;
+    border: 1px solid #cecece;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.6s ease;
+}
+
+.activeDot, .dot:hover {
+    background-color: var(--lwc-brandPrimaryActive);
+    color: white;
+}
+
+/* Fading animation */
+.fade {
+    animation-name: fade;
+    animation-duration: 1.5s;
+}
+
+@keyframes fade {
+    from {
+        opacity: .4
+    }
+    to {
+        opacity: 1
+    }
+}
+
+.zoomControls {
+    padding: 5px;
+    position: absolute;
+    top: 20px;
+    left: 10px;
+    background-color: #ffffffcc;
+    border-radius: 5px;
+    display: flex;
+    gap: 5px;
+    z-index: 1;
+}
+
+.ImageContainer {
+    transform-origin: left top;
+}

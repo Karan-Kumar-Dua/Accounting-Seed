@@ -1,0 +1,82 @@
+<apex:component controller="CashDisbursementRemittanceComponent">
+    <apex:attribute name="CashDisbursement" description="" assignTo="{!cCashDisbursement}" type="CashDisbursementWrapper" required="true"/>
+    
+    <apex:attribute name="ShowHeader" description="" type="Boolean" default="false"/>
+    <apex:attribute name="Top" description="" type="Double" default="0" />
+    <apex:attribute name="IsCheck" description="" type="Boolean" default="false"/>
+    <apex:attribute name="ShowPage" description="" type="Boolean" default="false"/>
+    
+    <apex:attribute name="ShowCustomMessage" description="" type="Boolean" default="false"/>
+    <apex:attribute name="ShowLimitMessage" description="" type="Boolean" default="false"/>
+    <apex:attribute name="CustomMessage" description="" type="String" default="false"/>
+    
+    <apex:attribute name="CurrentPage" description="" type="Integer" default="1"/>
+    <apex:attribute name="CountPages" description="" type="Integer" default="1"/>
+    
+    <apex:attribute name="ShowRemittances" description="" type="Boolean" default="false"/>
+    <apex:attribute name="ShowHeaderRemittances" description="" type="Boolean" default="false"/>
+    <apex:attribute name="OffsetRemittances" description="" type="Integer" default="0"/>
+    <apex:attribute name="PerPageRemittances" description="" type="Integer" default="10"/>
+    <apex:attribute name="LimitRemittances" description="" type="Integer" default="10000"/>
+
+    <div style="position:absolute;margin-top:0px;top:{!Top}mm;width:100%;">
+        <apex:outputPanel rendered="{!ShowHeader}">
+            <table style="font-size:11pt;" width="100%">
+                <tr>
+                    <td colspan="2">
+                        <apex:outputText value="{!CustomMessage}"
+                          rendered="{!ShowCustomMessage}" />
+                        <apex:outputText value="{!$Label.AcctSeed__COMMON_DISPLAYING_ONLY_PAYABLE_RECORDS}"
+                          rendered="{!ShowLimitMessage && LimitRemittances < CashDisbursement.remittances.size}" >
+                          <apex:param value="{!LimitRemittances}" /> 
+                          <apex:param value="{!cCashDisbursement.remittances.size}" />
+                          </apex:outputText>
+                    </td>
+                    <td style="text-align:right" >
+                        <apex:outputText value="{!$Label.AcctSeed__COMMON_CHECK}  {0, number, ############}" rendered="{!cCashDisbursement.cashDisbursement.Check_Number__c != NULL}">
+                            <apex:param value="{!cCashDisbursement.cashDisbursement.Check_Number__c}" />
+                        </apex:outputText>
+                        <apex:outputText value="({!CurrentPage}/{!CountPages} page)" 
+                          rendered="{!ShowPage && CountPages > 1}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td >
+                        <apex:outputText rendered="{!IF(LEN(cCashDisbursement.cashDisbursement.Payee__c) <= 45,True,False)}">    
+                            <div style="word-break:break-word; width:320px;line-height:10px" >
+                                {!$Label.COMMON_PAYEE}: <span style="font-size:9pt;">{!cCashDisbursement.cashDisbursement.Payee__c}</span>
+                            </div>
+                        </apex:outputText>
+                        
+                        <apex:outputText rendered="{!IF(AND(LEN(cCashDisbursement.cashDisbursement.Payee__c) > 45, LEN(cCashDisbursement.cashDisbursement.Payee__c) <= 120),True,False)}" >        
+                            <div style="word-break:break-word; width:320px; line-height:9px" >
+                                {!$Label.COMMON_PAYEE}: <span style="font-size:8pt;">{!cCashDisbursement.cashDisbursement.Payee__c}</span>
+                            </div>
+                        </apex:outputText>
+                        
+                        <apex:outputText rendered="{!IF(LEN(cCashDisbursement.cashDisbursement.Payee__c) > 120,True,False)}" >                     
+                            <div style="word-break:break-word; width:320px; line-height:8px" >
+                                {!$Label.COMMON_PAYEE}: <span style="font-size:8px;">{!cCashDisbursement.cashDisbursement.Payee__c}</span>
+                            </div>
+                        </apex:outputText>
+                    </td>                   
+                    <td style="text-align:right" >
+                        {!$Label.COMMON_DATE}:&nbsp;
+                        <apex:outputField value="{!cCashDisbursement.cashDisbursement.Disbursement_Date__c}" />
+                    </td>
+                    <td style="text-align:right;" >
+                        {!$Label.COMMON_AMOUNT}:&nbsp;
+                        <apex:outputField value="{!cCashDisbursement.cashDisbursement.Amount__c}" />
+                    </td>
+                </tr>               
+            </table>
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!ShowRemittances}">
+            <c:RemittanceComponent remittances="{!cCashDisbursement.remittances}"
+                showHeader="{!ShowHeaderRemittances}"
+                offset="{!OffsetRemittances}"
+                limit="{!PerPageRemittances}"
+            />
+        </apex:outputPanel>
+    </div>
+</apex:component>

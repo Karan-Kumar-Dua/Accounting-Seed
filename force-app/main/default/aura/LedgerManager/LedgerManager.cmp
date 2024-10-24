@@ -1,0 +1,46 @@
+<aura:component controller="LedgerManagerController" implements="force:lightningQuickActionWithoutHeader,flexipage:availableForAllPageTypes" access="global">
+    <aura:attribute name="ledgers" type="Map" />
+    <aura:attribute name="isError" type="Boolean" default="false" />
+    <aura:attribute name="isLoaded" type="Boolean" default="false" />
+    <aura:attribute name="selectedLedger" type="String" />
+    <aura:attribute name="pageErrorMessage" type="String" />
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:handler name="change" value="{!v.selectedLedger}" action="{!c.setLedger}"/>
+
+    <!-- This utility component allows Aura components to exchange messages (events) with Lightning Web components. -->
+    <c:aurapubsub aura:id="pubsub" />
+    <!-- ========================================================================================================== -->
+
+    <div class="slds">
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__figure" >
+                    <lightning:icon iconName="custom:custom59" size="small" alternativeText="{!$Label.c.COMMON_LEDGER}"/>
+                </div>
+                <div class="slds-media__body">
+                    <h1 class="slds-card__header-title slds-truncate">
+                        <span class="slds-card__header-title slds-truncate" title="{!$Label.c.COMMON_LEDGER_MANAGER}">{!$Label.c.COMMON_LEDGER_MANAGER}</span>
+                    </h1>
+                </div>
+            </header>
+        </div>
+        <div class="c-container">
+            <lightning:layout horizontalAlign="spread" multipleRows="false">
+                <lightning:layoutItem padding="around-small" flexibility="grow" size="12">
+                    <aura:if isTrue="{!and(not(v.isError), v.isLoaded)}">
+                        <lightning:select aura:id="ledger" name="ledger" value="{!v.selectedLedger}" label="{!$Label.c.COMMON_ACTIVE + ' ' + $Label.c.COMMON_LEDGER}" required="true">
+                            <aura:iteration items="{!v.ledgers}" var="ledger">
+                                <option text="{!ledger.Name}" value="{!ledger.Id}" selected="{!v.selectedLedger == ledger.Id}"/>
+                            </aura:iteration>
+                        </lightning:select>
+                    </aura:if>
+                    <aura:if isTrue="{!v.isError}">
+                        <ui:message title="{!$Label.c.ERR_LEDGER_MANAGER}" severity="error" closable="false">
+                            <aura:unescapedHtml value="{!v.pageErrorMessage}"/>
+                        </ui:message>
+                    </aura:if>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </div>
+    </div>
+</aura:component>

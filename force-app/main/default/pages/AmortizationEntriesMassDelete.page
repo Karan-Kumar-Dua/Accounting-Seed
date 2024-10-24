@@ -1,0 +1,27 @@
+<apex:page standardController="Scheduled_Revenue_Expense__c"
+           extensions="AmortizationEntriesMassDelete" recordSetVar="amortizationEntries" action="{!validateSelectedRecords}">
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" loadOnReady="true"/>
+
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Scheduled_Revenue_Expense__c.labelPlural}"
+                            subtitle="{!$Label.AcctSeed__COMMON_DELETE + ' ' + $ObjectType.Scheduled_Revenue_Expense__c.labelPlural}" />
+        <apex:pageBlock title="{!$Label.AcctSeed__COMMON_DELETE + ' ' + $ObjectType.Scheduled_Revenue_Expense__c.labelPlural}">
+            <apex:pageMessage severity="warning"
+                              strength="3"
+                              summary="{!$Label.AcctSeed__XDELETE_MODAL_WARNING}" rendered="{!showDeleteButton}"/>
+            <apex:pageMessages />
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="processingStatus"
+                                   onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')"/>
+                <apex:commandButton action="{!deleteRecords}"
+                                    value="{!$Label.AcctSeed__COMMON_DELETE}"
+                                    status="processingStatus"
+                                    rendered="{!showDeleteButton}" reRender="theForm"/>
+                <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form>
+
+</apex:page>

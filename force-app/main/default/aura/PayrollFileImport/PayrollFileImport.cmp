@@ -1,0 +1,7 @@
+<!--
+ - Created by christopherjohnson on 7/21/18.
+ -->
+
+ <aura:component controller="PayrollFileImport" implements="force:appHostable"  description="PayrollFileImport">
+    <c:importPayrollFile></c:importPayrollFile>
+</aura:component>

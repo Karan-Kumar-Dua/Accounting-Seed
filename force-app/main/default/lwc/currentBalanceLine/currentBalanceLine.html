@@ -1,0 +1,23 @@
+<template>
+    <div>
+        <template if:true={isProcessing}>
+            <lightning-spinner variant="brand" alternative-text={labels.commonProcessing} size="small"></lightning-spinner>
+        </template>
+        <template if:false={isProcessing}>
+            <template if:true={balanceResult}>
+                <c-formatted-currency currency-value={balanceResult.balance}
+                                      currency-iso-code={balanceResult.currencyIsoCode}
+                                      hide-iso-code={hideIsoCode}
+                                      is-multi-currency-organization={balanceResult.isMultiCurrencyOrganization}></c-formatted-currency>
+            </template>
+            <template if:true={error}>
+                <template if:true={errorInTableMode}>
+                    <span style="color:red;">{labels.ERR_NA_DUE_TO_ERROR}</span><lightning-helptext content={error.body.message}></lightning-helptext>
+                </template>
+                <template if:false={errorInTableMode}>
+                    <c-inline-error-message class="inline-error-msg" errors={error.body.message}></c-inline-error-message>
+                </template>
+            </template>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,17 @@
+.stripeSettings--header lightning-button {
+    font-size: 13px;
+    font-weight: normal;
+}
+.stripeSettings--divider {
+    margin-left: auto;
+}
+.section-holder {
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(221, 219, 218);
+    border-radius: 0.25rem;
+}
+.defPaymentProcessor--subTitle {
+    display: flex;
+    align-items: center;
+}

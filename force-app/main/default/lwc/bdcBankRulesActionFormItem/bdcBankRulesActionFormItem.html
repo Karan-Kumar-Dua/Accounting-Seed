@@ -1,0 +1,73 @@
+<template>
+    <lightning-layout vertical-align="end">
+        <lightning-layout-item padding="horizontal-small">
+            <lightning-combobox
+                data-name={targetField.apiName}
+                variant="label-hidden"
+                options={fieldOpts}
+                value={targetField.value}
+                onchange={handleFieldChange}>
+            </lightning-combobox>
+        </lightning-layout-item>
+        <lightning-layout-item padding="horizontal-small">
+            <lightning-icon icon-name="utility:assignment"></lightning-icon>
+        </lightning-layout-item>
+        <lightning-layout-item flexibility="auto" padding="horizontal-small">
+            <template if:true={hasObjectApiName}>
+                <lightning-record-edit-form object-api-name={objectApiName}>
+                    <template for:each={fieldOpts} for:item="field">
+                        <template if:true={field.selected}>
+                            <template if:false={field.isDependentLookup}>
+                                <lightning-input-field
+                                    key={field.value}
+                                    data-name={valueField.apiName}
+                                    value={valueField.value} 
+                                    field-name={field.value}
+                                    variant="label-hidden"
+                                    onchange={handleValueChange}>
+                                </lightning-input-field>
+                            </template>
+                            <template if:true={field.isDependentLookup}>
+                                <div key={field.value}>
+                                    <c-help-text 
+                                        object-api-name={objectApiName} 
+                                        field-api-name={field.value}>
+                                    </c-help-text>
+                                    <c-lookup
+                                        data-name={valueField.apiName}
+                                        search-object={field.value}
+                                        search-filter={field.dependentLookupFilter}
+                                        init-value={valueField.value}
+                                        onselectionchange={handleDependentLookupChange}>
+                                    </c-lookup>
+                                </div>
+                            </template>
+                        </template>
+                        <template if:false={field.selected}>
+                            <lightning-input-field
+                                key={field.value}
+                                value={field.default}
+                                field-name={field.value}
+                                variant="label-hidden"
+                                disabled
+                                hidden>
+                            </lightning-input-field>
+                        </template>
+                    </template>
+                </lightning-record-edit-form> 
+            </template>
+        </lightning-layout-item>
+        <lightning-layout-item>
+            <template if:true={displayDeleteBtn}>
+                <lightning-button-icon 
+                    data-jest="delete"
+                    alternative-text={labels.automatedJobsDelete} 
+                    title={labels.automatedJobsDelete}
+                    variant="border-filled"
+                    icon-name="utility:dash"
+                    onclick={handleRemove}>
+                </lightning-button-icon>
+            </template>
+        </lightning-layout-item>
+    </lightning-layout>
+</template>

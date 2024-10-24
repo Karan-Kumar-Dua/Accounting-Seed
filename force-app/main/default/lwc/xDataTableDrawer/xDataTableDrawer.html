@@ -1,0 +1,15 @@
+<!-- X Data Table Drawer -->
+<template>
+    <td colspan={colSpan} data-id="drawer-head" class="bottomBorder">
+        <lightning-layout multiple-rows>
+            <template for:each={drawer} for:item="drawerField">
+                <lightning-layout-item key={drawerField.apiName} padding="around-small" size="2">
+                    <label for={drawerField.label} class="slds-text-color_weak slds-text-body_regular" data-id={drawerField.label}>{drawerField.label}</label>
+                    <div key={drawerField.label} role="gridcell" data-id="drawer-datacell">
+                        <c-x-data-table-cell child-reference={childReference} column={drawerField} initial-data={initialData} row={row} key-field={keyField} data-id="drawer-cell"></c-x-data-table-cell>
+                    </div>
+                </lightning-layout-item>
+            </template>
+        </lightning-layout>
+    </td>
+</template>

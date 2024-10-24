@@ -1,0 +1,13 @@
+.menu-body-item {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    padding: 40px 0 52px;
+    box-sizing: border-box;
+    width: -webkit-fill-available;
+    z-index: 9999;
+}

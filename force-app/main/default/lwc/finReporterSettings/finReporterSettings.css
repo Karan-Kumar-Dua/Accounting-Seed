@@ -1,0 +1,36 @@
+.heading-text-main {
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.heading-text {
+  font-weight:bold;
+  font-size:16px;
+}
+
+.sublabel-text {
+  color: var(--lwc-colorTextLabel,rgb(62, 62, 60));
+  font-size: 0.65rem;
+}
+
+.image-preview-container {
+  max-width: 200px;
+  max-height: 55px;
+}
+
+.image-preview-container img {
+  max-height: inherit;
+}
+
+.slds-p-top_40 {
+  padding-top: 40px;
+}
+
+.slds-p-bottom_40 {
+  padding-bottom: 40px;
+}
+
+.box-shadow {
+  box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.10);
+}

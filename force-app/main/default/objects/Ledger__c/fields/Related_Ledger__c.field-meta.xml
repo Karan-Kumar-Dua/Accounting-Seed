@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Related_Ledger__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <inlineHelpText>This will be set automatically if the Accounting Method on the Ledger is “Accrual and Cash”.</inlineHelpText>
+    <label>Related Ledger</label>
+    <referenceTo>Ledger__c</referenceTo>
+    <relationshipLabel>Related Ledgers</relationshipLabel>
+    <relationshipName>Related_Ledgers</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

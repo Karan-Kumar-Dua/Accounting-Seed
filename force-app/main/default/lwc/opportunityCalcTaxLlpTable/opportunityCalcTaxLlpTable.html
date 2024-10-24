@@ -1,0 +1,118 @@
+<template>
+    <lightning-layout class="slds-var-p-around_medium">
+        <lightning-layout-item size="12">
+            <h2 class="slds-text-heading_small slds-var-m-bottom_medium">
+                <strong>{labels.opportunityTaxProductLine}</strong>
+            </h2>
+            <div class="slds-notify_alert slds-theme_alert-texture slds-theme_info slds-m-bottom_medium content-left">
+                <lightning-icon icon-name="utility:info" size="x-small" variant="inverse"></lightning-icon>
+                <h2 class="slds-p-left_x-small">
+                    {labels.llpCreateInfoMessage}
+                </h2>
+            </div>
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered" aria-labelledby="element-with-table-label other-element-with-table-label">
+                <thead class="calcTax--tableHeader">
+                <tr class="slds-line-height_reset">
+                    <th class="" scope="col" if:false={isAvalaraTax}>
+                        <div class="slds-truncate" title={labels.taxRateName}>{labels.taxRateName}</div>
+                    </th>
+                    <th class="" scope="col" if:false={isAvalaraTax}>
+                        <div class="slds-truncate" title={labels.commonProduct}>{labels.commonProduct}</div>
+                    </th>
+                    <th class="" scope="col" if:false={isAvalaraTax}>
+                        <div class="slds-truncate" title={labels.subtotal}>{labels.subtotal}</div>
+                    </th>
+                    <th class="" scope="col" if:true={isAvalaraTax}>
+                        <div class="slds-truncate" title={labels.avalaraTaxProduct}>{labels.avalaraTaxProduct}</div>
+                    </th>
+                    <th class="" scope="col" if:false={isAvalaraTax}>
+                        <div class="slds-truncate" title={labels.taxRatePercentage}>{labels.taxRatePercentage}</div>
+                    </th>
+                    <th class="" scope="col" >
+                        <div class="slds-truncate" title={labels.estimatedTaxAmount}>{labels.estimatedTaxAmount}</div>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <template for:each={page} for:item="oli">
+                    <tr key={oli.Id} class="slds-hint-parent slds-page-header">
+                        <th data-id="th-jobType" data-label={labels.taxRateName} scope="row" if:false={isAvalaraTax}>
+                            <div class="slds-truncate" title={oli.Name}>
+                                <lightning-formatted-url label={oli.Name} value={oli.urlLink}></lightning-formatted-url>
+                            </div>
+                        </th>
+                        <td data-id="td-startDate" data-label={labels.commonProduct} if:false={isAvalaraTax}>
+                            <template for:each={oli.products} for:item="prod">
+                                <div key={oli.Id} class="slds-truncate" title={prod.product}>
+                                    <lightning-formatted-url label={prod.product} value={prod.productUrlLink}></lightning-formatted-url>
+                                </div>
+                            </template>
+                        </td>
+                        <td data-id="td-preferredStartTime" data-label={labels.subtotal} if:false={isAvalaraTax}>
+                            <template for:each={oli.products} for:item="prod">
+                                <div key={oli.Id} class="slds-truncate" title={prod.subtotal}>
+                                    <c-formatted-currency currency-value={prod.subtotal}
+                                                          currency-iso-code={currencyCode}
+                                                          is-multi-currency-organization={isMultiCurrencyEnabled}>
+
+                                    </c-formatted-currency>
+                                </div>
+                            </template>
+                        </td>
+                        <td data-id="td-preferredStartTime" data-label={labels.avalaraTaxProduct} if:true={isAvalaraTax}>
+                            <lightning-formatted-url label={oli.Name} value={oli.urlLink}></lightning-formatted-url>
+                        </td>
+                        <td data-id="td-preferredStartTime" data-label={labels.taxRatePercentage} if:false={isAvalaraTax}>
+                            <template for:each={oli.products} for:item="prod">
+                                <div key={oli.Id} class="slds-truncate" title={prod.taxRatePercentage}>
+                                    <lightning-formatted-number value={prod.taxRatePercentage} format-style="percent-fixed" maximum-fraction-digits="3"></lightning-formatted-number>
+                                </div>
+                            </template>
+                        </td>
+                        <td data-id="td-preferredStartTime" data-label={labels.estimatedTaxAmount}>
+                            <template for:each={oli.products} for:item="prod" if:false={isAvalaraTax}>
+                                <div key={oli.Id} class="slds-truncate" title={prod.taxAmount}>
+                                    <c-formatted-currency currency-value={prod.taxAmount}
+                                                          currency-iso-code={currencyCode}
+                                                          is-multi-currency-organization={isMultiCurrencyEnabled}>
+
+                                    </c-formatted-currency>
+                                </div>
+                            </template>
+                            <div class="slds-truncate" title={oli.taxAmount} if:true={isAvalaraTax}>
+                                <c-formatted-currency currency-value={oli.taxAmount}
+                                                      currency-iso-code={currencyCode}
+                                                      is-multi-currency-organization={isMultiCurrencyEnabled}>
+
+                                </c-formatted-currency>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr key={oli.Id} class="slds-hint-parent" if:false={isAvalaraTax}>
+                        <td colspan="4">
+                            <div class="slds-truncate slds-text-title_bold estimated-total-holder">
+                                <p>{labels.estimatedTotal} {oli.Name} {labels.commonAmount} :</p>
+                            </div>
+                        </td>
+                        <td >
+                            <div class="slds-truncate slds-text-title_bold" title={oli.taxAmount}>
+                                <c-formatted-currency currency-value={oli.UnitPrice}
+                                                      currency-iso-code={currencyCode}
+                                                      is-multi-currency-organization={isMultiCurrencyEnabled}>
+                                </c-formatted-currency>
+                            </div>
+                        </td>
+                    </tr>
+                </template>
+                </tbody>
+            </table>
+            <div class="slds-p-around_medium">
+                <c-paginator
+                    total-records={totalRecords}
+                    page-size={pageSize}
+                    onchange={handlePageChange}>
+                </c-paginator>
+            </div>
+        </lightning-layout-item>
+    </lightning-layout>
+</template>

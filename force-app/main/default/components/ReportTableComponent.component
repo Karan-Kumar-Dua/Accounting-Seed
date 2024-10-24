@@ -1,0 +1,214 @@
+<apex:component controller="ReportTableController">
+    <apex:attribute name="financialReportWrapper" description="{!$Label.INF_RESULT_REPORT_TABLE}" type="FinancialReportWrapper" required="true" assignTo="{!frw}" />
+    <apex:attribute name="reportName" description="{!$Label.INF_REPORT_NAME}" type="String" required="true" assignTo="{!theReportName}" />    
+    <apex:attribute name="reportSubtitle" description="{!$Label.INF_REPORT_SUBTITLE}" type="String" required="false" assignTo="{!theReportSubtitle}" />    
+    <apex:attribute name="acctPeriodName" description="{!$Label.INF_STARTING_PERIOD_REPORT_TABLE}" type="String" required="true" assignTo="{!currentPeriodName}" />
+    <apex:attribute name="reportRow" description="{!$Label.INF_REPORT_ROW_FILTER_GLAV}" type="Financial_Report_Row__c" required="false" assignTo="{!theReportRow}" />
+    <apex:attribute name="isPDFFormat" description="{!$Label.INF_REPORT_GENERATED_PDF}" type="Boolean" required="true" assignTo="{!isPDF}" />
+    <apex:attribute name="isXLSFormat" description="{!$Label.INF_REPORT_GENERATED_XLS}" type="Boolean" required="true" assignTo="{!isXLS}" />
+
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, 'css/financial-report.css')}" />
+
+    <apex:pageMessages escape="false"/>
+
+    <div style="display: inline-block">
+    <div id="report-wrap" class="{!IF(isPDF, 'pdf', '')} {!IF(isNeedSmallFont, 'small', '')}">
+        <apex:outputPanel layout="none" rendered="{!!isXLS}">
+        <div id="report-head">
+            <apex:outputPanel layout="none" rendered="{!!isCustomReport}">
+                <div style="margin-bottom: 20px;">
+                    <apex:image rendered="{!IF(ISNULL(companyLogo), false, true)}"
+                                url="{!companyLogo}"
+                                style="display: inline-block; margin-right: 10px; height: 55px;">
+                    </apex:image>
+                    <h2 style="display: inline-block; width: 100%;">{!companyName}</h2>
+                </div>
+            </apex:outputPanel>
+            <div>
+                <h1>{!theReportName}</h1>
+                <h2>{!theReportSubtitle}</h2>
+            </div>
+            <div style="width: 100%; text-align: right;"><span style="font-weight: bold; white-space:pre-wrap;">{!$Label.COMMON_CURRENCY}: </span>{!defaultCurrency}</div>
+            <div style="width: 100%; text-align: right; font-style: italic;"><span></span>{!roundedTo}</div>
+        </div>
+        </apex:outputPanel>
+        <table border="0" cellspacing="0" cellpadding="0" style="{!IF(isXLS,'width: auto;','width: 100%;')} border-top: 1px solid #000; border-bottom: double #000;">
+            <apex:outputPanel layout="none" rendered="{!isXLS}">
+                <tr style="width: 100%;">
+                    <h1>{!theReportName}</h1>
+                    <div style="width: 100%; text-align: right;"><span style="font-weight: bold; white-space:pre-wrap;">{!$Label.COMMON_CURRENCY}: </span>{!defaultCurrency}</div>
+                    <div style="width: 100%; text-align: right; font-style: italic;">{!roundedTo}</div>
+                    <th></th>
+                    <apex:variable var="headerCount" value="{!0}"/>
+                    <apex:repeat value="{!headers}" var="header">
+                        <apex:variable var="rowCls" value="{!IF(mod(headerCount,2)==0,'even', 'odd')}"/>
+                        <th class="align-center {!rowCls}"><span><apex:outputText value="{!header}" /></span></th>
+                        <apex:variable value="{!(headerCount+1)}" var="headerCount"/>
+                    </apex:repeat>
+                </tr>
+            </apex:outputPanel>
+            <apex:outputPanel layout="none" rendered="{!!isXLS}">
+            <tr>
+                <th></th>
+                <apex:variable var="headerCount" value="{!0}"/>
+                <apex:repeat value="{!headers}" var="header" id="theHeader">
+                    <apex:variable var="rowCls" value="{!IF(mod(headerCount,2)==0,'even', 'odd')}"/>
+                    <th class="align-center {!rowCls}"><span><apex:outputText value="{!header}" /></span></th>
+                    <apex:variable value="{!(headerCount+1)}" var="headerCount"/>
+                </apex:repeat>
+            </tr>
+            </apex:outputPanel>
+            <apex:outputPanel layout="none" rendered="{!!ISBLANK(headers2) && headers2.size > 0}">
+                <tr>
+                    <th></th>
+                    <apex:variable var="header2Count" value="{!0}"/>
+                    <apex:repeat value="{!headers2}" var="header2" id="theHeader2">
+                        <apex:variable var="rowCls" value="{!IF(mod(header2Count,2)==0,'even', 'odd')}"/>
+                        <td class="align-center {!rowCls}"><span><apex:outputText value="{!header2}"/></span></td>
+                        <apex:variable value="{!(header2Count+1)}" var="header2Count"/>
+                    </apex:repeat>
+                </tr>
+            </apex:outputPanel>
+            <apex:repeat value="{!ReportValueRows}" var="row" id="theRow">
+                <tr>
+                    <td style="{!IF(isXLS,'white-space: nowrap;','')}" class="{!row.cssclass}">
+                        <apex:outputText styleClass="{!'indent-' + TEXT(row.rowIndent)}" value="{!row.rowlabel}" />
+                    </td>
+                    <apex:variable var="lineStyle" value="{!row.cssclass}"/>
+                    <apex:variable var="count" value="{!0}"/>
+
+                    <apex:repeat value="{!row.values}" var="val" id="theVal">
+                        <apex:variable var="rowCls" value="{!IF(mod(count,2)==0,'even', 'odd')}"/>
+                        <td class="align-right padding {!val.tdClasses} {!rowCls} {!lineStyle}"
+                            style="width:100px; font-weight: normal; white-space: nowrap;">
+                            <apex:outputLink styleClass="{!val.valueClasses}"
+                                             value="{!$Page.FinancialReportTransactionDetail}?glAccountId={!val.glAccountId}&acctPeriodId={!val.acctPeriodId}&ledgerId={!val.ledgerId}&glav1={!val.glav1}&glav2={!val.glav2}&glav3={!val.glav3}&glav4={!val.glav4}"
+                                             target="_blank"
+                                             title="{!$Label.AcctSeed__INF_DETAILED_TRANSACTION_CLICK}"
+                                             rendered="{!val.displayDetailLink && !isPDF}">
+                                <apex:outputText value="{!val.reportVal.Text_Value__c}"/>
+                            </apex:outputLink>
+                            <apex:outputText styleClass="{!val.valueClasses}"
+                                             value="{!val.reportVal.Text_Value__c}"
+                                             rendered="{!(!val.displayDetailLink && !isPDF) && val.isCurrency}"/>
+                            <apex:outputText styleClass="{!val.valueClasses}"
+                                             value="{!val.formattedDecimal}"
+                                             rendered="{!isPDF && val.isCurrency && !val.isPercent}"/>
+                            <apex:outputText rendered="{!val.isPercent}"
+                                             styleClass="{!val.valueClasses}"
+                                             value="{!val.percentageDecimal}%">
+                            </apex:outputText>
+                            <apex:outputText rendered="{!val.isText}" value="{!val.text}" />
+                        </td>
+                        <apex:variable value="{!(count+1)}" var="count"/>
+                    </apex:repeat>
+                </tr>
+            </apex:repeat>
+        </table>
+    </div>
+    <div class="footer {!IF(isPDF,'pdf','')} {!IF(isNeedSmallFont,'small','')}">
+        <apex:outputPanel rendered="{!!isXLS}" layout="none">
+            <div style="margin-bottom:5px;">
+                <div style="display: inline-block" class="{!IF(isPDF,'pdf','')}">
+                    <div class="margin-bottom">
+                        <apex:outputText value="{!reportTime}">
+                            <span style="font-weight:bold">{!$Label.COMMON_CREATED_DATE_TIME}:&nbsp;</span>
+                        </apex:outputText>
+                    </div>
+                    <div>
+                        <apex:outputText value="{!reportResult.CreatedBy.Name}">
+                            <span style="font-weight:bold">{!$Label.COMMON_CREATED_BY}:&nbsp;</span>
+                        </apex:outputText>
+                    </div>
+                    <div>
+                        <apex:outputText value="{!reportResult.Name}">
+                            <span style="font-weight:bold">{!$Label.INF_REPORT_NUMBER}:&nbsp;</span>
+                        </apex:outputText>
+                    </div>
+                </div>
+                <div style="display: inline-block; float: right">
+                    <div class="align-right {!IF(isPDF,'pdf','')}" style="display: inline-block;">
+                        <div class="margin-bottom">
+                            <apex:outputText value="{!startPeriodName}" rendered="{!!ISBLANK(startPeriodName) && !isCustomReport}">
+                                <span style="font-weight:bold">{!$Label.COMMON_START_PERIOD}:&nbsp;</span>
+                            </apex:outputText>
+                        </div>
+                        <div class="margin-bottom">
+                            <apex:outputText value="{!ledger.Name}"
+                                             rendered="{!!ISBLANK(ledger.Name) && !isCustomReport && !ISBLANK(budgetLedger.Name)}">
+                                <span style="font-weight:bold">{!$Label.COMMON_LEDGER}:&nbsp;</span>
+                            </apex:outputText>
+                            <apex:outputText rendered="{!!ISBLANK(ledger.Name) && !isCustomReport && ISBLANK(budgetLedger.Name)}">
+                                <span style="font-weight:bold">&nbsp;</span>
+                            </apex:outputText>
+                        </div>
+                        <div class="margin-bottom">
+                            <apex:outputText rendered="{!GLVariable1 != NULL && GLVariable2 != NULL && !isCustomReport}"
+                                             value="{!GLVariable1.Name}">
+                                <span style="font-weight:bold">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_1__c.Label}:&nbsp;</span>
+                            </apex:outputText>
+                            <apex:outputText rendered="{!(GLVariable2 == NULL && GLVariable1 != NULL) || (GLVariable2 != NULL && GLVariable1 == NULL) && !isCustomReport}">
+                                <span style="font-weight:bold">&nbsp;</span>
+                            </apex:outputText>
+                        </div>
+                        <div>
+                            <apex:outputText rendered="{!GLVariable3 != NULL && GLVariable4 != NULL && !isCustomReport}"
+                                             value="{!GLVariable3.Name}">
+                                <span style="font-weight:bold">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_3__c.Label}:&nbsp;</span>
+                            </apex:outputText>
+                            <apex:outputText rendered="{!(GLVariable4 == NULL && GLVariable3 != NULL) || (GLVariable4 != NULL && GLVariable3 == NULL) && !isCustomReport}">
+                                <span style="font-weight:bold">&nbsp;</span>
+                            </apex:outputText>
+                        </div>
+                    </div>
+
+                    <div class="align-right {!IF(isPDF,'pdf','')}" style="display: inline-block; margin-left: 5px">
+                        <div class="margin-bottom">
+                            <apex:outputText value="{!endPeriodName}" rendered="{!!ISBLANK(endPeriodName) && !isCustomReport}">
+                                <span style="font-weight:bold;">{!$Label.COMMON_END_PERIOD}:&nbsp;</span>
+                            </apex:outputText>
+                        </div>
+                        <div class="margin-bottom">
+                            <apex:outputText value="{!ledger.Name}"
+                                             rendered="{!!ISBLANK(ledger.Name) && !isCustomReport && ISBLANK(budgetLedger.Name)}">
+                                <span style="font-weight:bold">{!$Label.COMMON_LEDGER}:&nbsp;</span>
+                            </apex:outputText>
+                        </div>
+                        <div class="margin-bottom">
+                            <apex:outputText value="{!budgetLedger.Name}"
+                                             rendered="{!!ISBLANK(budgetLedger.Name) && !isCustomReport}">
+                                <span style="font-weight:bold;">{!$Label.COMMON_BUDGET_LEDGER}:&nbsp;</span>
+                            </apex:outputText>
+                        </div>
+                        <div class="margin-bottom">
+                            <apex:outputText rendered="{!GLVariable1 != NULL && GLVariable2 == NULL && !isCustomReport}"
+                                             value="{!GLVariable1.Name}">
+                                <span style="font-weight:bold">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_1__c.Label}:&nbsp;</span>
+                            </apex:outputText>
+                            <apex:outputText rendered="{!GLVariable2 != NULL && !isCustomReport}"
+                                             value="{!GLVariable2.Name}">
+                                <span style="font-weight:bold;">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_2__c.Label}:&nbsp;</span>
+                            </apex:outputText>
+                        </div>
+                        <div class="margin-bottom">
+                            <apex:outputText rendered="{!GLVariable3 != NULL && GLVariable4 == NULL && !isCustomReport}"
+                                             value="{!GLVariable3.Name}">
+                                <span style="font-weight:bold">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_3__c.Label}:&nbsp;</span>
+                            </apex:outputText>
+                            <apex:outputText rendered="{!GLVariable4 != NULL && !isCustomReport}"
+                                             value="{!GLVariable4.Name}">
+                                <span style="font-weight:bold;">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_4__c.Label}:&nbsp;</span>
+                            </apex:outputText>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </apex:outputPanel>
+        <apex:outputPanel layout="none" rendered="{!isEndAccountingPeriodOpen && theReportName = 'Balance Sheet' && !isXLS}">
+            <br/>
+            <p class="{!IF(isPDF,'pdf','')} {!IF(isNeedSmallFont,'small','')}"  style="color:red"><span style="font-weight:bold">{!$Label.COMMON_NOTE}:</span> {!$Label.INF_CURRENT_YEAR_EARNINGS_NOT_UPDATED}<br/> {!$Label.INF_ASSETS_NOT_EQUAL_LIABILITIES} {!endPeriodName} {!$Label.INF_PERIOD_UNTIL_CLOSED}</p>
+        </apex:outputPanel>
+    </div>
+    </div>
+
+</apex:component>

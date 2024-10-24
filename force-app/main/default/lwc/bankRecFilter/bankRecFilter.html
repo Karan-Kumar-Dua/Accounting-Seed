@@ -1,0 +1,214 @@
+<template>
+  <div data-id="filter-popover" style="display: none">
+    <section class="slds-popover slds-popover_walkthrough" role="dialog">
+      <button class="slds-button slds-button_icon slds-button_icon-small slds-float_right slds-popover__close slds-button_icon-inverse"
+              title={labels.commonCloseDialog}
+              onclick={handleFilterClose}>
+        <lightning-button-icon icon-name="utility:close"
+                               variant="bare-inverse"
+                               alternative-text={labels.commonCloseDialog}
+                               class="slds-m-left_xx-small"
+                               title={labels.commonCloseDialog}>
+        </lightning-button-icon>
+        <span class="slds-assistive-text">{labels.commonCloseDialog}</span>
+      </button>
+      <header class="slds-popover__header">
+        <h2 class="slds-text-heading_small">{labels.commonFilter}</h2>
+      </header>
+      <div class="slds-popover__body color-black">
+        <div class="slds-m-bottom_x-small">
+          <lightning-input
+            name="searchName"
+            variant="label-hidden"
+            value={searchName}
+            placeholder={labels.INF_SEARCH_BY_OPTIONS}
+            data-jest-name="searchName"
+            onchange={handleSearchNameChange} >
+          </lightning-input>
+        </div>
+        <p class="color-white slds-m-bottom_xx-small">{labels.INF_CLEARED_UNCLEARED}</p>
+        <lightning-combobox
+          name="state"
+          variant="label-hidden"
+          value={state}
+          placeholder={labels.INF_SELECT_ONE}
+          options={stateOptions}
+          data-jest-name="state"
+          onchange={handleStateChange} >
+        </lightning-combobox>
+        <div class="slds-m-top_small">
+          <p class="color-white slds-m-bottom_xx-small">{labels.commonDate}</p>
+          <div class="slds-grid">
+            <lightning-input
+              type="date"
+              variant="label-hidden"
+              date-style="short"
+              value={dateStart}
+              class="input-field slds-col"
+              message-when-bad-input={labels.commonInvalidDate}
+              data-jest-name="dateStart"
+              onchange={handleStartDateChange}>
+            </lightning-input>
+            <div class="slds-col color-white slds-m-around_xx-small">-</div>
+            <lightning-input
+              type="date"
+              variant="label-hidden"
+              date-style="short"
+              value={dateEnd}
+              class="date-end input-field slds-col"
+              message-when-bad-input={labels.commonInvalidDate}
+              data-jest-name="dateEnd"
+              onchange={handleEndDateChange}>
+            </lightning-input>
+          </div>
+        </div>
+        <div class="slds-m-top_small">
+          <p class="color-white slds-m-bottom_xx-small">{labels.commonType}</p>
+          <lightning-combobox
+            name="type"
+            variant="label-hidden"
+            value={type}
+            placeholder={labels.INF_SELECT_ONE}
+            options={typeOptions}
+            data-jest-name="type"
+            onchange={handleTypeChange} >
+          </lightning-combobox>
+        </div>
+        <div class="slds-m-top_small">
+          <p class="color-white slds-m-bottom_xx-small">{labels.commonAmount}</p>
+          <div class="slds-grid">
+            <lightning-input
+              type="number"
+              value={amountMin}
+              variant="label-hidden"
+              class="amount-min"
+              placeholder={labels.INF_MIN}
+              step="0.01"
+              data-jest-name="amountMin"
+              onchange={handleMinAmountChange}>
+            </lightning-input>
+            <div class="slds-col color-white slds-m-around_xx-small">-</div>
+            <lightning-input
+              type="number"
+              value={amountMax}
+              variant="label-hidden"
+              class="amount-max"
+              placeholder={labels.INF_MAX}
+              step="0.01"
+              data-jest-name="amountMax"
+              onchange={handleMaxAmountChange}>
+            </lightning-input>
+          </div>
+        </div>
+      </div>
+      <footer class="slds-popover__footer">
+        <div class="slds-grid slds-grid_vertical-align-center">
+          <button class="slds-button slds-button_inverse slds-col_bump-left" onclick={handleFilterClose}>{labels.commonCancel}</button>
+          <button class="slds-button slds-button_brand slds-col_bump-left"
+                  data-jest-name="applyButton"
+                  onclick={handleFilterApply}>
+            {labels.commonApply}
+          </button>
+        </div>
+      </footer>
+    </section>
+  </div>
+  <div class="slds-pill__container">
+    <template if:true={showClearedStateFilter}>
+      <div class="filter-result slds-pill" data-jest-name="clearedStateOutput">
+        <span class="slds-pill__label">{labels.commonCleared}</span>
+        <lightning-button-icon icon-name="utility:close"
+                               variant="bare"
+                               onclick={handleClearedStateResultClose}
+                               alternative-text={labels.commonCloseDialog}
+                               class="slds-m-left_x-small"
+                               title={labels.commonCloseDialog}>
+        </lightning-button-icon>
+      </div>
+    </template>
+    <template if:true={showUnclearedStateFilter}>
+      <div class="filter-result slds-pill" data-jest-name="unClearedStateOutput">
+        <span class="slds-pill__label">{labels.commonUncleared}</span>
+        <lightning-button-icon icon-name="utility:close"
+                               variant="bare"
+                               onclick={handleUnclearedStateResultClose}
+                               alternative-text={labels.commonCloseDialog}
+                               class="slds-m-left_x-small"
+                               title={labels.commonCloseDialog}>
+        </lightning-button-icon>
+      </div>
+    </template>
+    <template if:true={showSearchNameFilter}>
+      <div class="filter-result slds-pill" data-jest-name="searchKeyOutput">
+        <span class="slds-pill__label">{labels.INF_SEARCH_KEY}: {searchName}</span>
+        <lightning-button-icon icon-name="utility:close"
+                               variant="bare"
+                               onclick={handleSearchNameResultClose}
+                               alternative-text={labels.commonCloseDialog}
+                               class="slds-m-left_x-small"
+                               title={labels.commonCloseDialog}>
+        </lightning-button-icon>
+      </div>
+    </template>
+    <template if:true={showDateStartFilter}>
+      <div class="filter-result slds-pill" data-jest-name="dateStartOutput">
+        <span class="slds-pill__label">{labels.automatedJobsStartDate}: {dateStart}</span>
+        <lightning-button-icon icon-name="utility:close"
+                               variant="bare"
+                               onclick={handleDateStartResultClose}
+                               alternative-text={labels.commonCloseDialog}
+                               class="slds-m-left_x-small"
+                               title={labels.commonCloseDialog}>
+        </lightning-button-icon>
+      </div>
+    </template>
+    <template if:true={showDateEndFilter}>
+      <div class="filter-result slds-pill" data-jest-name="dateEndOutput">
+        <span class="slds-pill__label">{labels.commonEndDate}: {dateEnd}</span>
+        <lightning-button-icon icon-name="utility:close"
+                               variant="bare"
+                               onclick={handleDateEndResultClose}
+                               alternative-text={labels.commonCloseDialog}
+                               class="slds-m-left_x-small"
+                               title={labels.commonCloseDialog}>
+        </lightning-button-icon>
+      </div>
+    </template>
+    <template if:true={showTypeFilter}>
+      <div class="filter-result slds-pill" data-jest-name="typeOutput">
+        <span class="slds-pill__label">{labels.commonType}: {type}</span>
+        <lightning-button-icon icon-name="utility:close"
+                               variant="bare"
+                               onclick={handleTypeResultClose}
+                               alternative-text={labels.commonCloseDialog}
+                               class="slds-m-left_x-small"
+                               title={labels.commonCloseDialog}>
+        </lightning-button-icon>
+      </div>
+    </template>
+    <template if:true={showAmountMinFilter}>
+      <div class="filter-result slds-pill" data-jest-name="amountMinOutput">
+        <span class="slds-pill__label">{labels.INF_AMOUNT_SMALL_MIN}: {amountMin}</span>
+        <lightning-button-icon icon-name="utility:close"
+                               variant="bare"
+                               onclick={handleAmountMinResultClose}
+                               alternative-text={labels.commonCloseDialog}
+                               class="slds-m-left_x-small"
+                               title={labels.commonCloseDialog}>
+        </lightning-button-icon>
+      </div>
+    </template>
+    <template if:true={showAmountMaxFilter}>
+      <div class="filter-result slds-pill" data-jest-name="amountMaxOutput">
+        <span class="slds-pill__label">{labels.INF_AMOUNT_SMALL_MAX}: {amountMax}</span>
+        <lightning-button-icon icon-name="utility:close"
+                               variant="bare"
+                               onclick={handleAmountMaxResultClose}
+                               alternative-text={labels.commonCloseDialog}
+                               class="slds-m-left_x-small"
+                               title={labels.commonCloseDialog}>
+        </lightning-button-icon>
+      </div>
+    </template>
+  </div>
+</template>

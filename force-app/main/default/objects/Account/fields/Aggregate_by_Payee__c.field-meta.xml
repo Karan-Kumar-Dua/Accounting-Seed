@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Aggregate_by_Payee__c</fullName>
+    <defaultValue>false</defaultValue>
+    <inlineHelpText>Check this box to automatically aggregate multiple payments in a batch into one single payment.</inlineHelpText>
+    <label>Aggregate by Payee</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Checkbox</type>
+</CustomField>

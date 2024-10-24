@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Billing_Discount_Days_Due__c</fullName>
+    <externalId>false</externalId>
+    <inlineHelpText>Used to calculate payment due date for a prompt payment discount on a billing.</inlineHelpText>
+    <label>Billing Discount Days Due</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

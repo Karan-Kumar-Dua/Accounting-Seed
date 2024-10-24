@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GL_Account_Variable_1__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <inlineHelpText>General Ledger segment used for reporting of a business unit such as division or department.</inlineHelpText>
+    <label>GL Variable 1</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>Accounting_Variable__c.Type__c</field>
+            <operation>equals</operation>
+            <value>GL Account Variable 1</value>
+        </filterItems>
+        <isOptional>true</isOptional>
+    </lookupFilter>
+    <referenceTo>Accounting_Variable__c</referenceTo>
+    <relationshipLabel>Accounts (GL Variable 1)</relationshipLabel>
+    <relationshipName>AccountsGLAV1</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Lookup</type>
+</CustomField>

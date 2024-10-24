@@ -1,0 +1,10 @@
+<apex:page standardController="Recurring_Account_Payable_Line__c"
+           extensions="NavToCreateController"
+           recordSetVar="rapLines"
+           title="{!$Label.AcctSeed__COMMON_NEW + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}"
+           lightningStylesheets="true"
+           sideBar="false">
+
+    <c:NavToCreateStatusComponent isError="{!isError}" url="{!redirectUrl}"/>
+
+</apex:page>

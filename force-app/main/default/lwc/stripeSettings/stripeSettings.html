@@ -1,0 +1,128 @@
+<template>
+    <template if:true={isShowSpinner}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium">
+        </lightning-spinner>
+    </template>
+    <div class="slds-var-m-bottom_medium">
+        <c-page-header title={labels.commonUtilities} breadcrumbs={breadcrumbs} knowledge-base={knowledgeBase}
+            icon-name="standard:custom"></c-page-header>
+    </div>
+    <lightning-card if:false={userCanView}>
+        <c-insufficient-privileges></c-insufficient-privileges>
+    </lightning-card>
+    <lightning-card if:true={userCanView}>
+        <div slot="title" class="stripeSettings--header">
+            <span class="slds-text-heading_small"><strong>{labels.paymentSettings}</strong></span>
+            <lightning-button-icon class="slds-var-m-left_medium" if:false={isEditable} icon-name="utility:edit"
+                onclick={handleEdit} disabled={userCannotEdit}
+                data-id="lightningButtonIcon-edit"></lightning-button-icon>
+            <lightning-button class="slds-var-m-left_medium" if:true={isEditable} label={labels.commonCancel}
+                variant="neutral" onclick={handleCancel} disabled={userCannotEdit}
+                data-id="lightningButton-cancel"></lightning-button>
+            <lightning-button class="slds-var-m-left_medium" if:true={isEditable} label={labels.commonSave}
+                variant="brand" onclick={handleSave} disabled={userCannotEdit}
+                data-id="lightningButton-save"></lightning-button>
+        </div>
+        <div class="slds-var-p-around_medium slds-var-m-bottom_small slds-var-m-left_medium slds-var-m-right_medium section-holder"
+            if:true={isLoaded}>
+            <span class="slds-text-heading_small"><strong>{labels.paymentSettingsARLabel}</strong></span>
+            <hr
+                class="slds-var-m-horizontal_medium slds-var-m-bottom_small slds-var-m-top_x-small stripeSettings--divider" />
+            <h2>
+                <strong>{labels.stripeSettingsDefPaymentProcessor}</strong>
+            </h2>
+
+            <div class="slds-var-m-bottom_small defPaymentProcessor--subTitle">
+                <div class="slds-var-m-right_x-small">{labels.stripeSettingsDefPaymentProcessor}</div>
+                <lightning-helptext
+                    content="This payment processor will be used to process Payment Link payments if no payment processor is set on the billing. The Receive/Create Payment pages will default to this value if no default payment method exists on the Customer Account."></lightning-helptext>
+            </div>
+            <div class="slds-size_2-of-12">
+                <c-record-popover if:false={isEditable} record-id={stripeConnectedAccountId}
+                    object-api-name={paymentProcessor.objectApiName} fields={paymentProcessorFields}
+                    data-id="popover-taxSettings" horizontal-arrangement="right"></c-record-popover>
+                <c-lookup-a if:true={isEditable} search-object={paymentProcessor.objectApiName}
+                    data-id="lookup-stripeSettings" init-value={stripeConnectedAccountId}
+                    search-filter={paymentProcessorFilter}></c-lookup-a>
+            </div>
+            <hr
+                class="slds-var-m-horizontal_medium slds-var-m-bottom_small slds-var-m-top_x-small stripeSettings--divider" />
+            <h2>
+                <strong>{labels.stripeSettingsConnectedAccounts}</strong>
+            </h2>
+
+            <div>
+                <lightning-icon icon-name="utility:warning" variant="warning" alternative-text={labels.commonInfo}
+                    size="small" title={labels.commonInfo}>
+                </lightning-icon>
+                <span class="slds-var-m-left_small">
+                    {paymentProcessorWarnStart}
+                    <lightning-formatted-url value={paymentProcessorListviewURL} tooltip={labels.paymentProcessorsLV}
+                        target="_blank" label={paymentProcessorPluralLabel}></lightning-formatted-url>
+                    {paymentProcessorWarnEnd}
+                </span>
+            </div>
+            <hr
+                class="slds-var-m-horizontal_medium slds-var-m-bottom_small slds-var-m-top_x-small stripeSettings--divider" />
+            <h2>
+                <strong>{labels.stripeSettingsPaymentLinkConfig}</strong>
+            </h2>
+
+            <div class="slds-var-m-bottom_small">
+                {accountingSettingsInfo.fields.Payment_Link_Username__c.label}
+            </div>
+            <div class="slds-var-m-bottom_small">
+                {accountingSettings.Payment_Link_Username__c}
+            </div>
+            <lightning-button variant="brand" label={paymentLinkBtnLabel} disabled={userCannotEdit}
+                onclick={handleConfigurePayment} data-id="lightningButton-configure"></lightning-button>
+        </div>
+
+        <div class="slds-var-p-around_medium slds-var-m-bottom_small slds-var-m-left_medium slds-var-m-right_medium section-holder"
+            if:true={isLoaded}>
+            <span class="slds-text-heading_small"><strong>{labels.paymentSettingsAPLabel}</strong></span>
+            <hr
+                class="slds-var-m-horizontal_medium slds-var-m-bottom_small slds-var-m-top_x-small stripeSettings--divider" />
+            <h2>
+                <strong>{labels.paymentSettingsDefaultLedgerLabel}</strong>
+            </h2>
+            <div class="slds-var-m-bottom_small defPaymentProcessor--subTitle">
+                <div class="slds-var-m-right_x-small">{labels.paymentSettingsDefaultLedgerLabel}</div>
+                <lightning-helptext
+                    content={accountingSettingsInfo.fields.Default_Payment_Services_Ledger__c.inlineHelpText}></lightning-helptext>
+            </div>
+            <div class="slds-size_2-of-12">
+                <c-record-popover if:false={isEditable} record-id={paymentProcessorLookupId}
+                    object-api-name={ledger.objectApiName}
+                    fields={accountingSettingsInfo.fields.Default_Payment_Services_Ledger__c.apiName}
+                    data-id="popover-taxSettings" horizontal-arrangement="right"></c-record-popover>
+                <c-lookup if:true={isEditable} search-object={ledger.objectApiName}
+                    init-value={paymentProcessorLookupId}
+                    data-field-name={accountingSettingsInfo.fields.Default_Payment_Services_Ledger__c.apiName}
+                    data-id="lookup-defaultPaymentServicesledger">
+                </c-lookup>
+            </div>
+            <div class="slds-var-m-right_x-small slds-var-m-bottom-small">
+                <div>
+                <h2 class="enablements--heading">
+                    <strong>{labels.paymentSettingsCDStatusSettingHeader}</strong>
+                </h2>
+                <div class="slds-var-m-right_x-small">{labels.paymentSettingsCDStatusSettingSubHeader}
+                    <lightning-helptext class='slds-m-left_xx-small'
+                        content={accountingSettingsInfo.fields.CD_Set_to_Approved_for_Payment_Proposals__c.inlineHelpText}></lightning-helptext>
+                    <lightning-input 
+                        data-id="lightningInput-CDSetToApprovedForPaymentProposals" 
+                        type="toggle"
+                        variant="label-hidden" message-toggle-active={labels.commonOn}
+                        message-toggle-inactive={labels.commonOff} 
+                        checked={accountingSettings.CD_Set_to_Approved_for_Payment_Proposals__c}
+                        disabled={isDisabled}>
+                    </lightning-input>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </lightning-card>
+</template>

@@ -1,0 +1,177 @@
+<template>
+    <c-modal-popup
+      popup-title={popupLabel}
+      popup-subtitle={popupMessage}
+      popup-body=""
+      action-button-text={labels.commonYes}
+      cancel-button-text={labels.commonNo}
+      onmodalactionclick={handlePopupAction}
+      onmodalcancelclick={handlePopupCancel}
+      open-modal={showPopup}>
+    </c-modal-popup>
+    <div data-id="cleared-date-popover" style="display: none">
+        <section class="slds-popover slds-popover_walkthrough slds-nubbin_left" role="dialog">
+            <button class="slds-button slds-button_icon slds-button_icon-small slds-float_right slds-popover__close slds-button_icon-inverse"
+                    title={labels.commonCloseDialog}
+                    onclick={handleClearedDatePopoverClose}>
+                <lightning-button-icon icon-name="utility:close"
+                                       variant="bare-inverse"
+                                       alternative-text={labels.commonCloseDialog}
+                                       class="slds-m-left_xx-small"
+                                       title={labels.commonCloseDialog}>
+                </lightning-button-icon>
+                <span class="slds-assistive-text">{labels.commonCloseDialog}</span>
+            </button>
+            <header class="slds-popover__header">
+                <h2 class="slds-text-heading_small">{labels.INF_BANK_TRANSACTION_DATE}</h2>
+            </header>
+            <div class="slds-popover__body color-black">
+                <template if:true={showCurrentDatePicker}>
+                    <p class="color-white">{labels.commonDate}</p>
+                    <lightning-input
+                        type="date"
+                        variant="label-hidden"
+                        date-style="short"
+                        value={currentClearedDate}
+                        class="input-field"
+                        data-jest-name="inputDate"
+                        message-when-bad-input={labels.commonInvalidDate}
+                        onchange={handleClearedDateChange}>
+                    </lightning-input>
+                </template>
+            </div>
+            <footer class="slds-popover__footer">
+                <div class="slds-grid slds-grid_vertical-align-center">
+                    <button class="slds-button slds-button_inverse slds-col_bump-left" onclick={handleClearedDatePopoverClose}>{labels.commonCancel}</button>
+                    <button class="slds-button slds-button_brand slds-col_bump-left"
+                            data-jest-name="saveButton"
+                            disabled={saveButtonDisable}
+                            onclick={handleDataPickerSave}>
+                        {labels.commonSave}
+                    </button>
+                </div>
+            </footer>
+        </section>
+    </div>
+    <div data-id="bank-rec-table" onclick={handleClick}>
+    <template if:true={isSpinner}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoadingText} size="medium"></lightning-spinner>
+    </template>
+    <template if:false={isError}>
+        <template if:true={showTable}>
+            <template if:true={isMaxLoadError}>
+                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" data-jest-name="maxLoadError">
+                    <lightning-icon icon-name="utility:error" size="small"></lightning-icon>
+                    <h2 class="slds-p-left_x-small warn-no-records">{maxLoadErrorMessage}</h2>
+                </div>
+            </template>
+            <template if:true={error}>
+                <c-inline-error-message class="inline-error-msg" errors={error}></c-inline-error-message>
+            </template>
+            <template if:false={isReportMode}>
+                <lightning-button-group>
+                    <lightning-button class="btn-reconciled"
+                                      label={clearedAll.label}
+                                      variant="base"
+                                      data-jest-name="clearedAllButton"
+                                      icon-name={clearedAll.icon}
+                                      onclick={handleClearAllButton}>
+                    </lightning-button>
+                    <lightning-button class="btn-reconciled slds-m-left_large"
+                                      data-jest-name="filterButton"
+                                      label={labels.commonFilter}
+                                      variant="base"
+                                      onclick={handleSelectFilter}>
+                    </lightning-button>
+                </lightning-button-group>
+                <lightning-formatted-url
+                    class="slds-m-left_large"
+                    value="https://support.accountingseed.com/hc/en-us/articles/360063531713"
+                    tooltip={labels.knowledgeBase}
+                    label={labels.commonHelp}
+                    target="_blank" >
+                </lightning-formatted-url>
+            </template>
+            <span class="slds-clearfix">
+                <template if:true={showStatusButton}>
+                    <lightning-button
+                    class="slds-float_right"
+                    data-jest-name="completedButton"
+                    label={completedLabel}
+                    title={completedLabel}
+                    variant="brand"
+                    disabled={completedButtonDisable}
+                    onclick={handleCompletedButton}>
+                    </lightning-button>                
+                </template>
+                <template if:true={showAutoClearButton}>
+                    <lightning-button
+                    class="slds-float_right"
+                    data-jest-name="autoClearButton"
+                    label={autoClearLabel}
+                    title={autoClearTitle} 
+                    disabled={autoClearButtonDisable}
+                    onclick={handleAutoClearButton}>
+                    </lightning-button>
+                </template>
+            </span>
+
+            <c-bank-rec-filter bank-rec={bankRec} onvaluechange={handleFilterChange}>
+            </c-bank-rec-filter>
+            <lightning-card class="bank-rec-card">
+                <c-applicable-items
+                    class="itemsGrid"
+                    items={recItems}
+                    columns={columns}
+                    key-field={keyField}
+                    max-records-displayed={maxItemsDisplayed}
+                    page-size={pageSize}
+                    sorted-by={sortOpts.sortedBy}
+                    sorted-direction={sortOpts.sortedDirection}
+                    onrowaction={handleRowAction}
+                    object-name="item"
+                    suppress-more-records-message
+                    onsort={handleSort}
+                    onpagechange={handlePageChange}>
+                </c-applicable-items>
+            </lightning-card>
+        </template>
+        <template if:false={showTable}>
+            <div class="slds-p-bottom_small">
+                <span class="slds-clearfix slds-p-bottom_small">
+                    <lightning-button
+                      class="slds-float_right"
+                      data-jest-name="completedButton"
+                      label={completedLabel}
+                      title={completedLabel}
+                      variant="brand"
+                      disabled={completedButtonDisable}
+                      onclick={handleCompletedButton}>
+                    </lightning-button>
+                </span>
+            </div>
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning">
+                <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+                <h2 class="slds-p-left_x-small warn-no-records">{labels.WRN_RECONCILIATION_JOB_PROGRESS_PLEASE_WAIT}</h2>
+            </div>
+        </template>
+    </template>
+    <c-custom-lightbox
+        header-text={lightboxHeader}
+        open-modal={showLightbox}
+        onlightboxcloseclick={lightboxCloseEvent}>
+        <div class="slds-m-around_medium">
+            <div class="resp-container">
+                {lightboxMessage}
+            </div>
+        </div>
+    </c-custom-lightbox>
+    <template if:true={isError}>
+        <lightning-card title="">
+            <div class="slds-p-around_medium">
+                <c-inline-error-message errors={error}></c-inline-error-message>
+            </div>
+        </lightning-card>
+    </template>
+    </div>
+</template>

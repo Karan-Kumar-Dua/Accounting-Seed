@@ -1,0 +1,159 @@
+<template>
+    <div class="slds-border_top"></div>
+    <c-inline-error-message generic-error={error.title} errors={error.msg}></c-inline-error-message>
+
+    <div class="slds-is-relative slds-p-around_small">
+        <template if:true={hasSpinner}>
+            <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+        </template>
+        <lightning-layout horizontal-align="spread">
+            <lightning-layout-item size="6" padding="horizontal-small" if:true={lhObjectInfo.ledger}>
+                <template if:true={parentLedgerHierarchyId}>
+                    <div class="slds-var-m-bottom_small">
+                            {labels.INF_PARENT} {ledgerLabel}: <b>{parentLedgerHierarchyName}</b>
+                    </div>
+                </template>
+                <template if:true={initValues.ledgerName}>
+                    <div class="slds-var-m-bottom_small">
+                        {lhObjectInfo.ledger.label}: <b>{initValues.ledgerName}</b>
+                    </div>
+                </template>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout horizontal-align="spread" if:false={ledgerHierarchyId}>
+            <lightning-layout-item size="6" padding="horizontal-small">
+                <c-lookup-a
+                        if:true={lhObjectInfo.ledger}
+                        label={lhObjectInfo.ledger.label}
+                        search-object={ledger.objectApiName}
+                        field-level-help={lhObjectInfo.ledger.helpText}
+                        onselectionchange={handleChange}
+                        required={lhObjectInfo.ledger.isRequired}
+                        data-id="ledger"
+                        data-field="ledgerId"
+                        data-jest="ledger-input"
+                        class="slds-p-right_x-large slds-size_6-of-12">
+                </c-lookup-a>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout horizontal-align="spread" if:true={ledgerHierarchyId}>
+            <lightning-layout-item size="6" padding="horizontal-small">
+                <lightning-input
+                        if:true={lhObjectInfo.xname}
+                        type="text"
+                        required={lhObjectInfo.xname.isRequired}
+                        field-level-help={lhObjectInfo.xname.helpText}
+                        label={lhObjectInfo.xname.label}
+                        value={initValues.xname}
+                        data-field="xname"
+                        class="slds-p-bottom_medium slds-size_12-of-12">
+                </lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout horizontal-align="spread">
+            <lightning-layout-item size="6" padding="horizontal-small">
+                <c-lookup-a
+                        if:true={initValues.isLoaded}
+                        label={specificationsByDevNames.Current_Year_Earnings_GL_Account.label}
+                        search-object={glAccount.objectApiName}
+                        field-level-help={specificationsByDevNames.Current_Year_Earnings_GL_Account.helpText}
+                        onselectionchange={handleChange}
+                        init-value={initValues.Current_Year_Earnings_GL_Account}
+                        required={specificationsByDevNames.Current_Year_Earnings_GL_Account.isRequired}
+                        data-id="glAccount-Current_Year_Earnings_GL_Account"
+                        data-field="Current_Year_Earnings_GL_Account"
+                        data-jest="glAccount-input-Current_Year_Earnings_GL_Account"
+                        class="slds-p-right_x-large slds-size_6-of-12">
+                </c-lookup-a>
+            </lightning-layout-item>
+            <lightning-layout-item size="6" padding="horizontal-small">
+                <c-lookup-a
+                        if:true={initValues.isLoaded}
+                        label={specificationsByDevNames.Retained_Earnings_GL_Account.label}
+                        search-object={glAccount.objectApiName}
+                        field-level-help={specificationsByDevNames.Retained_Earnings_GL_Account.helpText}
+                        onselectionchange={handleChange}
+                        init-value={initValues.Retained_Earnings_GL_Account}
+                        required={specificationsByDevNames.Retained_Earnings_GL_Account.isRequired}
+                        data-id="glAccount-Retained_Earnings_GL_Account"
+                        data-field="Retained_Earnings_GL_Account"
+                        data-jest="glAccount-input-Retained_Earnings_GL_Account"
+                        class="slds-p-right_x-large slds-size_6-of-12">
+                </c-lookup-a>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout horizontal-align="spread">
+            <lightning-layout-item size="6" padding="horizontal-small" if:true={isMultiCurrencyEnabled}>
+                <c-lookup-a
+                        if:true={initValues.isLoaded}
+                        label={specificationsByDevNames.CTA_GL_Account.label}
+                        search-object={glAccount.objectApiName}
+                        field-level-help={specificationsByDevNames.CTA_GL_Account.helpText}
+                        onselectionchange={handleChange}
+                        init-value={initValues.CTA_GL_Account}
+                        required={specificationsByDevNames.CTA_GL_Account.isRequired}
+                        data-id="glAccount-CTA_GL_Account"
+                        data-field="CTA_GL_Account"
+                        data-jest="glAccount-input-CTA_GL_Account"
+                        class="slds-p-right_x-large slds-size_6-of-12">
+                </c-lookup-a>
+            </lightning-layout-item>
+            <lightning-layout-item size="6" padding="horizontal-small" if:true={ledgerHierarchyId}>
+                <lightning-input
+                        class="sort-order"
+                        data-jest="sort-order-field"
+                        value={ledgerHierarchySortOrder}
+                        label={labels.INF_MODIFY_SORT_ORDER}
+                        field-level-help={helpText}
+                        type="number"
+                        onchange={handleSortOrder}>
+                </lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout horizontal-align="spread">
+            <lightning-layout-item size="12" padding="horizontal-small">
+                <lightning-textarea
+                        if:true={lhObjectInfo.notes}
+                        label={lhObjectInfo.notes.label}
+                        max-length="255"
+                        field-level-help={lhObjectInfo.notes.helpText}
+                        required={lhObjectInfo.notes.isRequired}
+                        value={initValues.notes}
+                        onchange={notesChange}
+                        data-field="notes"
+                        data-jest="notes-input">
+                </lightning-textarea>
+            </lightning-layout-item>
+        </lightning-layout>
+    </div>
+
+    <footer class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+        <div class="slds-float_right">
+            <lightning-button
+                variant="neutral"
+                type="Cancel"
+                name="Cancel"
+                label={labels.commonCancel}
+                onclick={handleCancel}>
+            </lightning-button>
+            <lightning-button
+                class="slds-m-left_small"
+                data-jest="saveNew-button"
+                variant="brand"
+                type="submit"
+                name="SaveNew"
+                label={labels.commonSaveNew}
+                onclick={handleSaveNew}>
+            </lightning-button>
+            <lightning-button
+                class="slds-m-left_small"
+                data-jest="save-button"
+                variant="brand"
+                type="submit"
+                name="Save"
+                label={labels.commonSave}
+                onclick={handleSave}>
+            </lightning-button>
+        </div>
+    </footer> 
+</template>

@@ -1,0 +1,27 @@
+<template>    
+    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+        <header class="slds-modal__header">
+            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate heading" data-id="modal-heading">
+                {labels.connectPP}
+            </h2>
+        </header>
+        <div class="slds-p-top_large slds-align_absolute-center fontStyle">{labels.pleaseConfirm}
+            <span class="leftRightMargin"></span>
+            {labels.connectType}  <b class="leftRightMargin">{paymentType}</b> {labels.connectInThe}
+            <template if:true={isTestMode}>
+                <lightning-badge label={labels.test} class="testColorCombo leftRightMargin"></lightning-badge>
+            </template>
+            <template if:false={isTestMode}>
+                <lightning-badge label={labels.live} class="liveColorCombo leftRightMargin"></lightning-badge>
+            </template>
+            {labels.connectMode}
+        </div>
+        
+        <div class="slds-p-top_large slds-align_absolute-center fontStyleNote">{note}</div>
+    </div>
+    <footer class="slds-float_right slds-p-around_small">
+        <lightning-button label={labels.commonCancel} title={labels.commonCancel} onclick={cancel} class="slds-m-right_x-small"></lightning-button>
+        <lightning-button variant="brand" label={labels.commonConnect} title={labels.commonConnect} onclick={connect}></lightning-button>
+    </footer>
+    
+</template>

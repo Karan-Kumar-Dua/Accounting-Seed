@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Discount_Days_Due_Positive_Value</fullName>
+    <active>true</active>
+    <description>The discount days field must be a positive value.</description>
+    <errorConditionFormula>Discount_Days_Due__c &lt; 0</errorConditionFormula>
+    <errorDisplayField>Discount_Days_Due__c</errorDisplayField>
+    <errorMessage>The discount days due field must be a positive number.</errorMessage>
+</ValidationRule>

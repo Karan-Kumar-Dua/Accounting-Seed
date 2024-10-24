@@ -1,0 +1,18 @@
+:host {
+    background: white;
+    display: block;
+}
+
+.accountingHome--header {
+    display: flex;
+    align-items: center;
+}
+
+.accountingHome--logo {
+    height: 30px;
+    margin-right: 18px;
+}
+
+.accountingHome--nav {
+    flex: 2;
+}

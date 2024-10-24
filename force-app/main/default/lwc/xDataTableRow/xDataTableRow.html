@@ -1,0 +1,45 @@
+<!-- X Data Table Row -->
+<template>
+    <td class="zeroWidth" if:true={errorColumn}> 
+        <template if:true={row.hasError}>
+            <lightning-icon icon-name="utility:error" 
+                alternative-text={labels.COMMON_ERROR_TEXT_UPPERCASE} 
+                size="x-small"
+                title={row.message}
+                class="red-icon"
+                data-id="row-error">
+            </lightning-icon>
+        </template>
+    </td>
+    <td if:true={checkboxColumn} role="gridcell" data-label="Selected" data-row-id={row.rowKey} data-column-field="_selected" data-id="row-selected" class="zeroWidth">
+        <lightning-input type="checkbox" checked={row._selected} value={row._selected} data-id="_row_selected" data-row-id={row.rowKey} onchange={handleChecked} variant="label-hidden" ></lightning-input>
+    </td>
+    <template if:true={hasDrawerFields}>
+        <template if:true={row._drawer}>
+            <td role="gridcell" data-label={labels.commonDrawer} data-row-id={row.rowKey} data-column-field="_drawer" data-id="row-drawerclose">
+                <lightning-button-icon icon-name="utility:chevrondown"  variant="bare" alternative-text={labels.commonDrawer} title={labels.commonDrawer} onclick={handleDrawerSwing} data-id="drawer-down"></lightning-button-icon>
+            </td>
+        </template>
+        <template if:false={row._drawer}>
+            <td role="gridcell" data-label={labels.commonDrawer} data-row-id={row.rowKey} data-column-field="_drawer" data-id="row-draweropen">
+                <lightning-button-icon icon-name="utility:chevronright"  variant="bare" alternative-text={labels.commonDrawer} title={labels.commonDrawer} onclick={handleDrawerSwing} data-id="drawer-right"></lightning-button-icon>
+            </td>
+        </template>
+    </template>
+    <template if:true={hasReOrderCols}>
+        <td role="gridcell" data-label={rowNumberColumn.label} class="position minWidth">
+            <c-x-row-order column={rowNumberColumn} 
+                            row={row} key-field={keyField} 
+                            data-id="datatable-roworder">
+            </c-x-row-order>
+        </td>
+    </template>
+    <template for:each={columns} for:item="column">
+        <td key={column.label} role="gridcell" data-label={column.label} class="position">
+            <c-x-data-table-cell child-reference={childReference} column={column} initial-data={initialData} row={row} key-field={keyField} data-id="datatable-cell"></c-x-data-table-cell>
+        </td>
+    </template>
+    <td class="zeroWidth" if:true={actionColumn}>
+        <c-x-data-table-row-level-action row={row} actions={rowLevelAction} data-id="row-actions"></c-x-data-table-row-level-action>
+    </td>
+</template>

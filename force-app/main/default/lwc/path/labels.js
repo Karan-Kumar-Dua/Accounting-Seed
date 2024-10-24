@@ -1,0 +1,4 @@
+import COMMON_STAGE_COMPLETE from '@salesforce/label/c.COMMON_STAGE_COMPLETE';
+export default {
+    COMMON_STAGE_COMPLETE : COMMON_STAGE_COMPLETE
+}

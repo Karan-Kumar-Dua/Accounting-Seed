@@ -1,0 +1,46 @@
+<template>
+  <lightning-layout multiple-rows>
+      <lightning-layout-item size="12">
+          <lightning-layout multiple-rows>
+              <lightning-layout-item size="8" class="slds-float_right">
+              </lightning-layout-item>
+              <lightning-layout-item size="2" class="slds-text-align_right slds-var-m-top_large">
+                  <label> {labels.importPayrollDataTableSearchTitle} </label>
+              </lightning-layout-item>
+              <lightning-layout-item size="2" class="slds-float_right slds-var-p-around_medium">
+                  <lightning-input type="text" variant="label-hidden" name="search" label={labels.IMPORT_PAYROLL_DATA_TABLE_SEARCH_TITLE} onchange={handleSearchTermChange} data-id="input-searchTerm"></lightning-input>
+              </lightning-layout-item>
+          </lightning-layout>
+      </lightning-layout-item>
+      <lightning-layout-item size="12">
+          <lightning-datatable
+                  key-field="id"
+                  data={page}
+                  row-number-offset={rowOffset}
+                  hide-checkbox-column
+                  columns={columnsList}
+                  class="slds-table_bordered slds-table_striped"
+                  sorted-by={sortBy}
+                  sorted-direction={sortDirection}
+                  onsort={doSorting}
+                  data-id="datatable-previewData">
+              </lightning-datatable>        
+      </lightning-layout-item>
+      <lightning-layout-item size="12" class="slds-float_right">
+          <lightning-layout multiple-rows>
+              <lightning-layout-item size="6" class="slds-float_left" data-id="statusMessage">
+                  {statusMessage}
+              </lightning-layout-item>
+              <lightning-layout-item size="6" class="slds-text-align_right">
+                  <c-paginator
+                      total-records={totalRecords}
+                      page-size={pageSize}
+                      onchange={handlePageChange}
+                      data-id="paginator-previewPages">
+                  </c-paginator>
+              </lightning-layout-item>
+          </lightning-layout>
+      </lightning-layout-item>
+  </lightning-layout>
+  
+</template>

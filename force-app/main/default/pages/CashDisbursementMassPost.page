@@ -1,0 +1,314 @@
+<apex:page standardController="Cash_Disbursement__c" title="{!$Label.AcctSeed__COMMON_BATCH_POST +' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}"
+           extensions="CashDisbursementPost" recordSetVar="cashDisbursements" action="{!validateBeforePost}" sideBar="false" lightningStylesheets="true">
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.dataTables.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/post-unpost-intermediate-screen.js')}" loadOnReady="true"/>
+
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/jquery.dataTables.min.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/post-table.css')}" />
+    <apex:variable var="customLEX" value="customLEXOn" rendered="{!$User.UIThemeDisplayed = 'Theme4d' || $User.UIThemeDisplayed = 'Theme4u'}">
+        <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/visualforce-lex-ext.css')}" />
+    </apex:variable>
+
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Cash_Disbursement__c.labelPlural}" subtitle="{!$Label.AcctSeed__COMMON_BATCH_POST}"/>
+        <apex:pageBlock title="{!$Label.AcctSeed__COMMON_BATCH_POST}">
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="processingStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')"/>
+                <apex:commandButton action="{!post}" value="{!$Label.AcctSeed__COMMON_POST}" status="processingStatus"
+                                    rendered="{!showActionButton}" reRender="theForm"
+                                    onComplete="AcctSeed.ASModule.formatSystemExceptionTable();"/>
+                <apex:commandButton value="{!$Label.AcctSeed__COMMON_BACK}" action="{!cancel}" immediate="true"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection collapsible="false" title="{!$Label.AcctSeed__COMMON_POSTING_ERROR_DETAIL}"
+                                   columns="1" rendered="{!showErrorStatisticsTable}">
+                <div id="spinner" style="font-weight:bold; position:absolute; left:50%; margin-left: -100px; display:block">
+                    <img src="/img/loading.gif" style="text-align:center" width="16" height="16" alt="loading gif" />
+                    &nbsp;&nbsp;{!$Label.COMMON_LOADING}
+                </div>
+                <apex:dataTable id="errorStatisticsTable" styleClass="display auto-layout"
+                                value="{!errorStatisticsLines}" var="statisticsLine">
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_NAME}" styleClass="cell-nowrap">
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.sourceObjectId}"
+                                         target="_blank" value="/{!statisticsLine.sourceObjectId}">
+                            {!statisticsLine.sourceObjectName}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['CLOSED_ACCOUNTING_PERIOD']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['CLOSED_ACCOUNTING_PERIOD']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['CLOSED_ACCOUNTING_PERIOD'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['CLOSED_ACCOUNTING_PERIOD'].id}">
+                            {!statisticsLine.lineCells['CLOSED_ACCOUNTING_PERIOD'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['PAYMENT_STATUS_VOID']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['PAYMENT_STATUS_VOID']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['PAYMENT_STATUS_VOID'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['PAYMENT_STATUS_VOID'].id}">
+                            {!statisticsLine.lineCells['PAYMENT_STATUS_VOID'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['INCORRECT_APD_AMOUNT']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['INCORRECT_APD_AMOUNT']}"/>
+                        </apex:facet>
+                        <apex:outputLink target="_blank" value="/{!statisticsLine.lineCells['INCORRECT_APD_AMOUNT'].id}">
+                            {!statisticsLine.lineCells['INCORRECT_APD_AMOUNT'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['LINE_COUNT_LIMIT_EXCEEDED']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['LINE_COUNT_LIMIT_EXCEEDED']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['LINE_COUNT_LIMIT_EXCEEDED'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['LINE_COUNT_LIMIT_EXCEEDED'].id}">
+                            {!statisticsLine.lineCells['LINE_COUNT_LIMIT_EXCEEDED'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['STATUS_NOT_APPROVED']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['STATUS_NOT_APPROVED']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['STATUS_NOT_APPROVED'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['STATUS_NOT_APPROVED'].id}">
+                            {!statisticsLine.lineCells['STATUS_NOT_APPROVED'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['ALREADY_POSTED']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['ALREADY_POSTED']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['ALREADY_POSTED'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['ALREADY_POSTED'].id}">
+                            {!statisticsLine.lineCells['ALREADY_POSTED'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column rendered="{!isCashFlowStatementEnabled}">
+                        <apex:facet name="header">
+                            {!headerMap['NO_CASH_FLOW_CATEGORY']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['NO_CASH_FLOW_CATEGORY']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['NO_CASH_FLOW_CATEGORY'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['NO_CASH_FLOW_CATEGORY'].id}">
+                            {!statisticsLine.lineCells['NO_CASH_FLOW_CATEGORY'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['NO_DEBIT_GL_ACCOUNT']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['NO_DEBIT_GL_ACCOUNT']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['NO_DEBIT_GL_ACCOUNT'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['NO_DEBIT_GL_ACCOUNT'].id}">
+                            {!statisticsLine.lineCells['NO_DEBIT_GL_ACCOUNT'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['NO_CONTROL_AP_ACCOUNT_DEFINED']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['NO_CONTROL_AP_ACCOUNT_DEFINED']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['NO_CONTROL_AP_ACCOUNT_DEFINED'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['NO_CONTROL_AP_ACCOUNT_DEFINED'].id}">
+                            {!statisticsLine.lineCells['NO_CONTROL_AP_ACCOUNT_DEFINED'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['NO_UNAPPLIED_EXPENSE_GL_ACCOUNT_DEFINED']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['NO_UNAPPLIED_EXPENSE_GL_ACCOUNT_DEFINED']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['NO_UNAPPLIED_EXPENSE_GL_ACCOUNT_DEFINED'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['NO_UNAPPLIED_EXPENSE_GL_ACCOUNT_DEFINED'].id}">
+                            {!statisticsLine.lineCells['NO_UNAPPLIED_EXPENSE_GL_ACCOUNT_DEFINED'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['NO_DISCOUNT_PAYMENT_ACCOUNT']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['NO_DISCOUNT_PAYMENT_ACCOUNT']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['NO_DISCOUNT_PAYMENT_ACCOUNT'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['NO_DISCOUNT_PAYMENT_ACCOUNT'].id}">
+                            {!statisticsLine.lineCells['NO_DISCOUNT_PAYMENT_ACCOUNT'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['CD_CURRENCY_NOT_USD']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['CD_CURRENCY_NOT_USD']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['CD_CURRENCY_NOT_USD'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['CD_CURRENCY_NOT_USD'].id}">
+                            {!statisticsLine.lineCells['CD_CURRENCY_NOT_USD'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['CANT_PAY_CONTACT_OR_EMPLOYEE_FOR_TYPE_PAYMENT_SERVICE']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['CANT_PAY_CONTACT_OR_EMPLOYEE_FOR_TYPE_PAYMENT_SERVICE']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['CANT_PAY_CONTACT_OR_EMPLOYEE_FOR_TYPE_PAYMENT_SERVICE'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['CANT_PAY_CONTACT_OR_EMPLOYEE_FOR_TYPE_PAYMENT_SERVICE'].id}">
+                            {!statisticsLine.lineCells['CANT_PAY_CONTACT_OR_EMPLOYEE_FOR_TYPE_PAYMENT_SERVICE'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['AP_REMITTANCE_EMAIL_BLANK_ON_VENDOR']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['AP_REMITTANCE_EMAIL_BLANK_ON_VENDOR']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['AP_REMITTANCE_EMAIL_BLANK_ON_VENDOR'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['AP_REMITTANCE_EMAIL_BLANK_ON_VENDOR'].id}">
+                            {!statisticsLine.lineCells['AP_REMITTANCE_EMAIL_BLANK_ON_VENDOR'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['NO_DEFAULT_PAYMENT_METHOD_ON_VENDOR_FOR_ACH_PAYMENT_SERVICE']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['NO_DEFAULT_PAYMENT_METHOD_ON_VENDOR_FOR_ACH_PAYMENT_SERVICE']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['NO_DEFAULT_PAYMENT_METHOD_ON_VENDOR_FOR_ACH_PAYMENT_SERVICE'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['NO_DEFAULT_PAYMENT_METHOD_ON_VENDOR_FOR_ACH_PAYMENT_SERVICE'].id}">
+                            {!statisticsLine.lineCells['NO_DEFAULT_PAYMENT_METHOD_ON_VENDOR_FOR_ACH_PAYMENT_SERVICE'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['NO_BILLING_ADDRESS_ON_VENDOR_FOR_CHECK_PAYMENT_SERVICE']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['NO_BILLING_ADDRESS_ON_VENDOR_FOR_CHECK_PAYMENT_SERVICE']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['NO_BILLING_ADDRESS_ON_VENDOR_FOR_CHECK_PAYMENT_SERVICE'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['NO_BILLING_ADDRESS_ON_VENDOR_FOR_CHECK_PAYMENT_SERVICE'].id}">
+                            {!statisticsLine.lineCells['NO_BILLING_ADDRESS_ON_VENDOR_FOR_CHECK_PAYMENT_SERVICE'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['INACTIVE_DEFAULT_PAYMENT_METHOD']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['INACTIVE_DEFAULT_PAYMENT_METHOD']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['INACTIVE_DEFAULT_PAYMENT_METHOD'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['INACTIVE_DEFAULT_PAYMENT_METHOD'].id}">
+                            {!statisticsLine.lineCells['INACTIVE_DEFAULT_PAYMENT_METHOD'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['CASH_DISBUREMENT_BALANCE_MUST_BE_ZERO']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['CASH_DISBUREMENT_BALANCE_MUST_BE_ZERO']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['CASH_DISBUREMENT_BALANCE_MUST_BE_ZERO'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['CASH_DISBUREMENT_BALANCE_MUST_BE_ZERO'].id}">
+                            {!statisticsLine.lineCells['CASH_DISBUREMENT_BALANCE_MUST_BE_ZERO'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['INACTIVE_VERIFICATION_STATUS_PAYMENT_METHOD']}
+                            <img src="/s.gif"
+                                 class="helpImg lex-m-right_small lex-m-left_none"
+                                 title="{!helpTextMap['INACTIVE_VERIFICATION_STATUS_PAYMENT_METHOD']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['INACTIVE_VERIFICATION_STATUS_PAYMENT_METHOD'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['INACTIVE_VERIFICATION_STATUS_PAYMENT_METHOD'].id}">
+                            {!statisticsLine.lineCells['INACTIVE_VERIFICATION_STATUS_PAYMENT_METHOD'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                </apex:dataTable>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection collapsible="false" title="{!$Label.AcctSeed__COMMON_POSTING_ERROR_DETAIL}"
+                                   columns="1" rendered="{!showSystemExceptionTable}">
+                <div id="spinner2" style="font-weight:bold; position:absolute; left:50%; margin-left: -100px; display:block">
+                    <img src="/img/loading.gif" style="text-align:center" width="16" height="16" alt="loading gif" />
+                    &nbsp;&nbsp;{!$Label.COMMON_LOADING}
+                </div>
+                <apex:dataTable id="systemExceptionTable" styleClass="display"
+                                value="{!errorStatisticsLines}" var="systemExceptionLine" style="visibility:hidden">
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_NAME}">
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!systemExceptionLine.sourceObjectId}"
+                                         target="_blank" value="/{!systemExceptionLine.sourceObjectId}">
+                            {!systemExceptionLine.sourceObjectName}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!$Label.AcctSeed__COMMON_SYSTEM_EXCEPTION_ERROR}
+                        </apex:facet>
+                        <!-- escape="false" because error message might contain html tags -->
+                        <apex:outputText value="{!systemExceptionLine.systemExceptionErrorMessage}"/>
+                    </apex:column>
+                </apex:dataTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

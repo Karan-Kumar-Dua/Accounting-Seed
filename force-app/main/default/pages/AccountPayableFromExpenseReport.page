@@ -1,0 +1,77 @@
+<apex:page id="thePage" title="{!$Label.AcctSeed__COMMON_CREATE_PAYABLE + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}"
+           standardController="Expense_Report__c"
+           extensions="AccountPayableFromExpenseReport,EnvironmentUtils"
+           recordSetVar="expenseReportsVar"
+           lightningStylesheets="true"
+           sidebar="false">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/javascript/Intl.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/locale-data/jsonp/' & DefaultLocale & '.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/> 
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+        function setFocusOnLoad() {}
+    </script> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"/> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/currency-formatter.js')}" loadOnReady="true"/>
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/common.css')}" />
+    <apex:variable var="customLEX" value="customLEXOn" rendered="{!$User.UIThemeDisplayed = 'Theme4d' || $User.UIThemeDisplayed = 'Theme4u'}">
+        <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/visualforce-lex-ext.css')}" />
+    </apex:variable>
+    <apex:form id="theForm">
+        <apex:actionFunction name="backAction" action="{!cancel}" immediate="true"/>
+        <apex:sectionHeader title="{!$ObjectType.Expense_Report__c.labelPlural}" subtitle="{!$Label.AcctSeed__COMMON_CREATE + ' ' + $ObjectType.Account_Payable__c.labelPlural}" />
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__COMMON_CREATE +' '+ $ObjectType.Account_Payable__c.labelPlural}">
+            <apex:pageMessages escape="false" />
+            <apex:pageMessage summary="{!$Label.AcctSeed__INF_IN_ORDER_TOCREATE_PAYABLE_RECS +' '+ $ObjectType.Expense_Report__c.labelPlural +' '+ $Label.AcctSeed__INF_FOLLOWING_COND_TO_BE_MET + ' ' + $Label.AcctSeed__INF_LEDGER_MUST_BE_ACTIVE +' '+ $ObjectType.Expense_Report__c.label +' '+$Label.AcctSeed__INF_STATUS_MUST_BE_APPROVED +' '+$ObjectType.Expense_Line__c.label +' '+ $Label.AcctSeed__INF_EMPLOYEE_REIMBURSEMENT_FIELD_CHECKED+' '+ $ObjectType.Expense_Line__c.label +' '+$Label.AcctSeed__INF_IS_PAYABLE_CREDIT_CARD_VENDOR_CHECKED}" escape="false" severity="info" strength="3" rendered="{!showInfo}"/>
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')" onstop="AcctSeed.ASModule.pageLoad()"/>
+                <apex:commandButton action="{!createAccountsPayable}"
+                                    value="{!$Label.AcctSeed__COMMON_CREATE}"
+                                    status="saveStatus"
+                                    reRender="theForm" rendered="{!!isSuccess && !isError}" />
+                <apex:commandButton action="{!createAccountsPayableAndPost}"
+                                    value="{!$Label.AcctSeed__COMMON_CREATE_AND_POST}"
+                                    status="saveStatus"
+                                    reRender="theForm" rendered="{!!isSuccess && !isError}" />
+                <apex:commandButton onComplete="AcctSeed.ASModule.customBackToListAction('{!listViewId}', '', '{!SObjectApiName}');"
+                                    value="{!$Label.AcctSeed__COMMON_BACK}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection rendered="{!!isSuccess && !isError}">
+                <apex:inputField value="{!acctPayable.Due_Date__c}" required="true" />
+                <apex:inputField value="{!acctPayable.Date__c}" required="true" />
+                <apex:outputText />
+            </apex:pageBlockSection>
+            <apex:dataTable value="{!expReportList}" var="expReport" cellpadding="6" cellspacing="6" width="100%" rendered="{!!isSuccess && !isError}">
+                <apex:column width="100%">
+                    <div style="padding-bottom: 10px">
+                        <apex:outputLabel value="{!$Label.AcctSeed__COMMON_PAYEE + ':'}" style="font-weight:bold;" />&nbsp;&nbsp;
+                        <apex:outputText value="{!expReport.Payee}" />
+                        <span style="font-weight:bold; padding-left: 15px;">{!$Label.COMMON_LEDGER}:&nbsp;</span>
+                        <apex:outputField value="{!expReport.expLineList[0].Expense_Report__r.Ledger__c}" />
+                        <span style="font-weight:bold; padding-left: 15px;">{!$Label.COMMON_PAYEE_REFERENCE}:&nbsp;</span>
+                        <div style="display: inline-block;">
+                        <apex:inputField value="{!expReport.acctPayable.Payee_Reference__c}" required="true" style=" width:300px"/>
+                        </div>
+                    </div>
+                    <apex:pageBlockTable value="{!expReport.expLineList}" var="expLine">
+                        <apex:column value="{!expLine.Expense_Report__r.Name}" width="10%" />
+                        <apex:column value="{!expLine.Date__c}" width="10%" />
+                        <apex:column headerValue="{!$Label.AcctSeed__COMMON_EMPLOYEE_NAME}" value="{!expLine.Expense_Report__r.Employee__r.Name}" width="10%" />
+                        <apex:column value="{!expLine.Project__r.Name}" width="10%" />
+                        <apex:column value="{!expLine.Project_Task__r.Name}" width="10%" />
+                        <apex:column headerValue="{!$Label.AcctSeed__COMMON_EMPLOYEE_GL_ACCOUNT}" value="{!expLine.Expense_GL_Account__c}" />
+                        <apex:column headerValue="{!$ObjectType.Account_Payable__c.label + ' ' + $Label.AcctSeed__COMMON_AMOUNT}" headerClass="align-right" styleClass="align-right" footerClass="align-right">                      
+                            <apex:outputText id="expWithCurrency" value="{!expLine.Amount__c}">
+                                <apex:outputText value="{!expReport.isoCode} "
+                                                 rendered="{!isMultiCurrencyEnabled}"/>
+                            </apex:outputText>
+                        </apex:column>
+                    </apex:pageBlockTable>
+                </apex:column>
+            </apex:dataTable>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

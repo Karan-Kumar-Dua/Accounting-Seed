@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AP_Vendor_Email__c</fullName>
+    <externalId>false</externalId>
+    <inlineHelpText>For use with AP Automation: The email address(es) entered here will be sent a copy of Virtual Card payment information and remittance information for any Check and ACH payments. If you have multiple addresses, list them separated by a comma. This is optional.</inlineHelpText>
+    <label>AP Vendor Emails</label>
+    <length>255</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

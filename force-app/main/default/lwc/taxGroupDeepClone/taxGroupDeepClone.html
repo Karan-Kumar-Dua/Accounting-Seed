@@ -1,0 +1,38 @@
+<!-- Tax Group Deep Clone -->
+<template>
+    <lightning-card >
+        <div class="slds-card__body slds-card__body_inner" if:true={isSpinner}>
+            <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+        </div>
+        <div slot="title">
+            <c-card-title-stacked
+                    icon-name="action:clone"
+                    value={labels.INF_CLONE_TAX_GROUP}>
+            </c-card-title-stacked>
+        </div>
+        <template if:true={error}>
+            <c-inline-error-message errors={error}></c-inline-error-message>
+        </template>
+        <div>
+            <lightning-input type="text" label={labels.COMMON_TAX_GROUP_NAME}
+                             value={taxGroupNameValue}
+                             required="true"
+                             max-length=80 onchange={handleNameInput}>
+
+            </lightning-input>
+        </div>
+        <div slot="footer" style="text-align: end;">
+            <lightning-button-group>
+                <lightning-button class="btn-clone"
+                                  label={labels.INF_CLONE_TAX_GROUP}
+                                  variant="brand"
+                                  onclick={handleCloneTaxGroup}>
+                </lightning-button>
+                <lightning-button class="btn-back"
+                                  label={labels.commonBack}
+                                  onclick={handleTaxGroupDeepCloneDialogClose}>
+                </lightning-button>
+            </lightning-button-group>
+        </div>
+    </lightning-card>
+</template>

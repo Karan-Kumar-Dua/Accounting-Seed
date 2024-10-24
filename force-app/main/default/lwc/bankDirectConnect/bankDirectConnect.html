@@ -1,0 +1,70 @@
+<template>
+    <lightning-card class="bank-transaction-card">
+        <div slot="title">
+            <c-card-title-stacked
+                    icon-name="custom:custom42"
+                    value={labels.accountingHomeBDC}>
+            </c-card-title-stacked>
+        </div>
+        <div slot="actions">
+            <lightning-button-group>
+                <template if:true={showBankTransactionBtn}>
+                    <template if:true={allowBDCAccess}>
+                        <lightning-button class="btn-refresh"
+                                          label={labels.refresh}
+                                          variant="brand"
+                                          onclick={handleRefresh}>
+                        </lightning-button>
+                        <lightning-button class="btn-update"
+                                          label={labels.INF_UPDATE_ALL}
+                                          variant="brand"
+                                          onclick={handleUpdateAll}
+                                          disabled={isUpdateButtonDisabled}>
+                        </lightning-button>
+                        <lightning-button class="btn-import"
+                                          label={labels.INF_IMPORT_FILE}
+                                          title={labels.INF_IMPORT_OFX_QFX_FINANCIAL_FILE}
+                                          variant="brand"
+                                          onclick={openImportFileWizard}>
+                        </lightning-button>
+                    </template>
+                </template>
+            </lightning-button-group>
+        </div>
+        <lightning-tabset>
+            <lightning-tab label={labels.INF_BANK_TRANSACTIONS} onactive={showBankTransaction} data-jest-name="btTab">
+                <c-bdc-bank-credit-card-transactions></c-bdc-bank-credit-card-transactions>
+            </lightning-tab>
+
+            <lightning-tab label={labels.INF_BANK_RULES} onactive={showBankRules} data-jest-name="brTab">
+                <c-bdc-bank-rules></c-bdc-bank-rules>
+            </lightning-tab>
+            <lightning-tab label={labels.commonBankSettings} onactive={showBankSettings} data-jest-name="bsTab">
+                <template if:false={allowBDCAccess}>
+                    <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info slds-m-top_medium">
+                        <lightning-icon icon-name="utility:info" size="small" variant="inverse"></lightning-icon>
+                        <h2 class="slds-p-left_x-small">
+                            {labels.INF_NO_ACCESS_ASSIGN_PERMISSION_IMPORT_BDC_TRNS}
+                        </h2>
+                    </div>
+                </template>
+                <template if:true={allowBDCAccess}>
+                    <c-bank-settings></c-bank-settings>
+                </template>
+            </lightning-tab>
+        </lightning-tabset>
+    </lightning-card>
+
+    <!-- Import File Wizard lightbox -->
+    <c-modal-popup-base
+            title={labels.INF_FINANCIAL_FILE_IMPORT}
+            data-id="importFileWizardModal"
+            set-overflow
+            onclose={closeImportFileWizard}>
+
+        <div class="slds-p-around_medium">
+            <c-bdc-import-file-wizard onrefresh={refrshView}></c-bdc-import-file-wizard>
+        </div>
+    </c-modal-popup-base>
+    <!-- =========================== -->
+</template>

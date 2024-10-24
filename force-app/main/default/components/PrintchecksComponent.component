@@ -1,0 +1,235 @@
+<apex:component controller="PrintchecksComponent">
+    <apex:attribute name="cashDisbursementBatch" description="{!$Label.INF_CD_BATCH_RECORD_CHECKS}" assignTo="{!cashDisbursementBatchId}" type="Id" />
+    <apex:attribute name="cashDisbursement" description="{!$Label.INF_CD_RECORD_CHECKS}" assignTo="{!cashDisbursementId}" type="Id" />
+    <apex:variable value="{!1}" var="icount" />
+    <!-- Get all the Cash Disbursement records for this Cash Disbursement Batch Record-->
+    <apex:repeat value="{!cashDisbursementWrapperList}" var="cashlist">
+        <apex:variable value="{!icount+1}" var="icount" />
+        <div style="position:relative;width:100%;height:256mm;margin-top:0px">
+            <!-- Section 1: Print top level remittance information -->
+            <table style="font-size:11pt;position:absolute;margin-top:0px" width="100%">
+                <tr>
+                    <td colspan="2">
+                        <apex:outputText value="{!$Label.AcctSeed__INF_DISPLAY_LIMITED_PAYABLE_RECORDS}" rendered="{!cashlist.remittances.size > 10}" >
+                            <apex:param value="{!cashlist.remittances.size}" />
+                        </apex:outputText>
+                    </td>
+                    <td style="text-align:right">
+                        <apex:outputText value="{!$Label.AcctSeed__COMMON_CHECK}  {0, number, ############}" rendered="{!cashlist.cashDisbursement.Check_Number__c != NULL}">
+                            <apex:param value="{!cashlist.cashDisbursement.Check_Number__c}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td> 
+                        <apex:outputText rendered="{!IF(LEN(cashlist.cashDisbursement.Payee__c) <= 45,True,False)}" >                       
+                            <div style="word-break:break-word; width:320px;line-height:10px" >
+                                {!$Label.COMMON_PAYEE}: <span style="font-size:9pt;">{!cashlist.cashDisbursement.Payee__c}</span>
+                            </div>
+                        </apex:outputText>
+                        
+                        <apex:outputText rendered="{!IF(AND(LEN(cashlist.cashDisbursement.Payee__c) > 45, LEN(cashlist.cashDisbursement.Payee__c) <= 120),True,False)}" >                    
+                            <div style="word-break:break-word; width:320px; line-height:9px" >
+                                {!$Label.COMMON_PAYEE}: <span style="font-size:8pt;">{!cashlist.cashDisbursement.Payee__c}</span>
+                            </div>
+                        </apex:outputText>
+                        
+                        <apex:outputText rendered="{!IF(LEN(cashlist.cashDisbursement.Payee__c) > 120,True,False)}" >                   
+                            <div style="word-break:break-word; width:320px; line-height:8px" >
+                                {!$Label.COMMON_PAYEE}: <span style="font-size:8px;">{!cashlist.cashDisbursement.Payee__c}</span>
+                            </div>
+                        </apex:outputText>                     
+                    </td>                   
+                    <td style="vertical-align:top;margin-left:20cm;text-align:center" >
+                        {!$Label.COMMON_DATE}:&nbsp;
+                        <apex:outputField value="{!cashlist.cashDisbursement.Disbursement_Date__c}" />
+                    </td>
+                    <td style="vertical-align:top;text-align:right;" >
+                        {!$Label.COMMON_AMOUNT}:&nbsp;
+                        <apex:outputField value="{!cashlist.cashDisbursement.Amount__c}" />
+                    </td>
+                </tr>               
+            </table>
+            <table style="font-size:9pt;position:absolute;top:14mm" width="100%">
+                <tr>
+                    <td>{!$Label.AcctSeed__COMMON_OUR} {!$Label.AcctSeed__COMMON_REFERENCE}</td>
+                    <td>{!$Label.AcctSeed__COMMON_DATE}</td>
+                    <td>{!$Label.AcctSeed__COMMON_TYPE}</td>
+                    <td>{!$Label.AcctSeed__COMMON_YOUR} {!$Label.AcctSeed__COMMON_REFERENCE}</td>
+                    <td style="text-align:right">{!$Label.AcctSeed__COMMON_AMOUNT}</td>
+                    <td style="text-align:right">{!$Label.AcctSeed__DISCOUNT}</td>
+                    <td style="text-align:right">{!$Label.AcctSeed__COMMON_NET_AMOUNT}</td>
+                </tr>               
+                <apex:repeat value="{!cashlist.remittances}" var="item" rows="10">
+                    <tr>
+                        <td>
+                            <apex:outputText value="{!item.accountPayable.Name}"
+                                             rendered="{!ISBLANK(item.accountPayable.Proprietary_Payable_Number__c)}"/>
+                            <apex:outputText value="{!LEFT(item.accountPayable.Proprietary_Payable_Number__c, 15)}"
+                                             rendered="{!!ISBLANK(item.accountPayable.Proprietary_Payable_Number__c)}" />
+                        </td>
+                        <td>
+                            <apex:outputField value="{!item.accountPayable.Date__c}" />
+                        </td>
+                        <td>
+                            <apex:outputText value="{!item.accountPayable.Type__c}" />
+                        </td>
+                        <td style="white-space: nowrap;">
+                            <apex:outputText value="{!LEFT(item.accountPayable.Payee_Reference__c,30)}" />
+                        </td>
+                        <td style="text-align:right">
+                            <apex:outputText value="{0, number, ###,###,###,##0.00}" rendered="{!item.accountPayable.Type__c='Invoice'}">
+                                <apex:param value="{!item.amount+IF(ISBLANK(item.accountPayable.Discount_Amount__c),0,item.accountPayable.Discount_Amount__c)+item.accountPayable.Credit_Memo_Applied_Amount__c}" />                               
+                            </apex:outputText>
+                            <apex:outputText value="{0, number, ###,###,###,##0.00}" rendered="{!item.accountPayable.Type__c='Credit Memo'}">
+                                <apex:param value="{!item.amount+IF(ISBLANK(item.accountPayable.Discount_Amount__c),0,item.accountPayable.Discount_Amount__c)}" />                               
+                            </apex:outputText>                          
+                        </td>
+                        <td style="text-align:right">
+                            <apex:outputText value="{0, number, ###,###,###,##0.00}">
+                                <apex:param value="{!IF(ISBLANK(item.accountPayable.Discount_Amount__c),0,item.accountPayable.Discount_Amount__c)}"/>
+                            </apex:outputText>                           
+                        </td>
+                        <td style="text-align:right">
+                            <apex:outputText value="{0, number, ###,###,###,##0.00}" rendered="{!item.accountPayable.Type__c='Invoice'}">
+                                <apex:param value="{!item.amount+item.accountPayable.Credit_Memo_Applied_Amount__c}" />
+                            </apex:outputText>                            
+                            <apex:outputText value="{0, number, ###,###,###,##0.00}" rendered="{!item.accountPayable.Type__c='Credit Memo'}">
+                                <apex:param value="{!item.amount+IF(ISBLANK(item.accountPayable.Discount_Amount__c),0,item.accountPayable.Discount_Amount__c)}" />
+                            </apex:outputText>                                                   
+                        </td>
+                    </tr>
+                </apex:repeat>
+             </table>
+
+            <!--Section 2: Print check details -->
+            <div style="position:absolute;top:{!DateTopOffset}mm;right:{!DateRightOffset}mm">
+                <apex:outputField value="{!cashlist.cashDisbursement.Disbursement_Date__c}" />
+            </div>
+
+            <div style="position:absolute;top:{!AmountTopOffset}mm;right:{!AmountRightOffset}mm">
+                <apex:outputField value="{!cashlist.cashDisbursement.Amount__c}" />
+            </div>
+
+            <div style="position:absolute;top:{!AmountWordsTopOffset}mm;left:{!AmountWordsLeftOffset}mm">
+                <apex:outputField value="{!cashlist.cashDisbursement.Amount_in_Words__c}" />
+            </div>
+
+            <div style="position:absolute;top:{!PayeeTopOffset}mm;font-size:9pt;left:{!PayeeLeftOffset}mm">
+                   <apex:outputText rendered="{!IF(LEN(cashlist.cashDisbursement.Payee__c) <= 60,True,False)}" >                       
+                        <div style="word-break:break-word;" >
+                            <span style="font-size:9pt;word-break:break-word;width:330px;line-height:10px">{!cashlist.cashDisbursement.Payee__c}</span>
+                   		</div>
+                    </apex:outputText>
+                
+                    <apex:outputText rendered="{!IF(LEN(cashlist.cashDisbursement.Payee__c) > 60,True,False)}" >       
+                        <div style="word-break:break-word;width:330px;font-size:8px; line-height:9px" >
+                            {!cashlist.cashDisbursement.Payee__c}
+                        </div>
+                    </apex:outputText>
+                
+            </div>
+            <div style="position:absolute;top:{!PayeeAddressTopOffset}mm;font-size:9pt;left:{!PayeeAddressLeftOffset}mm">
+                <apex:outputText value="{!cashlist.cashDisbursement.Payee_Street__c}" style="white-space:pre;"/><br/>
+                <apex:outputField value="{!cashlist.cashDisbursement.Payee_City_State_Zip__c}" /><br/>
+                <apex:outputField value="{!cashlist.cashDisbursement.Payee_Country__c}" />
+            </div>
+            <div style="position:absolute;top:{!MemoTopOffset}mm;font-size:9pt;left:{!MemoLeftOffset}mm">
+                <apex:outputText value="{!LEFT(cashlist.cashDisbursement.Memo__c, 60)}"/><br/>
+            </div>
+            <!-- Section 3: Print bottom level remittance information -->
+            <table style="font-size:11pt;position:absolute;top:188mm" width="100%">
+                <tr>
+                    <td colspan="2">{!$Label.INF_DETATCH_RETAIN_PORTION_CHECK}</td>
+                    <td style="text-align:right">
+                        <apex:outputText value="{!$Label.AcctSeed__COMMON_CHECK}  {0, number, ############}" rendered="{!cashlist.cashDisbursement.Check_Number__c != NULL}">
+                            <apex:param value="{!cashlist.cashDisbursement.Check_Number__c}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <apex:outputText rendered="{!IF(LEN(cashlist.cashDisbursement.Payee__c) <= 45,True,False)}" >                     
+                            <div style="word-break:break-word;line-height:10px;vertical-align:top">
+                                {!$Label.AcctSeed__COMMON_PAYEE}: <span style="font-size:9pt;">{!cashlist.cashDisbursement.Payee__c}</span>
+                            </div>
+                        </apex:outputText>
+                        
+                        <apex:outputText rendered="{!IF(AND(LEN(cashlist.cashDisbursement.Payee__c) > 45, LEN(cashlist.cashDisbursement.Payee__c) <= 120),True,False)}" >                   
+                            <div style="word-break:break-word; width:320px; line-height:9px;vertical-align:top" >
+                                {!$Label.COMMON_PAYEE}: <span style="font-size:8pt;">{!cashlist.cashDisbursement.Payee__c}</span>
+                            </div>
+                        </apex:outputText>
+                        
+                        <apex:outputText rendered="{!IF(LEN(cashlist.cashDisbursement.Payee__c) > 120,True,False)}" >                    
+                            <div style="word-break:break-word; width:320px; line-height:8px;vertical-align:top" >
+                                {!$Label.COMMON_PAYEE}: <span style="font-size:8px;">{!cashlist.cashDisbursement.Payee__c}</span>
+                            </div>
+                        </apex:outputText>                      
+                    </td>
+                    <td style="text-align:right;vertical-align:top">
+                        {!$Label.COMMON_DATE}:&nbsp;
+                        <apex:outputField value="{!cashlist.cashDisbursement.Disbursement_Date__c}" />
+                    </td>
+                    <td style="text-align:right;vertical-align:top">
+                        {!$Label.COMMON_AMOUNT}:&nbsp;
+                        <apex:outputField value="{!cashlist.cashDisbursement.Amount__c}" />
+                    </td>
+                </tr>
+            </table>
+            <table style="font-size:9pt;position:absolute;top:201mm" width="100%">
+                <tr>
+                    <td>{!$Label.AcctSeed__COMMON_OUR} {!$Label.AcctSeed__COMMON_REFERENCE}</td>
+                    <td>{!$Label.AcctSeed__COMMON_DATE}</td>
+                    <td>{!$Label.AcctSeed__COMMON_TYPE}</td>
+                    <td>{!$Label.AcctSeed__COMMON_YOUR} {!$Label.AcctSeed__COMMON_REFERENCE}</td>
+                    <td style="text-align:right">{!$Label.AcctSeed__COMMON_AMOUNT}</td>
+                    <td style="text-align:right">{!$Label.AcctSeed__DISCOUNT}</td>
+                    <td style="text-align:right">{!$Label.AcctSeed__COMMON_NET_AMOUNT}</td>
+                </tr>
+                <apex:repeat value="{!cashlist.remittances}" var="item" rows="10">
+                    <tr>
+                        <td>
+                            <apex:outputText value="{!item.accountPayable.Name}"
+                                             rendered="{!ISBLANK(item.accountPayable.Proprietary_Payable_Number__c)}"/>
+                            <apex:outputText value="{!LEFT(item.accountPayable.Proprietary_Payable_Number__c, 15)}"
+                                             rendered="{!!ISBLANK(item.accountPayable.Proprietary_Payable_Number__c)}" />
+                        </td>
+                        <td>
+                            <apex:outputField value="{!item.accountPayable.Date__c}" />
+                        </td>
+                        <td>
+                            <apex:outputText value="{!item.accountPayable.Type__c}" />
+                        </td>
+                        <td style="white-space: nowrap;">
+                            <apex:outputText value="{!LEFT(item.accountPayable.Payee_Reference__c,30)}" />
+                        </td>
+                        <td style="text-align:right">
+                            <apex:outputText value="{0, number, ###,###,###,##0.00}" rendered="{!item.accountPayable.Type__c='Invoice'}">
+                                <apex:param value="{!item.amount+IF(ISBLANK(item.accountPayable.Discount_Amount__c),0,item.accountPayable.Discount_Amount__c)+item.accountPayable.Credit_Memo_Applied_Amount__c}" />                               
+                            </apex:outputText>
+                            <apex:outputText value="{0, number, ###,###,###,##0.00}" rendered="{!item.accountPayable.Type__c='Credit Memo'}">
+                                <apex:param value="{!item.amount+IF(ISBLANK(item.accountPayable.Discount_Amount__c),0,item.accountPayable.Discount_Amount__c)}" />                               
+                            </apex:outputText>                          
+                        </td>
+                        <td style="text-align:right">
+                            <apex:outputText value="{0, number, ###,###,###,##0.00}">
+                                <apex:param value="{!IF(ISBLANK(item.accountPayable.Discount_Amount__c),0,item.accountPayable.Discount_Amount__c)}"/>
+                            </apex:outputText>                           
+                        </td>
+                        <td style="text-align:right">
+                            <apex:outputText value="{0, number, ###,###,###,##0.00}" rendered="{!item.accountPayable.Type__c='Invoice'}">
+                                <apex:param value="{!item.amount+item.accountPayable.Credit_Memo_Applied_Amount__c}" />
+                            </apex:outputText>                            
+                            <apex:outputText value="{0, number, ###,###,###,##0.00}" rendered="{!item.accountPayable.Type__c='Credit Memo'}">
+                                <apex:param value="{!item.amount+IF(ISBLANK(item.accountPayable.Discount_Amount__c),0,item.accountPayable.Discount_Amount__c)}" />
+                            </apex:outputText>                                                   
+                        </td>
+                    </tr>
+                </apex:repeat>                
+            </table>
+        </div>
+        <apex:outputPanel layout="block" style="page-break-after:always" rendered="{!icount<=cashDisbursementWrapperList.size}"/>
+        <!-- Repeat the process for each Cash Disbursement record -->
+    </apex:repeat>
+</apex:component>

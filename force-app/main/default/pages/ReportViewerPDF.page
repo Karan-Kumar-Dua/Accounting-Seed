@@ -1,0 +1,57 @@
+<apex:page tabStyle="Financial_Report_Result__c" title="{!$Label.AcctSeed__COMMON_VIEW + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" standardController="Financial_Report_Result__c" extensions="ReportViewerController" showHeader="false" applyBodyTag="false" cache="{!IF(outputOption='xls','true','false')}" contentType="{!IF(outputOption='xls','application/vnd.ms-excel#' & frw.reportDefinition.Name & '-' & TEXT(Now()) & '.xls','')}" renderAs="{!IF(outputOption='xls','','pdf')}" readOnly="true">
+
+    <head>
+        <style type="text/css" media="print">
+            * {margin:0 ; padding:0}
+            body {
+                margin:0;
+                padding:0;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            @page {
+                <apex:outputPanel layout="none" rendered="{!frw.viewModeInPDF='landscape'}">
+                    size: A4 landscape;
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!frw.viewModeInPDF='portrait'}">
+                    size: A4;
+                </apex:outputPanel>
+                margin: 20px 0px 25px 0px;
+
+                @bottom-left {
+                    content: element(footerCount);
+                }
+
+            }
+            div.footerCount {
+                padding: 5px;
+                position: running(footerCount);
+                display: block;
+            }
+            .pagenumber:before {
+                content: counter(page);
+            }
+            .pagecount:before {
+                content: counter(pages);
+            }
+        </style>
+    </head>
+
+    <body>
+    <apex:outputPanel rendered="{!IF(outputOption='xls', false, true)}">
+        <div class="footerCount">
+            <div class="tableRow">
+                Page&nbsp;<span class="pagenumber" />&nbsp;of&nbsp;<span class="pagecount" />
+            </div>
+        </div>
+    </apex:outputPanel>
+    <c:ReportTableComponent financialReportWrapper="{!frw}"
+            reportName="{!frw.reportDefinition.Name}"
+            reportSubtitle="{!frw.reportDefinition.Subtitle__c}"
+            acctPeriodName="{!report.Accounting_Period__r.Name}"
+            isPDFFormat="true"
+            isXLSFormat="{!IF(outputOption='xls', true, false)}"
+    />
+    </body>
+    
+</apex:page>

@@ -1,0 +1,26 @@
+<template>
+    <div>
+        <lightning-layout multiple-rows="true">
+            <lightning-layout-item flexibility="auto" class="slds-grid" padding="around-large">
+                <lightning-input data-id="toggle" type="toggle" message-toggle-active={toggleActiveMsg}
+                    message-toggle-inactive={toggleInActiveMsg} onchange={switchToggle} checked={toggleStatus}>
+                </lightning-input>
+                <div class="slds-p-left_x-small">
+                    {providervalue.Name}
+                </div>
+
+                <template if:true={showWarnings}>
+                    <div if:true={toggleOff} class="slds-text-color_error slds-p-left_large">
+                        <lightning-icon icon-name="utility:warning" class="iconProp" alternative-text={warningAlternativeText}
+                            size="xx-small" title={labels.COMMON_WARNING}>
+                        </lightning-icon>{labels.COMMON_WARNING}:
+                        <ul class="slds-list_dotted">
+                            <li>{labels.bdcDeregisterWarning1}</li>
+                            <li>{labels.bdcDeregisterWarning2}</li>
+                        </ul>
+                    </div>
+                </template>
+            </lightning-layout-item>
+        </lightning-layout>
+    </div>
+</template>

@@ -1,0 +1,74 @@
+<!-- Expense Report Custom Amount Input -->
+<template>
+    <template if:false={viewMode}>
+        <div class="slds-form-element slds-text-align_center">
+            <div class="slds-form-element__control">
+                <abbr class="slds-required">*</abbr>
+                <lightning-input type="number"
+                                 formatter="decimal"
+                                 step="any" format-fraction-digits="2"
+                                 value={amount}
+                                 variant="label-hidden"
+                                 class="custom-input"
+                                 onchange={handleValueChange}>
+
+                </lightning-input>
+                <c-comments-handler internal-comment={internalComment.stringValue}
+                                    is-internal-comment-accessible={internalComment.isAccessible}
+                                    is-internal-comment-updateable={internalComment.isUpdateable}
+                                    invoice-comment={invoiceComment.stringValue}
+                                    is-invoice-comment-accessible={invoiceComment.isAccessible}
+                                    is-invoice-comment-updateable={invoiceComment.isUpdateable}
+                                    edit-mode
+                                    oncommentschange={handleCommentsChange}>
+
+                </c-comments-handler>
+            </div>
+        </div>
+    </template>
+    <template if:true={viewMode}>
+        <div class="slds-form-element slds-text-align_right">
+            <div class="slds-form-element__control">
+                <template if:true={editMode}>
+                    <c-formatted-currency is-multi-currency-organization={isMultiCurrencyEnabled}
+                                          currency-iso-code={currency}
+                                          currency-value={amount}>
+                    </c-formatted-currency>
+                    <c-comments-handler internal-comment={internalComment.stringValue}
+                                        is-internal-comment-accessible={internalComment.isAccessible}
+                                        is-internal-comment-updateable={internalComment.isUpdateable}
+                                        invoice-comment={invoiceComment.stringValue}
+                                        is-invoice-comment-accessible={invoiceComment.isAccessible}
+                                        is-invoice-comment-updateable={invoiceComment.isUpdateable}
+                                        edit-mode
+                                        oncommentschange={handleCommentsChange}>
+
+                    </c-comments-handler>
+                </template>
+                <template if:false={editMode}>
+                    <template if:true={hasComments}>
+                        <c-formatted-currency is-multi-currency-organization={isMultiCurrencyEnabled}
+                                              currency-iso-code={currency}
+                                              currency-value={amount}>
+                        </c-formatted-currency>
+                        <c-comments-handler internal-comment={internalComment.stringValue}
+                                            is-internal-comment-accessible={internalComment.isAccessible}
+                                            is-internal-comment-updateable={internalComment.isUpdateable}
+                                            invoice-comment={invoiceComment.stringValue}
+                                            is-invoice-comment-accessible={invoiceComment.isAccessible}
+                                            is-invoice-comment-updateable={invoiceComment.isUpdateable}>
+
+                        </c-comments-handler>
+                    </template>
+                    <template if:false={hasComments}>
+                        <c-formatted-currency is-multi-currency-organization={isMultiCurrencyEnabled}
+                                              currency-iso-code={currency}
+                                              currency-value={amount}
+                                              class="custom-padding">
+                        </c-formatted-currency>
+                    </template>
+                </template>
+            </div>
+        </div>
+    </template>
+</template>

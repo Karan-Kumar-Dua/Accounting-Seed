@@ -1,0 +1,121 @@
+<apex:page standardController="Fixed_Asset__c" title="{!Fixed_Asset__c.Name & ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="EnvironmentUtils" lightningStylesheets="true" showHeader="false" sideBar="false">
+    <apex:outputpanel rendered="{!isMyDomainEnabled}">
+        <apex:includeLightning />
+        <div id="lightningComponentId" style="height: 100vh;background: gray;" />
+        <style>
+            c-amortization-wizard-preview-calculations > div.slds-is-relative.datatable_container > lightning-datatable > div.dt-outer-container > div > div,
+            c-amortization-wizard-preview-calculations > div.slds-is-relative.datatable_container > lightning-datatable > div.dt-outer-container > div > div > table {
+                width: -webkit-fill-available !important;
+            }
+            .slds-radio .slds-form-element__label {
+                color: rgb(68, 68, 68);
+            }
+            .heading, .slds-is-incomplete .slds-path__title {
+                color: rgb(24, 24, 24) !important;
+            }
+            .slds-scope .slds-modal__content {
+                overflow: visible !important;
+            }
+            .slds-popover__body,
+            .slds-popover__footer,
+            .slds-popover__header {
+                position: relative;
+                padding: .5rem .75rem;
+                word-wrap: break-word
+            }
+
+            .slds-popover {
+                position: relative;
+                border-radius: .25rem;
+                width: 20rem;
+                min-height: 2rem;
+                z-index: 6000;
+                background-color: #fff;
+                display: inline-block;
+                box-shadow: 0 2px 3px 0 rgba(0, 0, 0, .16);
+                border: 1px solid #d9dbdd
+            }
+
+            .slds-popover--tooltip,
+            .slds-popover_tooltip {
+                width: auto;
+                max-width: 20rem;
+                background: #16325c;
+                border: 0
+            }
+            .slds-popover--tooltip .slds-popover__body,
+            .slds-popover_tooltip .slds-popover__body {
+                font-size: .75rem;
+                color: #fff
+            }
+
+            .slds-fall-into-ground {
+                visibility: hidden;
+                opacity: 0;
+                transform: translate(0, 0);
+                transition: opacity .1s linear, visibility .1s linear, transform .1s linear;
+                will-change: transform
+            }
+
+            .slds-nubbin--bottom-left:before,
+            .slds-nubbin_bottom-left-corner:before,
+            .slds-nubbin_bottom-left:before {
+                width: 1rem;
+                height: 1rem;
+                position: absolute;
+                transform: rotate(45deg);
+                content: '';
+                background-color: inherit;
+                bottom: -.5rem;
+                margin-left: -.5rem
+            }
+
+            .slds-nubbin--bottom-left:after,
+            .slds-nubbin--bottom-left:before,
+            .slds-nubbin_bottom-left-corner:after,
+            .slds-nubbin_bottom-left-corner:before,
+            .slds-nubbin_bottom-left:after,
+            .slds-nubbin_bottom-left:before {
+                left: 1.5rem;
+                top: 100%;
+                margin-top: -.5rem
+            }
+
+            .slds-nubbin--bottom-left:after,
+            .slds-nubbin_bottom-left-corner:after,
+            .slds-nubbin_bottom-left:after {
+                box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, .16);
+                z-index: -1
+            }
+
+            .slds-popover :last-child {
+                margin-bottom: 0
+            }
+        </style>
+        <script>
+            const backToRecord = function () {
+                if ((typeof sforce !=="undefined") && sforce && sforce.one) {
+                    sforce.one.navigateToSObject("{!JSENCODE(Fixed_Asset__c.Id)}", "detail");
+                } else {
+                    window.location = "/{!JSENCODE(Fixed_Asset__c.Id)}";
+                }
+            }
+
+            $Lightning.use("AcctSeed:ComponentContainer", function() {
+                $Lightning.createComponent("AcctSeed:amortizationWizard",
+                    {
+                        recordId: "{!JSENCODE(Fixed_Asset__c.Id)}",
+                        sObjectName: "AcctSeed__Fixed_Asset__c",
+                        ltngOut: true,
+                        callBacks: { backToRecord }
+                    },
+                    "lightningComponentId",
+                    function(cmp) {}
+                );
+            });
+        </script>
+    </apex:outputpanel>
+    <apex:outputpanel rendered="{!!isMyDomainEnabled}">
+        <h3>{!$Label.AcctSeed__INF_INSTALL_MY_DOMAIN} <a href="https://developer.salesforce.com/docs/atlas.en-us.identityImplGuide.meta/identityImplGuide/domain_name_overview.htm">{!$Label.AcctSeed__INF_THIS_MY_DOMAIN_KNOWLEDGE_ARTICLE}</a> {!$Label.AcctSeed__INF_FOR_FURTHER_INFO}</h3>
+    </apex:outputpanel>
+</apex:page>

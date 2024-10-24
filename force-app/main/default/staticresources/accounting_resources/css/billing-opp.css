@@ -1,0 +1,21 @@
+
+.fieldComment {
+    height: 15px;
+}
+
+.billFromOpp .opportunityBlock .bPageBlock .pbBody .width5 {
+    width: 5%;
+}
+
+.billFromOpp .opportunityBlock .bPageBlock .pbBody .width10 {
+    width: 10%;
+}
+
+.billFromOpp .opportunityBlock .bPageBlock .pbBody .width30 {
+    width: 30%;
+}
+
+th.amount-all div {
+    width: 95px;
+    display: inline-block;
+}

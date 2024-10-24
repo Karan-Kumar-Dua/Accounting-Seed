@@ -1,0 +1,69 @@
+<apex:page standardController="Journal_Entry__c" title="{!Journal_Entry__c.Name & ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="JournalEntryPost" action="{!validateBeforePost}" sideBar="false" lightningStylesheets="true">
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.dataTables.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/post-unpost-intermediate-screen.js')}" loadOnReady="true"/>
+
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/jquery.dataTables.min.css')}" />
+    <apex:variable var="customLEX" value="customLEXOn" rendered="{!$User.UIThemeDisplayed = 'Theme4d' || $User.UIThemeDisplayed = 'Theme4u'}">
+        <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/visualforce-lex-ext.css')}" />
+    </apex:variable>
+
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Journal_Entry__c.label}" subtitle="{!Journal_Entry__c.Name}" />
+        <apex:pageBlock title="{!$Label.AcctSeed__COMMON_POST}">
+            <apex:pageMessages escape="false" />
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="processingStatus"
+                                   onStart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')"
+                                   onStop="AcctSeed.ASModule.hideSpinner();"/>
+                <apex:commandButton action="{!post}" value="{!$Label.AcctSeed__COMMON_POST}" status="processingStatus" rendered="{!showActionButton}" reRender="theForm"/>
+                <apex:commandButton value="{!$Label.AcctSeed__COMMON_BACK}" action="{!cancel}" immediate="true" />
+            </apex:pageBlockButtons>
+            <div id="spinner" style="font-weight:bold; position:absolute; left:50%; margin-left: -100px; display:block">
+                <img src="/img/loading.gif" style="text-align:center" width="16" height="16" alt="loading gif" />&nbsp;&nbsp;{!$Label.COMMON_LOADING}
+            </div>
+            <apex:dataTable id="forecastTable" styleClass="display" value="{!forecastedTransactions}" var="transaction" rendered="{!showForecastSection}" style="visibility:hidden">
+                <apex:column headerValue="{!$Label.AcctSeed__COMMON_NAME}">
+                    <apex:outputField value="{!transaction.Journal_Entry_Line__c}"/>
+                </apex:column>
+                <apex:column headerValue="{!$ObjectType.Transaction__c.fields.Ledger__c.Label}"
+                             value="{!transaction.Ledger__c}"/>
+                <apex:column headerValue="{!$Label.AcctSeed__COMMON_GL_ACCOUNT}" value="{!transaction.GL_Account__c}"/>
+                <apex:column headerValue="{!$Label.AcctSeed__COMMON_DEBIT_AMOUNT}" style="white-space:nowrap;">
+                    <apex:outputField value="{!transaction.Amount__c}" rendered="{!transaction.Amount__c > 0}"/>
+                    <apex:outputText value="" rendered="{!transaction.Amount__c < 0}"/>
+                </apex:column>
+                <apex:column headerValue="{!$Label.AcctSeed__COMMON_CREDIT_AMOUNT}" style="white-space:nowrap;">
+                    <apex:outputField value="{!transaction.Amount__c}" rendered="{!transaction.Amount__c < 0}"/>
+                    <apex:outputText value="" rendered="{!transaction.Amount__c > 0}"/>
+                </apex:column>
+                <apex:column headerValue="{!$Label.AcctSeed__COMMON_FOREIGN_AMOUNT}"
+                             value="{!transaction.Foreign_Amount__c}"
+                             rendered="{!IS_MULTI_CURRENCY_ENABLED}"/>
+                <apex:column headerValue="{!$Label.AcctSeed__COMMON_FOREIGN_CURRENCY}"
+                             value="{!transaction.Foreign_Currency__c}"
+                             rendered="{!IS_MULTI_CURRENCY_ENABLED}"/>
+                <apex:column headerValue="{!$Label.AcctSeed__COMMON_FOREIGN_CURRENCY_CONVERSION_RATE}"
+                             value="{!transaction.Currency_Conversion_Rate__c}"
+                             rendered="{!IS_MULTI_CURRENCY_ENABLED}"/>
+                <apex:column headerValue="{!$Label.AcctSeed__COMMON_PRODUCT}" value="{!transaction.Product__c}"/>
+                <apex:column headerValue="{!$ObjectType.Transaction__c.fields.Project__c.Label}"
+                             value="{!transaction.Project__c}"/>
+                <apex:column headerValue="{!$ObjectType.Transaction__c.fields.Project_Task__c.Label}"
+                             value="{!transaction.Project_Task__c}"/>
+                <apex:column headerValue="{!$ObjectType.Transaction__c.fields.GL_Account_Variable_1__c.Label}"
+                             value="{!transaction.GL_Account_Variable_1__c}"/>
+                <apex:column headerValue="{!$ObjectType.Transaction__c.fields.GL_Account_Variable_2__c.Label}"
+                             value="{!transaction.GL_Account_Variable_2__c}"/>
+                <apex:column headerValue="{!$ObjectType.Transaction__c.fields.GL_Account_Variable_3__c.Label}"
+                             value="{!transaction.GL_Account_Variable_3__c}"/>
+                <apex:column headerValue="{!$ObjectType.Transaction__c.fields.GL_Account_Variable_4__c.Label}"
+                             value="{!transaction.GL_Account_Variable_4__c}"/>
+            </apex:dataTable>
+        </apex:pageBlock>
+    </apex:form>
+
+</apex:page>

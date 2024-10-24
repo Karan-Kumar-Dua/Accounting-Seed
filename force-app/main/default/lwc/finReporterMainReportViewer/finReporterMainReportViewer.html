@@ -1,0 +1,326 @@
+<!-- Fr Main Report Viewer -->
+<template>
+    <c-modal-popup-base
+      title={labels.INF_CLONE_REPORT}
+      data-id="previewCloneReport"
+      size="base"
+      onclose={closeCloneReport}>
+        <div class="slds-border_top"></div>
+        <template if:true={cloneError}>
+            <lightning-card title="">
+                <div class="slds-p-around_medium">
+                    <c-inline-error-message errors={cloneError}></c-inline-error-message>
+                </div>
+            </lightning-card>
+        </template>
+        <div class="slds-is-relative slds-p-left_xx-large slds-p-right_xx-large slds-p-top_medium slds-p-bottom_medium">
+            <template if:true={showSpinner}>
+                <lightning-spinner
+                        variant="brand"
+                        alternative-text={labels.commonSaving}
+                        size="medium">
+                </lightning-spinner>
+            </template>
+            <lightning-layout>
+                <lightning-layout-item size="12" padding="horizontal-small">
+                    <lightning-input
+                            type="text"
+                            label={labels.INF_CLONE_REPORT_NAME}
+                            variant="label-stacked"
+                            data-id="cloneReportNameInput"
+                            required
+                            max-length="80">
+                    </lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout>
+                <lightning-layout-item size="12" padding="horizontal-small">
+                    <lightning-textarea
+                            label={labels.INF_CLONE_REPORT_DESCRIPTION}
+                            data-id="cloneReportDescriptionInput"
+                            max-length="255"
+                    ></lightning-textarea>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+        <footer class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+            <div class="slds-float_right">
+                <lightning-button
+                  variant="neutral"
+                  label={labels.commonCancel}
+                  onclick={closeCloneReport}
+                  data-jest="cancel-btn">
+                </lightning-button>
+                <lightning-button
+                  variant="brand"
+                  label={labels.INF_CLONE_AS_CUSTOM}
+                  onclick={cloneReport}
+                  class="slds-m-left_small"
+                  data-jest="create-entries-btn">
+                </lightning-button>
+            </div>
+        </footer>
+    </c-modal-popup-base>
+
+    <div class="slds-card">
+        <template if:true={error}>
+            <lightning-card title="">
+                <div class="slds-p-around_medium">
+                    <c-inline-error-message errors={error}></c-inline-error-message>
+                </div>
+            </lightning-card>
+        </template>
+        <header class="slds-p-left_x-large slds-p-right_x-large slds-p-top_x-large">
+            <template if:false={isCustomReport}>
+                <lightning-layout horizontal-align="spread">
+                    <lightning-layout vertical-align="center">
+                        <lightning-layout-item flexibility="auto" padding="around-small">
+                            <div class="image-preview-container">
+                                <img data-jest="company-logo" src={logoUrl}/>
+                            </div>
+                        </lightning-layout-item>
+                        <lightning-layout-item flexibility="auto" padding="around-small">
+                            <p class="company-font-size" data-jest="company-name" title={labels.INF_COMPANY_NAME}>{companyName}</p>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </lightning-layout>
+            </template>
+        </header>
+        <template if:false={isError}>
+            <section class="slds-p-left_x-large slds-p-right_x-large slds-p-top_medium slds-p-bottom_large">
+                <lightning-button
+                  variant="base"
+                  label={labels.INF_MORE_INFORMATION}
+                  title={labels.INF_MORE_INFORMATION}
+                  icon-name={moreInfoIcon}
+                  class="base-button drop-list-font-size"
+                  onclick={handleMoreInfoBtn}
+                  data-jest="more-info-btn">
+                </lightning-button>
+                <template if:true={showMoreInfo}>
+                    <div class="slds-p-around_small" data-jest="more-info-body">
+                        <lightning-record-view-form record-id={reportResultId} object-api-name={objectApiName} onload={handleMoreInfoLoad}>
+                            <lightning-layout>
+                                <lightning-layout-item flexibility="no-grow" padding="around-small">
+                                    <div class="slds-border_right border-dark slds-p-right_x-small">
+                                        <label class="field-title slds-p-right_small text-color_weak" title={labels.accountingHomeLedger}>{labels.accountingHomeLedger}</label>
+                                        <template if:false={isCustomReport}>
+                                            <lightning-output-field data-jest="ledger"
+                                                                    field-name={frResult.ledger}
+                                                                    variant="label-hidden">
+
+                                            </lightning-output-field>
+                                        </template>
+                                    </div>
+                                </lightning-layout-item>
+                                <template if:true={showBudgetLedger}>
+                                    <lightning-layout-item flexibility="no-grow" padding="around-small">
+                                        <div class="slds-border_right border-dark slds-p-right_x-small">
+                                            <label class="field-title slds-p-right_small text-color_weak" title={labels.commonBudgetLedger}>{labels.commonBudgetLedger}</label>
+                                            <lightning-output-field data-jest="budget-ledger"
+                                                                    field-name={frResult.budget_ledger}
+                                                                    variant="label-hidden">
+
+                                            </lightning-output-field>
+                                        </div>
+                                    </lightning-layout-item>
+                                </template>
+                                <template if:true={showGlav1}>
+                                    <lightning-layout-item flexibility="no-grow" padding="around-small">
+                                        <div class="slds-border_right border-dark slds-p-right_x-small">
+                                            <label class="field-title slds-p-right_small text-color_weak"
+                                                   title={glav1Label}>
+                                                {glav1Label}
+                                            </label>
+                                            <lightning-output-field field-name={frResult.gl_account_variable_1}
+                                                                    variant="label-hidden">
+                                            </lightning-output-field>
+                                        </div>
+                                    </lightning-layout-item>
+                                </template>
+                                <template if:true={showGlav2}>
+                                    <lightning-layout-item flexibility="no-grow" padding="around-small">
+                                        <div class="slds-border_right border-dark slds-p-right_x-small">
+                                            <label class="field-title slds-p-right_small text-color_weak"
+                                                   title={glav2Label}>
+                                                {glav2Label}
+                                            </label>
+                                            <lightning-output-field field-name={frResult.gl_account_variable_2}
+                                                                    variant="label-hidden">
+
+                                            </lightning-output-field>
+                                        </div>
+                                    </lightning-layout-item>
+                                </template>
+                                <template if:true={showGlav3}>
+                                    <lightning-layout-item flexibility="no-grow" padding="around-small">
+                                        <div class="slds-border_right border-dark slds-p-right_x-small">
+                                            <label class="field-title slds-p-right_small text-color_weak"
+                                                   title={glav3Label}>
+                                                {glav3Label}
+                                            </label>
+                                            <lightning-output-field field-name={frResult.gl_account_variable_3}
+                                                                    variant="label-hidden">
+
+                                            </lightning-output-field>
+                                        </div>
+                                    </lightning-layout-item>
+                                </template>
+                                <template if:true={showGlav4}>
+                                    <lightning-layout-item flexibility="no-grow" padding="around-small">
+                                        <div class="slds-border_right border-dark slds-p-right_x-small">
+                                            <label class="field-title slds-p-right_small text-color_weak"
+                                                   title={glav4Label}>
+                                                {glav4Label}
+                                            </label>
+                                            <lightning-output-field field-name={frResult.gl_account_variable_4}
+                                                                    variant="label-hidden">
+
+                                            </lightning-output-field>
+                                        </div>
+                                    </lightning-layout-item>
+                                </template>
+                                <lightning-layout-item flexibility="no-grow" padding="around-small">
+                                    <div class="slds-border_right border-dark slds-p-right_x-small">
+                                        <label class="field-title slds-p-right_small text-color_weak" title={labels.commonStartingAccountPeriod}>{labels.commonStartingAccountPeriod}</label>
+                                        <lightning-output-field field-name={frResult.accounting_period} variant="label-hidden"></lightning-output-field>
+                                    </div>
+                                </lightning-layout-item>
+                                <lightning-layout-item flexibility="no-grow" padding="around-small">
+                                    <div class="slds-border_right border-dark slds-p-right_x-small">
+                                        <label class="field-title slds-p-right_small text-color_weak" title={labels.commonEndingAccountPeriod}>{labels.commonEndingAccountPeriod}</label>
+                                        <lightning-output-field field-name={frResult.end_accounting_period} variant="label-hidden"></lightning-output-field>
+                                    </div>
+                                </lightning-layout-item>
+                                <lightning-layout-item flexibility="no-grow" padding="around-small">
+                                    <div class="slds-border_right border-dark slds-p-right_x-small">
+                                        <label class="field-title slds-p-right_small text-color_weak" title={labels.commonCurrency}>{labels.commonCurrency}</label>
+                                        <p data-jest="ledger-currency">{reportResultCurrency}</p>
+                                    </div>
+                                </lightning-layout-item>
+                                <lightning-layout-item flexibility="no-grow" padding="around-small">
+                                    <div class="slds-border_right border-dark slds-p-right_x-small">
+                                        <label class="field-title slds-p-right_small text-color_weak" title={labels.commonCreatedBy}>{labels.commonCreatedBy}</label>
+                                        <lightning-output-field field-name={frResult.created_by_id} variant="label-hidden"></lightning-output-field>
+                                    </div>
+                                </lightning-layout-item>
+                                <lightning-layout-item flexibility="no-grow" padding="around-small">
+                                    <div>
+                                        <label class="field-title slds-p-right_small text-color_weak" title={labels.INF_COMPLETED_DATE_OR_TIME}>{labels.INF_COMPLETED_DATE_OR_TIME}</label>
+                                        <lightning-output-field field-name={frResult.run_finished} variant="label-hidden"></lightning-output-field>
+                                    </div>
+                                </lightning-layout-item>
+                            </lightning-layout>
+                        </lightning-record-view-form>
+                    </div>
+                </template>
+            </section>
+            <section class="slds-p-left_x-large slds-p-right_x-large slds-p-top_xx-large">
+                <lightning-layout>
+                    <lightning-layout-item flexibility="auto">
+                        <div>
+                            <span class="header-font">{reportName}</span>
+                        </div>
+                        <div class="slds-p-top_x-large slds-list_horizontal">
+                            <template if:true={read}>
+                                <span class="input-font-size">{subtitle}</span>
+                                <lightning-button-icon icon-name="utility:edit"
+                                                       alternative-text={labels.commonEdit}
+                                                       title={labels.commonEdit}
+                                                       class="slds-m-left_medium"
+                                                       onclick={handleEdit}>
+
+                                </lightning-button-icon>
+                            </template>
+                            <template if:false={read}>
+                                <lightning-input class="input-font-size slds-size_3-of-12"
+                                                 type="text"
+                                                 variant="label-hidden"
+                                                 max-length="80"
+                                                 value={subtitle}
+                                                 onchange={handleValueChange}>
+                                </lightning-input>
+                                <lightning-button label={labels.commonCancel}
+                                                  title={labels.commonCancel}
+                                                  class="slds-m-left_medium"
+                                                  data-jest="subtitle-edit-cancel-btn"
+                                                  onclick={handleCancel}>
+                                </lightning-button>
+                                <lightning-button variant="brand"
+                                                  label={labels.commonSave}
+                                                  title={labels.commonSave}
+                                                  class="slds-m-left_x-small"
+                                                  data-jest="subtitle-edit-save-btn"
+                                                  onclick={handleSave}>
+                                </lightning-button>
+                            </template>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item>
+                        <lightning-button
+                          variant="base"
+                          label={labels.commonExpandAll}
+                          title={labels.commonExpandAll}
+                          icon-name="utility:arrowdown"
+                          class="slds-m-left_medium base-button"
+                          onclick={handleExpandAll}
+                          data-jest="more-info-btn">
+                        </lightning-button>
+                        <lightning-button
+                          variant="base"
+                          label={labels.commonCollapseAll}
+                          title={labels.commonCollapseAll}
+                          icon-name="utility:arrowup"
+                          class="slds-m-left_medium base-button"
+                          onclick={handleCollapseAll}
+                          data-jest="more-info-btn">
+                        </lightning-button>
+                        <lightning-button
+                          variant="base"
+                          label={labels.INF_RERUN}
+                          title={labels.INF_RERUN}
+                          class="slds-m-left_medium base-button"
+                          onclick={reRunFinancialReport}
+                          data-jest="rerun-btn">
+                        </lightning-button>
+                        <lightning-button-menu
+                          label={exportLabelWithSpecialCharacters}
+                          variant="bare"
+                          menu-alignment="right"
+                          class="slds-m-left_medium base-button"
+                          icon-name={exportIcon}>
+                            <template for:each={exportOptions} for:item="option">
+                                <lightning-menu-item
+                                  key={option.value}
+                                  value={option.value}
+                                  label={option.label}
+                                  href={option.href}
+                                  target={option.target}>
+                                </lightning-menu-item>
+                            </template>
+                        </lightning-button-menu>
+                        <template if:true={showCloneReportButton}>
+                            <lightning-button
+                              variant="base"
+                              label={labels.INF_CLONE_AS_CUSTOM}
+                              title={labels.INF_CLONE_REPORT_DEFINITION_CUSTOM_REPORT}
+                              class="slds-m-left_medium base-button"
+                              data-jest="cloneButton"
+                              onclick={openCloneReport}>
+                            </lightning-button>
+                        </template>
+                        <div class="slds-p-top_small slds-text-align_right">
+                            <i data-jest="rounding-mode">{roundingDescription}</i>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </section>
+            <section class="slds-text-align_center slds-p-left_x-large slds-p-right_x-large slds-p-bottom_x-large slds-p-top_large">
+                <c-fin-reporter-view-container report-values={reportValues} settings={settingsDTO}></c-fin-reporter-view-container>
+            </section>
+            <section class="notes slds-text-color_error slds-p-left_large slds-p-bottom_large slds-p-right_medium">
+                {notes}
+            </section>
+        </template>
+    </div>
+</template>

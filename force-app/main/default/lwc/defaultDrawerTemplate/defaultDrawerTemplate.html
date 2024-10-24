@@ -1,0 +1,21 @@
+<template>
+    <lightning-layout horizontal-align="center" multiple-rows class="drawer">
+        <template for:each={columns} for:item="columnSet">
+            <lightning-layout-item key={columnSet.key} size={columnSet.size} flexibility="auto, no-grow" padding="horizontal-small" class="drawer">
+                <lightning-layout horizontal-align="center" multiple-rows>
+                    <template for:each={columnSet.columns} for:item="column">
+                        <lightning-layout-item key={column.key}
+                                               size={column.size}
+                                               flexibility="auto, no-grow"
+                                               class="slds-border_top drawer">
+                            <c-custom-cell column={column}
+                                           row={row}
+                                           edit-mode={isEditMode}>
+                            </c-custom-cell>
+                        </lightning-layout-item>
+                    </template>
+                </lightning-layout>
+            </lightning-layout-item>
+        </template>
+    </lightning-layout>
+</template>

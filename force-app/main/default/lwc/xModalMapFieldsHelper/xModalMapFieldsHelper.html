@@ -1,0 +1,18 @@
+<template>
+    <lightning-layout multiple-rows="true">
+        <lightning-layout-item size="6" padding="around-small">
+            <div data-id="modal-field">{field}</div> 
+        </lightning-layout-item>
+        <lightning-layout-item size="6" padding="around-small">
+            <div>
+                <lightning-combobox 
+                    variant="label-hidden" 
+                    value={fieldValue} 
+                    data-id="modal-picklist" 
+                    options={options} 
+                    onchange={handlePicklistChange}>
+                </lightning-combobox>
+            </div> 
+        </lightning-layout-item>
+    </lightning-layout>
+</template>

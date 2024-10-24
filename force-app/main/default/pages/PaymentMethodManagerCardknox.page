@@ -1,0 +1,352 @@
+<apex:page standardController="Account" title="{!$Label.AcctSeed__COMMON_MANAGE_METHODS + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="PaymentMethodManagerCardknox"
+    docType="html-5.0" sideBar="false">
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery-ui.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/ifields.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/cardknox-common.js')}" loadOnReady="true"
+    />
+
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/cardknox-common.css')}" />
+
+    <script>
+        window.AcctSeed = typeof window.AcctSeed !== 'undefined' ? window.AcctSeed : {};
+        window.AcctSeed.IFieldsKey = '{!JSENCODE(iFieldsKey)}';
+    </script>
+    <apex:slds />
+    <apex:outputPanel rendered="{!!noCardknoxConnected}">
+        <div id="spinner" class="slds-spinner_container" style="height:100rem;background-color:#cccdd0;position:fixed;opacity:0.6;">
+            <div role="status" class="slds-spinner slds-spinner--large slds-spinner_inverse" style="position:fixed;">
+                <div class="slds-spinner__dot-a "></div>
+                <div class="slds-spinner__dot-b "></div>
+            </div>
+        </div>
+    </apex:outputPanel>
+
+    <apex:sectionHeader title="{!$ObjectType.Account.Label}" subtitle="{!$Label.AcctSeed__INF_MANAGE_CARDKNOX_PAYMENT_METHODS}" />
+
+    <apex:form id="payment-form-error" rendered="{!noCardknoxConnected}">
+        <apex:pageblock mode="detail">
+            <apex:pageMessage severity="info" summary="{!$Label.AcctSeed__CARDKNOX_PAYMENT_PROCESSOR_ERROR}" strength="3" rendered="{!noCardknoxConnected}"
+            />
+            <apex:pageBlockButtons id="buttons">
+                <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" id="cancelButton" immediate="true" />
+            </apex:pageBlockButtons>
+        </apex:pageblock>
+    </apex:form>
+
+    <apex:outputPanel layout="block" id="tabs" styleClass="slds-tabs_scoped" rendered="{!!noCardknoxConnected}">
+        <!-- Create Tab panel -->
+        <ul class="slds-tabs_scoped__nav" role="tablist">
+            <li class="slds-tabs_scoped__item slds-is-active" role="presentation">
+                <a class="slds-tabs_scoped__link" role="tab" href="#tabs-1">{!$Label.COMMON_CREDIT_CARD_PAYMENT_METHOD_TYPE}</a>
+            </li>
+            <li class="slds-tabs_scoped__item" role="presentation">
+                <a class="slds-tabs_scoped__link" role="tab" href="#tabs-2">{!$Label.COMMON_ACH_PAYMENT}</a>
+            </li>
+        </ul>
+        <div class="slds-tabs_scoped__content" role="tabpanel" id="tabs-1">
+            <apex:form id="payment-form">
+
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}');" onstop="AcctSeed.ASModule.clear();">
+                </apex:actionStatus>
+
+                <!-- ========== Action Function Block ==================== -->
+                <apex:actionFunction status="saveStatus" action="{!updateProcessor}" name="updateProcessor" immediate="true" reRender="pageMessages, paymentMethodSection, pageMessages2, paymentMethodSection2">
+                    <apex:param assignTo="{!selectedProcessor}" name="processor" value="" />
+                </apex:actionFunction>
+
+                <apex:actionFunction status="tableStatus" action="{!switchStatusOfPaymentMethod}" name="switchStatusOfPaymentMethod" immediate="true"
+                    reRender="pageMessages, paymentMethodSection">
+
+                    <apex:param assignTo="{!payMethodIdForChangeStatus}" name="payMethodIdForChangeStatus" value="" />
+                </apex:actionFunction>
+                <apex:actionFunction status="tableStatus" action="{!setDefaultPaymentMethod}" name="setDefaultPaymentMethod" immediate="true"
+                    reRender="pageMessages, paymentMethodSection, pageMessages2, paymentMethodSection2">
+
+                    <apex:param assignTo="{!payMethodIdForSetDefault}" name="payMethodIdForSetDefault" value="" />
+                </apex:actionFunction>
+
+                <apex:actionFunction status="saveStatus" action="{!creditCardInputs}" name="passToController" rerender="pageMessages, paymentMethodSection, pageMessages2, paymentMethodSection2"
+                    immediate="true">
+                    <apex:param value="" name="cardToken" />
+                    <apex:param value="" name="expMonth" />
+                    <apex:param value="" name="expYear" />
+                    <apex:param value="" name="holderName" />
+                </apex:actionFunction>
+                <!-- ===================================================== -->
+
+                <apex:pageblock mode="detail">
+                    <apex:pageMessages id="pageMessages" escape="false" />
+                    <apex:pageBlockButtons id="buttons">
+                        <apex:outputPanel layout="none" rendered="{!!isError}">
+                            <input id="submit-btn" type="submit" class="btn" value="{!$Label.COMMON_CREATE_PAYMENT_METHOD}" name="Create Payment Method" onclick="AcctSeed.ASModule.submitForm();return false;">
+                            </input>
+                        </apex:outputPanel>
+                        <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" id="cancelButton" immediate="true" />
+                    </apex:pageBlockButtons>
+                    <apex:pageBlockSection columns="1" title="{!$Label.AcctSeed__COMMON_CREATE_NEW_PAYMENT_METHOD}" collapsible="false" id="createPaymentMethodSection"
+                        rendered="{!!isError}">
+                        <apex:pageBlockSectionItem >
+                            <apex:outputPanel styleClass="processor-select-panel">
+                                <apex:outputLabel value="Payment Processor" styleClass="processor-select-label" />
+                                <span class="asHelpText">
+                                    <a href="javascript:return false">
+                                        <img src="/s.gif" class="helpOrb" style="position:static;background-position-x:7px;" />
+                                        <span class="asHelpBubble">{!$Label.INF_SELECT_PAYMENT_PROCESSOR_FOR_CREATE_MANAGE}</span>
+                                    </a>
+                                </span>
+                                <apex:selectList id="cardProcessorSelect" value="{!selectedProcessor}" size="1" multiselect="false" styleClass="processor-select-input"
+                                    onchange="AcctSeed.ASModule.processorChanged('{!$Component.cardProcessorSelect}');">
+                                    <apex:selectOptions value="{!processorOptions}" />
+                                </apex:selectList>
+                            </apex:outputPanel>
+                        </apex:pageBlockSectionItem>
+                        <div id="form-row">
+                            <label class="card-input">
+                                <span>{!$Label.COMMON_CARD_HOLDER_NAME}</span>
+                                <input id="name" name="xName" class="InputFieldNormal" placeholder="{!$Label.COMMON_NAME}" autocomplete="cc-name" maxlength="255"></input>
+                            </label>
+                            <div style="clear:both;"></div>
+                            <label class="card-input">
+                                <span>{!$Label.COMMON_CREDIT_OR_DEBIT_CARD}</span>
+                                <iframe class="InputFieldIframe" data-ifields-id="card-number" data-ifields-placeholder="{!$Label.COMMON_CARD_NUMBER}" src="https://cdn.cardknox.com/ifields/2.13.2204.1401/ifield.htm"></iframe>
+                                <input data-ifields-id="card-number-token" name="xCardNum" type="hidden"></input>
+                            </label>
+                            <label class="card-input">
+                                <span>{!$Label.COMMON_CVV}</span>
+                                <iframe class="InputFieldIframe" data-ifields-id="cvv" data-ifields-placeholder="{!$Label.COMMON_CVV}" src="https://cdn.cardknox.com/ifields/2.13.2204.1401/ifield.htm"></iframe>
+                                <input data-ifields-id="cvv-token" name="xCVV" type="hidden"></input>
+                            </label>
+                            <label class="card-input">
+                                <span>{!$Label.COMMON_MONTH}</span>
+                                <input class="InputFieldNormal" id="month" name="xMonth" placeholder="{!$Label.COMMON_MONTH}" autocomplete="cc-exp-month"></input>
+                            </label>
+                            <label class="card-input">
+                                <span>{!$Label.COMMON_YEAR}</span>
+                                <input class="InputFieldNormal" id="year" name="xYear" placeholder="{!$Label.COMMON_YEAR}" autocomplete="cc-exp-year"></input>
+                            </label>
+                            <!-- Used to display form errors -->
+                            <div id="card-errors" class="pm-errors" role="alert">
+                                <label data-ifields-id="card-data-error"></label>
+                            </div>
+                        </div>
+                    </apex:pageBlockSection>
+
+                    <!--==================================== MANAGE EXISTING PAYMENT METHODS 1 ======================-->
+
+                    <apex:pageBlockSection id="paymentMethodSection" title="{!$Label.AcctSeed__COMMON_MANAGE_EXISTING_PAYMENT_METHODS}" columns="1" collapsible="false"
+                        rendered="{!!isError}">
+                        <apex:pageMessage severity="info" strength="2" summary="{!$Label.AcctSeed__INF_NO_CREDIT_CARD_PM_EXIST_ACCOUNT}" rendered="{!ccPaymentMethods.size == 0}"
+                        />
+                        <span class="updatedIFieldsKey" style="display:none;">{!JSENCODE(iFieldsKey)}</span>
+                        <apex:actionstatus id="tableStatus" onstart="AcctSeed.ASModule.loadingTable(true);" onstop="AcctSeed.ASModule.loadingTable(false);">
+                            <apex:facet name="start">
+                                <apex:facet name="start">
+                                    <div class="waitingHolder" style="text-align:left; position: relative;" width="16" height="16">
+                                        <img class="waitingImage" src="/img/loading.gif" title="{!$Label.COMMON_PLEASE_WAIT}" />
+                                        <span class="waitingDescription">Loading...</span>
+                                    </div>
+                                </apex:facet>
+                            </apex:facet>
+                        </apex:actionstatus>
+
+                        <apex:pageBlockTable value="{!ccPaymentMethods}" styleClass="paymentMethodTable" var="paymentMethod" rendered="{!ccPaymentMethods.size > 0}">
+                            <apex:column width="15%">
+                                <apex:facet name="header">Action</apex:facet>
+                                <apex:outputLink value="javascript:void(0);" onclick="AcctSeed.ASModule.switchStatusOfPaymentMethodJS('{!paymentMethod.Id}', 0);">
+                                    <apex:outputText value="{!IF(paymentMethod.Status__c == 'Active', $Label.AcctSeed__PAYMENT_METHOD_STATUS_DEACTIVATE, $Label.AcctSeed__PAYMENT_METHOD_STATUS_ACTIVATE)}"
+                                        style="color: blue;" />
+                                </apex:outputLink>
+                                <apex:outputPanel layout="inline" style="margin-left: {!IF(paymentMethod.Status__c == 'Active', '4', '4')}px; margin-right: 4px;">|</apex:outputPanel>
+                                <apex:outputLink value="javascript:void(0);" onclick="AcctSeed.ASModule.setDefaultPaymentMethodJS('{!paymentMethod.Id}', 0);">
+                                    <apex:outputText value="{!$Label.AcctSeed__INF_SET_AS_DEFAULT}" style="color: blue;" />
+                                </apex:outputLink>
+                            </apex:column>
+                            <apex:column width="15%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Card_Holder_Name__c.Label}</apex:facet>
+                                <apex:outputField value="{!paymentMethod.Card_Holder_Name__c}" />
+                            </apex:column>
+                            <apex:column width="15%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Type__c.Label}</apex:facet>
+                                <apex:outputText value="{!paymentMethod.Type__c} {!paymentMethod.Last_Four_Digits__c}" />
+                            </apex:column>
+                            <apex:column width="10%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Status__c.Label}</apex:facet>
+                                <apex:outputText value="{!paymentMethod.Status__c}" />
+                            </apex:column>
+                            <apex:column width="10%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.CreatedDate.Label}</apex:facet>
+                                <apex:outputField value="{!paymentMethod.CreatedDate}" />
+                            </apex:column>
+                            <apex:column width="10%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Expiration_Month__c.Label}</apex:facet>
+                                <apex:outputText value="{!paymentMethod.Expiration_Month__c}" />
+                            </apex:column>
+                            <apex:column width="10%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Expiration_Year__c.Label}</apex:facet>
+                                <apex:outputText value="{!paymentMethod.Expiration_Year__c}" />
+                            </apex:column>
+                            <apex:column width="5%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Default__c.Label}</apex:facet>
+                                <apex:outputField value="{!paymentMethod.Default__c}" />
+                            </apex:column>
+                            <apex:column width="5%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Processor__c.fields.Test_Mode__c.Label}</apex:facet>
+                                <apex:outputField value="{!paymentMethod.Payment_Processor__r.Test_Mode__c}" />
+                            </apex:column>
+                            <apex:column width="10%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Payment_Processor__c.Label}</apex:facet>
+                                <apex:outputField value="{!paymentMethod.Payment_Processor__c}" />
+                            </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                </apex:pageblock>
+            </apex:form>
+        </div>
+        <!-- =============================== ACH Payments Tab ======================================= -->
+        <div class="slds-tabs_scoped__content" role="tabpanel" id="tabs-2">
+            <apex:form id="ach-payment-form">
+                <apex:actionStatus id="saveStatus2" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}');" onstop="AcctSeed.ASModule.clear();"
+                />
+
+                <apex:actionFunction status="tableStatus2" action="{!switchStatusOfPaymentMethod}" name="switchStatusOfPaymentMethod2" immediate="true"
+                    reRender="pageMessages2, paymentMethodSection2">
+
+                    <apex:param assignTo="{!payMethodIdForChangeStatus}" name="payMethodIdForChangeStatus" value="" />
+                </apex:actionFunction>
+
+                <apex:actionFunction status="tableStatus2" action="{!setDefaultPaymentMethod}" name="setDefaultPaymentMethod2" immediate="true"
+                    reRender="pageMessages, paymentMethodSection, pageMessages2, paymentMethodSection2">
+                    <apex:param assignTo="{!payMethodIdForSetDefault}" name="payMethodIdForSetDefault" value="" />
+                </apex:actionFunction>
+                <apex:actionFunction status="saveStatus2" action="{!achInputs}" name="achInputsFromJS" immediate="true" reRender="pageMessages2, paymentMethodSection2">
+                    <apex:param value="" name="achToken" />
+                    <apex:param value="" name="routing" />
+                    <apex:param value="" name="name" />
+                </apex:actionFunction>
+
+                <apex:pageblock mode="detail">
+                    <apex:pageMessages id="pageMessages2" escape="false" />
+                    <apex:pageBlockButtons id="buttons2">
+                        <apex:outputPanel layout="none" rendered="{!!isError}">
+                            <input id="submit-btn-acct" type="submit" class="btn" value="{!$Label.COMMON_CREATE_PAYMENT_METHOD}" name="Create Payment Method" onclick="AcctSeed.ASModule.submitFormACH();return false;">
+                            </input>
+                        </apex:outputPanel>
+                        <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" id="cancelButton2" immediate="true" />
+                    </apex:pageBlockButtons>
+                    <apex:pageBlockSection columns="1" title="{!$Label.AcctSeed__COMMON_CREATE_NEW_PAYMENT_METHOD}" collapsible="false" id="createPaymentMethodSection2"
+                        rendered="{!!isError}">
+
+                        <apex:pageBlockSectionItem >
+                            <apex:outputPanel styleClass="processor-select-panel">
+                                <apex:outputLabel value="{!$Label.AcctSeed__COMMON_PAYMENT_PROCESSOR}" styleClass="processor-select-label" />
+                                <span class="asHelpText">
+                                    <a href="javascript:return false">
+                                        <img src="/s.gif" class="helpOrb" style="position:static;background-position-x:7px;" />
+                                        <span class="asHelpBubble">{!$Label.INF_SELECT_PAYMENT_PROCESSOR_FOR_CREATE_MANAGE}</span>
+                                    </a>
+                                </span>
+                                <apex:selectList id="achProcessorSelect" value="{!selectedProcessor}" size="1" multiselect="false" styleClass="processor-select-input"
+                                    onchange="AcctSeed.ASModule.processorChanged('{!$Component.achProcessorSelect}');">
+                                    <apex:selectOptions value="{!processorOptions}" />
+                                </apex:selectList>
+                            </apex:outputPanel>
+                        </apex:pageBlockSectionItem>
+                        <div id="form-row">
+                            <label class="card-input">
+                                <span>Account Holder Name</span>
+                                <input id="nameAch" name="xName" class="InputFieldNormal" placeholder="Name" autocomplete="cc-name" maxlength="255"></input>
+                            </label>
+                            <div style="clear:both;"></div>
+                            <label class="card-input">
+                                <span>Account Number</span>
+                                <iframe class="InputFieldIframe" data-ifields-id="ach" data-ifields-placeholder="Checking Account Number" src="https://cdn.cardknox.com/ifields/2.13.2204.1401/ifield.htm"></iframe>
+                                <input data-ifields-id="ach-token" name="xACH" type="hidden" />
+                            </label>
+                            <label class="card-input">
+                                <span>Routing Number</span>
+                                <input class="InputFieldNormal" id="routing" name="xRouting" placeholder="Routing Number" autocomplete="cc-exp-routing"></input>
+                            </label>
+                            <!-- Used to display form errors -->
+                            <div id="card-errors-ach" class="pm-errors" role="alert">
+                                <label data-ifields-id="card-data-error"></label>
+                            </div>
+                        </div>
+                    </apex:pageBlockSection>
+
+                    <!--=================== MANAGE EXISTING PAYMENT METHODS 2 =====================-->
+
+                    <apex:pageBlockSection id="paymentMethodSection2" title="{!$Label.AcctSeed__COMMON_MANAGE_EXISTING_PAYMENT_METHODS}" columns="1" collapsible="false"
+                        rendered="{!!isError}">
+                        <apex:pageMessage severity="info" strength="2" summary="{!$Label.AcctSeed__INF_NO_ACH_PM_EXIST_ACCOUNT}" rendered="{!achPaymentMethods.size == 0}"
+                        />
+                        <span class="updatedIFieldsKey" style="display:none;">{!JSENCODE(iFieldsKey)}</span>
+                        <apex:actionstatus id="tableStatus2" onstart="AcctSeed.ASModule.loadingTable(true);" onstop="AcctSeed.ASModule.loadingTable(false);">
+                            <apex:facet name="start">
+                                <apex:facet name="start">
+                                    <div class="waitingHolder" style="text-align:left; position: relative;" width="16" height="16">
+                                        <img class="waitingImage" src="/img/loading.gif" title="{!$Label.COMMON_PLEASE_WAIT}" />
+                                        <span class="waitingDescription">Loading...</span>
+                                    </div>
+                                </apex:facet>
+                            </apex:facet>
+                        </apex:actionstatus>
+                        <apex:pageBlockTable value="{!achPaymentMethods}" var="paymentMethod" styleClass="paymentMethodTable" rendered="{!achPaymentMethods.size > 0}">
+                            <apex:column width="15%">
+                                <apex:facet name="header">Action</apex:facet>
+                                <apex:outputLink value="javascript:void(0);" onclick="AcctSeed.ASModule.switchStatusOfPaymentMethodJS('{!paymentMethod.Id}', 1);">
+                                    <apex:outputText value="{!IF(paymentMethod.Status__c == 'Active', $Label.AcctSeed__PAYMENT_METHOD_STATUS_DEACTIVATE, $Label.AcctSeed__PAYMENT_METHOD_STATUS_ACTIVATE)}"
+                                        style="color: blue;" />
+                                </apex:outputLink>
+                                <apex:outputPanel layout="inline" style="margin-left: {!IF(paymentMethod.Status__c == 'Active', '3', '3')}px; margin-right: 3px;">|</apex:outputPanel>
+                                <apex:outputLink value="javascript:void(0);" onclick="AcctSeed.ASModule.setDefaultPaymentMethodJS('{!paymentMethod.Id}', 1);">
+                                    <apex:outputText value="{!$Label.AcctSeed__INF_SET_AS_DEFAULT}" style="color: blue;" />
+                                </apex:outputLink>
+                            </apex:column>
+                            <apex:column width="15%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Card_Holder_Name__c.Label}</apex:facet>
+                                <apex:outputField value="{!paymentMethod.Card_Holder_Name__c}" />
+                            </apex:column>
+                            <apex:column width="15%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Bank_Account_Type__c.Label}</apex:facet>
+                                <apex:outputField value="{!paymentMethod.Bank_Account_Type__c}" />
+                            </apex:column>
+                            <apex:column width="10%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Bank_Name__c.Label}</apex:facet>
+                                <apex:outputText value="{!paymentMethod.Bank_Name__c}" />
+                            </apex:column>
+                            <apex:column width="15%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Last_Four_Digits__c.Label}</apex:facet>
+                                <apex:outputText value="{!paymentMethod.Last_Four_Digits__c}" />
+                            </apex:column>
+                            <apex:column width="10%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Status__c.Label}</apex:facet>
+                                <apex:outputText value="{!paymentMethod.Status__c}" />
+                            </apex:column>
+                            <apex:column width="10%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.CreatedDate.Label}</apex:facet>
+                                <apex:outputField value="{!paymentMethod.CreatedDate}" />
+                            </apex:column>
+                            <apex:column width="5%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Default__c.Label}</apex:facet>
+                                <apex:outputField value="{!paymentMethod.Default__c}" />
+                            </apex:column>
+                            <apex:column width="5%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Processor__c.fields.Test_Mode__c.Label}</apex:facet>
+                                <apex:outputField value="{!paymentMethod.Payment_Processor__r.Test_Mode__c}" />
+                            </apex:column>
+                            <apex:column width="10%">
+                                <apex:facet name="header">{!$ObjectType.Payment_Method__c.fields.Payment_Processor__c.Label}</apex:facet>
+                                <apex:outputField value="{!paymentMethod.Payment_Processor__c}" />
+                            </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                </apex:pageblock>
+            </apex:form>
+        </div>
+    </apex:outputPanel>
+    <!-- Merge fields on Page to avoid using StandardController.addFields()-->
+    <apex:outputField value="{!account.Stripe_Customer_Id__c}" rendered="false" />
+    <apex:outputField value="{!account.Name}" rendered="false" />
+</apex:page>

@@ -1,0 +1,21 @@
+<template>
+    <template for:each={conditions} for:item="condition">
+        <div key={condition.idx} class="slds-box slds-box_x-small slds-theme_shade slds-m-top_small">
+            <c-bdc-bank-rules-condition-form-item
+                index={condition.idx}
+                values={condition.condition}
+                ondelete={handleDelete}
+                onchange={handleChange}>
+            </c-bdc-bank-rules-condition-form-item>
+        </div>
+    </template>
+    
+    <lightning-button 
+        label={labels.commonNew}
+        title={labels.commonNew}
+        icon-name="utility:add"
+        icon-position="right"
+        class="slds-m-top_medium slds-float_right"
+        onclick={handleAddCondition}>
+    </lightning-button>
+</template>

@@ -1,0 +1,118 @@
+<template>
+    <div class="slds-grid">
+        <div class="slds-size_2-of-2" style="display: inline-block; min-width: 100%;">
+            <div class="custom-table">
+            <table aria-multiselectable="true"
+                   class="slds-table slds-table_edit slds-tree slds-table_tree slds-no-row-hover table-border-collapse"
+                   role="treegrid">
+                <thead>
+                <tr>
+                    <template for:each={_headers} for:item="header">
+                        <th class={header.class} key={header.key}>
+                            <div class="slds-text-align_right slds-p-right_medium">
+                                <span title={header.label}>&nbsp;{header.label}</span>
+                            </div>
+                            <template if:true={header.header2}>
+                                <div class="slds-text-align_right slds-p-right_medium normal-font">
+                                    <span title={header.label}>&nbsp;{header.label2}</span>
+                                </div>
+                            </template>
+                        </th>
+                    </template>
+                </tr>
+
+                </thead>
+                <tbody>
+                <template for:each={_items} for:item="item">
+                    <template if:false={item.hidden}>
+                        <tr key={item.id}
+                            aria-expanded={item.child}
+                            aria-level={item.innerLevel}
+                            class={item.class}
+                            data-row-key={item.id}
+                            data-row-level={item.level}>
+                            <template for:each={item.values} for:item="itemValue">
+                                <template if:true={itemValue.header}>
+                                    <template if:false={item.child}>
+                                        <th class={item.headerClass} data-label={itemValue.value} key={itemValue.key} >
+                                            <div class="slds-truncate" title={itemValue.value}>
+                                                <lightning-button
+                                                  variant="base"
+                                                  title={itemValue.value}
+                                                  data-id={item.id}
+                                                  icon-name="utility:right"
+                                                  icon-position="left"
+                                                  class="custom-button"
+                                                  onclick={handleSelectCategory}>
+                                                </lightning-button>
+                                                <span class={item.valueClass}>&nbsp;{itemValue.value}</span>
+                                            </div>
+                                        </th>
+                                    </template>
+                                    <template if:true={item.child}>
+                                        <th class={item.headerClass} data-label={itemValue.value} key={itemValue.key} >
+                                            <div class="slds-p-top_xx-small slds-truncate" title={itemValue.value}>
+                                                <span class={item.valueClass}>&nbsp;{itemValue.value}</span>
+                                            </div>
+                                        </th>
+                                    </template>
+                                </template>
+                                <template if:false={itemValue.header}>
+                                    <td role="gridcell" class={itemValue.class} key={itemValue.secondKey}>
+                                        &nbsp;<c-fin-reporter-view-data-cell value={itemValue}></c-fin-reporter-view-data-cell>
+                                    </td>
+                                </template>
+                            </template>
+                        </tr>
+                    </template>
+
+                    <template if:true={item.hidden}>
+                        <tr key={item.id}
+                            aria-expanded={item.child}
+                            aria-level={item.innerLevel}
+                            class={item.class}
+                            style="display: none"
+                            data-row-key={item.id}
+                            data-row-level={item.level}>
+                            <template for:each={item.values} for:item="itemValue">
+                                <template if:true={itemValue.header}>
+                                    <template if:false={item.child}>
+                                        <th class={item.headerClass} data-label={itemValue.value} key={itemValue.key} >
+                                            <div class="slds-truncate" title={itemValue.value}>
+                                              <lightning-button
+                                                variant="base"
+                                                title={itemValue.value}
+                                                data-id={item.id}
+                                                icon-name="utility:right"
+                                                icon-position="left"
+                                                class="custom-button"
+                                                onclick={handleSelectCategory}>
+                                              </lightning-button>
+                                                <span class={item.valueClass}>&nbsp;{itemValue.value}</span>
+                                            </div>
+                                        </th>
+                                    </template>
+                                    <template if:true={item.child}>
+                                        <th class={item.headerClass} data-label={itemValue.value} key={itemValue.key} >
+                                            <div class="slds-p-top_xx-small slds-truncate" title={itemValue.value}>
+                                                <span class={item.valueClass}>&nbsp;{itemValue.value}</span>
+                                            </div>
+                                        </th>
+                                    </template>
+                                </template>
+                                <template if:false={itemValue.header}>
+                                    <td role="gridcell" class={itemValue.class} key={itemValue.secondKey}>
+                                        &nbsp;<c-fin-reporter-view-data-cell value={itemValue}></c-fin-reporter-view-data-cell>
+                                    </td>
+                                </template>
+                            </template>
+                        </tr>
+                    </template>
+                </template>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+
+</template>

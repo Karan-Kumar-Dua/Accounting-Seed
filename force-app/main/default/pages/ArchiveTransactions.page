@@ -1,0 +1,29 @@
+<apex:page id="ArchiveTransactions" title="{!$Label.AcctSeed__COMMON_ARCHIVE + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" standardController="Accounting_Period__c" extensions="ArchiveTransactionsController">
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/archive-transactions.js')}" loadOnReady="true" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, 'javascript/vex.combined.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, 'css/vex.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, 'css/vex-theme-default.css')}" />
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Accounting_Period__c.label}" subtitle="{!Accounting_Period__c.Name}" />
+        <apex:pageBlock title="{!$Label.AcctSeed__COMMON_ARCHIVE_TRANSACTIONS}">
+            <apex:pageMessage severity="info" strength="3" summary="{!$Label.AcctSeed__INF_ACCT_SEED_FIN_SUITE_ARCHIVE_PROCESS}" escape="false"/>
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons >
+                <apex:actionFunction name="doArchive" action="{!doArchiving}"/>
+                <apex:actionStatus id="processingStatus"
+                                   onStart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')"
+                                   onStop="AcctSeed.ASModule.hideSpinner();"/>
+                <apex:commandButton rendered="{!!isError}"
+                        value="{!$Label.AcctSeed__COMMON_ARCHIVE}"
+                        status="processingStatus"
+                        reRender="theForm"
+                        onclick="AcctSeed.ASModule.doArchiveConfirm({WRN_ARCHIEVE_TRANSACTIONS: '{!HTMLENCODE(JSENCODE($Label.AcctSeed__WRN_ARCHIEVE_TRANSACTIONS))}'})"/>
+                <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form>
+
+</apex:page>

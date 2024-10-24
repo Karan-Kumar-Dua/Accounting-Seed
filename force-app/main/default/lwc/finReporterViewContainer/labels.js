@@ -1,0 +1,5 @@
+import ERR_FIN_REPORT_NO_NON_ZERO_ROWS from '@salesforce/label/c.ERR_FIN_REPORT_NO_NON_ZERO_ROWS';
+
+export default {
+    ERR_FIN_REPORT_NO_NON_ZERO_ROWS: ERR_FIN_REPORT_NO_NON_ZERO_ROWS
+}

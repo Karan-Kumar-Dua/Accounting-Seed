@@ -1,0 +1,37 @@
+<template>
+    <template if:false={editMode}>
+        <c-formatted-currency
+            currency-value={value}
+            currency-iso-code={currencyCode}
+            is-multi-currency-organization={isMultiCurrencyEnabled}
+            value-style={valueStyle}
+            value-parentheses={valueParentheses}
+            hide-iso-code={valueHideIsoCode}>
+        </c-formatted-currency>
+    </template>
+    <template if:true={editMode}>
+        <template if:true={disabled}>
+            <lightning-input type="number" value={value} variant="label-hidden" disabled></lightning-input>
+        </template>
+        <template if:false={disabled}>
+            <lightning-layout>
+                <lightning-layout-item>
+                    <abbr if:true={required} class="slds-required" title={labels.commonRequired}>*</abbr>
+                </lightning-layout-item>
+                <lightning-layout-item>
+                    <lightning-input
+                        class="input-field" 
+                        type="number" 
+                        value={value} 
+                        variant="label-hidden"
+                        step={step}
+                        onblur={handleBlur}
+                        message-when-step-mismatch={labels.ERR_ONLY_2_FRACTIONAL_DIGITS}
+                        onchange={handleChange}
+                        onfocus={handleFocus}>
+                    </lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+        </template>
+    </template>
+</template>

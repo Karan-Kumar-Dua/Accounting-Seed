@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Account_Payable_Terms_Positive_Value</fullName>
+    <active>true</active>
+    <description>The payable terms field must be a positive value.</description>
+    <errorConditionFormula>Account_Payable_Terms__c &lt; 0</errorConditionFormula>
+    <errorDisplayField>Account_Payable_Terms__c</errorDisplayField>
+    <errorMessage>The payable terms field must be a positive number.</errorMessage>
+</ValidationRule>

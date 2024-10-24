@@ -1,0 +1,11 @@
+:host {
+  --lwc-brandTextLink: black;
+}
+
+.negative-link {
+  --lwc-brandTextLink: red;
+}
+
+.negative {
+  color: red;
+}

@@ -1,0 +1,119 @@
+<apex:page id="EmailFileSelector" controller="EmailFileSelectorController" title="{!$Label.AcctSeed__INF_FILE_SELECT +' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" showHeader="false" sideBar="false">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.dataTables.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/email-file-selector.js')}" loadOnReady="true"/>
+
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/jquery.dataTables.min.css')}" />
+
+    <apex:pageBlock >
+        <apex:pageMessages />
+        <apex:pageBlockSection title="" collapsible="false" columns="1">
+            <apex:pageBlockSectionItem >
+                <apex:form >
+                    <apex:outputLabel value="{!$Label.AcctSeed__INF_FILE_LOCATION}" for="fileLocationPicklist" style="font-weight:bold;margin-right:20px;"/>
+                    <apex:actionRegion >
+                        <apex:selectList id="fileLocationPicklist" value="{!selectedFileLocation}" multiSelect="false" size="1">
+                            <apex:selectOptions value="{!fileLocationOptions}"/>
+                            <apex:actionSupport event="onchange"
+                                                action="{!queryFiles}"
+                                                rerender="workspace,attachments"
+                                                onComplete="AcctSeed.ASModule.formatTable();"/>
+                        </apex:selectList>
+                    </apex:actionRegion>
+                </apex:form>
+            </apex:pageBlockSectionItem>
+        </apex:pageBlockSection>
+        <apex:pageBlockSection title="" collapsible="false" columns="1" id="workspace">
+            <apex:pageMessage severity="info" strength="2" summary="{!$Label.AcctSeed__INF_FILE_LESS_THAN_10_MB}" rendered="{!IF(selectedFileLocation == 'entity', true, false)}"/>
+            <apex:pageBlockSectionItem rendered="{!IF(selectedFileLocation == 'entity', true, false)}">
+                <apex:dataTable id="fileTable" value="{!sfFiles}" var="file" styleClass="display">
+                    <apex:column headerValue="{!$Label.AcctSeed__INF_FILE_NAME}">
+                        <apex:outputLink value="#"
+                                         onclick="AcctSeed.ASModule.passSalesforceFileToParent('{!JSENCODE(file.id)}', '{!JSENCODE(file.Title)}', '{!JSENCODE(TEXT(file.ContentSize))}', true, '{!JSENCODE(statementMode)}')">
+                            {!file.Title}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column headerValue="{!$Label.AcctSeed__INF_FILE_TYPE}">
+                        <apex:outputField value="{!file.FileType}"/>
+                    </apex:column>
+                    <apex:column headerValue="{!$Label.AcctSeed__INF_FILE_SIZE}">
+                        <apex:outputField value="{!file.ContentSize}"/>
+                    </apex:column>
+                </apex:dataTable>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem rendered="{!IF(selectedFileLocation == 'local', true, false)}">
+                <apex:outputPanel >
+                    <apex:form >
+                        <table>
+                            <tr>
+                                <th>1. {!$Label.AcctSeed__INF_SELECT_THE_FILE}</th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <small>{!$Label.AcctSeed__INF_TYPE_PATH_FILE_BROWSE}</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <apex:inputFile value="{!stubFile.VersionData}" filename="{!stubFile.Title}" fileSize="{!stubFile.ContentSize}"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    2.	{!$Label.AcctSeed__INF_CLICK_ATTATCH_BUTTON}
+                                </th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <small>{!$Label.AcctSeed__INF_REPEAT_STEPS_ATTACH_MULTIPLE_FILES}<br/>
+                                        {!$Label.AcctSeed__INF_FILE_UPLOAD_COMPLETE_ATTACHMENT_LIST}</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <apex:commandButton value="{!$Label.AcctSeed__COMMON_ATTACH}" action="{!attach}"/>
+                                    <apex:outputPanel layout="block" styleClass="errorMsg" rendered="{!isFileSizeLimitExceeded}">
+                                        <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!fileSizeLimitErrorMessage}
+                                    </apex:outputPanel>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    3.	{!$Label.AcctSeed__INF_CLICK_DONE_TO_PROCEED_PREVIOUS}
+                                </th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <small>{!$Label.AcctSeed__INF_CANCEL_PROGRESS_UPLOAD}</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <apex:commandButton value="{!$Label.AcctSeed__COMMON_DONE}" onClick="AcctSeed.ASModule.passNewFilesToParent('{!JSENCODE(serializedNewFiles)}', '{!JSENCODE(statementMode)}');"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </apex:form>
+                </apex:outputPanel>
+            </apex:pageBlockSectionItem>
+        </apex:pageBlockSection>
+
+    </apex:pageBlock>
+    <apex:outputPanel id="attachments">
+        <apex:pageBlock title="{!$Label.AcctSeed__COMMON_ATTACHMENTS}" rendered="{!ShowAttachments && selectedFileLocation == 'local'}">
+            <apex:pageBlockSection columns="1">
+                <apex:pageBlockSectionItem >
+                    <apex:pageBlockTable value="{!newFiles}" var="newFile" columnsWidth="80%,20%">
+                        <apex:column headerValue="{!$Label.AcctSeed__INF_FILE_NAME}">
+                            <apex:outputText value="{!newFile.fileName}"/>
+                        </apex:column>
+                        <apex:column headerValue="{!$Label.AcctSeed__INF_FILE_SIZE}">
+                            <apex:outputText styleClass="uploadedFileSize" value="{!newFile.fileSize}" style="white-space: nowrap;"/>
+                        </apex:column>
+                    </apex:pageBlockTable>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:outputPanel>
+</apex:page>

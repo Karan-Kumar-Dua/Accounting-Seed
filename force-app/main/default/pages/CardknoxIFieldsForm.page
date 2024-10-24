@@ -1,0 +1,177 @@
+<apex:page controller="CardknoxIFieldsFormController">
+    <apex:includeScript value="{!$Resource.IFields}" />
+    <html>
+    <style>
+        body {
+            margin: 10px;
+            align-items: center;
+        }
+
+        iframe {
+            border: 0 solid black;
+            width: 600px;
+            height: 45px;
+            padding: 0px;
+            margin-bottom: 5px;
+        }
+
+        input {
+            border: 1px solid black;
+            border-radius: 5px;
+            font-size: 14px;
+            padding: 3px;
+            width: 350px;
+            height: 30px;
+            margin-bottom: 15px;
+        }
+
+        #card-data-error {
+            color: red;
+        }
+
+        form {
+            width: 500px;
+        }
+
+        #submit-btn,
+        #clear-btn {
+            background-color: #3f143e;
+            color: #FFF;
+            width: 357px;
+        }
+
+        .results {
+            background-color: #e8e8e8;
+            padding: 20px;
+            width: 360px;
+        }
+
+        #ach-token,
+        #card-token,
+        #cvv-token {
+            word-break: break-all;
+            font-weight: 600;
+        }
+    </style>
+
+    <head>
+        <script>
+            document.addEventListener("DOMContentLoaded", function (event) {
+                let defaultStyle = {
+                    border: '1px solid black',
+                    'font-size': '14px',
+                    padding: '3px',
+                    width: '350px',
+                    height: '30px',
+                    borderRadius: '5px'
+                };
+
+                let validStyle = {
+                    border: '1px solid green',
+                    'font-size': '14px',
+                    padding: '3px',
+                    width: '350px',
+                    height: '30px'
+                };
+
+                let invalidStyle = {
+                    border: '1px solid red',
+                    'font-size': '14px',
+                    padding: '3px',
+                    width: '350px',
+                    height: '30px'
+                };
+
+                setIfieldStyle('ach', defaultStyle);
+                setIfieldStyle('card-number', defaultStyle);
+                setIfieldStyle('cvv', defaultStyle);
+
+                setAccount("ifields_accounseeddevb45d3f99ffb2415cb33c4ced", "AcctSeed", "1.0.0");
+
+                let checkCardLoaded = setInterval(function () {
+                    clearInterval(checkCardLoaded);
+                    focusIfield('card-number');
+                }, 1000);
+
+                document.getElementById('clear-btn').addEventListener('click', function (e) {
+                    e.preventDefault();
+                    clearIfield('card-number');
+                    clearIfield('cvv');
+                    clearIfield('ach');
+                });
+
+                document.getElementById('payment-form').addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    document.getElementById('transaction-status').innerHTML = 'Processing Transaction...';
+                    let submitBtn = this;
+                    submitBtn.disabled = true;
+                    getTokens(function () {
+                        let card = document.querySelector("[data-ifields-id='card-number-token']").value;
+                        let cvv = document.querySelector("[data-ifields-id='cvv-token']").value;
+                        let expM = document.getElementById('month').innerHTML;
+                        let expY = document.getElementById('year').innerHTML;
+
+                        document.getElementById('transaction-status').innerHTML = '';
+                        document.getElementById('card-token').innerHTML = card;
+                        document.getElementById('cvv-token').innerHTML = cvv;
+                        passToController(card, expM, expY);
+                        submitBtn.disabled = false;
+                    },
+                        function () {
+                            document.getElementById('transaction-status').innerHTML = '';
+                            document.getElementById('card-token').innerHTML = '';
+                            document.getElementById('cvv-token').innerHTML = '';
+                            submitBtn.disabled = false;
+                        },
+                        30000
+                    );
+                });
+            });
+        </script>
+    </head>
+
+    <body>
+        <form id="payment-form" method="POST">
+            <input id="name" name="xName" placeholder="{!$Label.COMMON_NAME}" autocomplete="cc-name"></input>
+            <br />
+            <iframe data-ifields-id="card-number" data-ifields-placeholder="{!$Label.COMMON_CARD_NUMBER}" src="https://cdn.cardknox.com/ifields/2.2.1804.2501/ifield.htm"></iframe>
+            <input data-ifields-id="card-number-token" name="xCardNum" type="hidden"></input>
+            <br />
+            <iframe data-ifields-id="cvv" data-ifields-placeholder="{!$Label.COMMON_CVV}" src="https://cdn.cardknox.com/ifields/2.2.1804.2501/ifield.htm"></iframe>
+            <input data-ifields-id="cvv-token" name="xCVV" type="hidden"></input>
+            <br />
+            <input data-ifields-id="month" name="xMonth" placeholder="{!$Label.COMMON_MONTH}" autocomplete="cc-exp-month"></input>
+            <br />
+            <input data-ifields-id="year" name="xYear" placeholder="{!$Label.COMMON_YEAR}" autocomplete="cc-exp-year"></input>
+            <br />
+            <input id="submit-btn" type="submit" value="{!$Label.COMMON_SUBMIT}"></input>
+            <br />
+            <input id="clear-btn" type="button" value="{!$Label.COMMON_CLEAR}"></input>
+            <br />
+            <label id="transaction-status"></label>
+            <br />
+            <label data-ifields-id="card-data-error"></label>
+            <br />
+            <div class="results">
+                <label>{!$Label.COMMON_CARD_TOKEN}</label>
+                <label id="card-token"></label>
+                <br />
+                <label>{!$Label.COMMON_CVV_TOKEN}</label>
+                <label id="cvv-token"></label>
+            </div>
+            <br />
+            <br />
+        </form>
+
+    </body>
+
+    </html>
+    <apex:form >
+        <apex:actionFunction action="{!testinput}" name="passToController" rerender="test">
+            <apex:param value="" name="inpval1" />
+            <apex:param value="" name="inpval2" />
+            <apex:param value="" name="inpval3" />
+        </apex:actionFunction>
+        <br/>
+    </apex:form>
+</apex:page>

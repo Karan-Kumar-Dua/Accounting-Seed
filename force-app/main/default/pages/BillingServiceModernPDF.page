@@ -1,0 +1,440 @@
+<apex:page standardController="Billing__c"
+           title="{!Billing__c.Name & ' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}"
+           extensions="BillingPDFControllerExt"
+           applyBodyTag="false"
+           renderAs="pdf"
+           readOnly="true">
+
+    <head>
+        <style type="text/css" media="print">
+            @page:first {
+                @top-right {
+                    content: element(headerFirst);
+                }
+                @bottom-left {
+                    content: element(footer);
+                }
+                margin-top:100px;
+            }
+            @page {
+                @top-right {
+                    content: element(header);
+                }
+                @bottom-left {
+                    content: element(footer);
+                }
+                margin-top:200px;
+            }
+            div.headerFirst {
+                position: running(headerFirst);
+            }
+            div.header {
+                position: running(header);
+                margin-bottom: -55px;
+            }
+            div.content {
+                position: relative;
+            }
+            div.footer {
+                display: block;
+                padding: 5px;
+                position: running(footer);
+            }
+            .pagenumber:before {
+                content: counter(page);
+            }
+            .pagecount:before {
+                content: counter(pages);
+            }
+            body {
+                font-family: "Arial""Sans-Serif";
+                font-size: 12px;
+                margin: 0px;
+            }
+            .tableHeader {
+                font-weight: bold;
+                height: 20px;
+                padding: 6px;
+                vertical-align: top;
+                color: #002b66;
+                border-top: 3px solid #000;
+            }
+            .columnHeader {
+                text-align: right;
+            }
+            .tableRow {
+                border-bottom: 1px solid #002b66;
+                padding: 6px;
+                vertical-align:text-top;
+            }
+            .topLine {
+                border-top: 1px solid #002b66;
+            }
+            .tableRowAmount {
+                background-color: #002b66;
+                color: white;
+            }
+            .tableRowAdress {
+                color: #002b66;
+            }
+            .alignRight {
+                text-align: right
+            }
+            .overflowHidden {
+                width:100%;
+                overflow:hidden;
+            }
+        </style>
+    </head>
+
+    <body>
+    <div class="headerFirst">
+        <table style="width:100%">
+            <tr>
+                <td style="vertical-align:top;text-align:right">
+                    <apex:outputField value="{!Billing__c.Billing_Format__r.Image__c}" rendered="{!!ISBLANK(Billing__c.Billing_Format__r.Image__c)}" />
+                </td>
+                <td style="width:350px;">&nbsp;
+                </td>
+                <td style="vertical-align:top;text-align:right">
+                    <table style="width:300px;border-collapse:collapse;">
+                        <tr>
+                            <td>
+                                <apex:outputText value="{!IF(ISBLANK(Billing__c.Billing_Format__r.Company_Name__c),$Organization.Name,Billing__c.Billing_Format__r.Company_Name__c)}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <apex:outputField value="{!Billing__c.Billing_Format__r.Company_Street2__c}" rendered="{!!ISBLANK(Billing__c.Billing_Format__r.Company_Street2__c)}" />
+                                <apex:outputText value="{!$Organization.Street}" rendered="{!ISBLANK(Billing__c.Billing_Format__r.Company_Street2__c)}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <apex:outputText value="{!IF(ISBLANK(Billing__c.Billing_Format__r.Company_City__c),$Organization.City, Billing__c.Billing_Format__r.Company_City__c) & IF(ISBLANK(Billing__c.Billing_Format__r.Company_City__c) && ISBLANK($Organization.City),'',', ') & IF(ISBLANK(Billing__c.Billing_Format__r.Company_State__c),$Organization.State,Billing__c.Billing_Format__r.Company_State__c) & ' ' & IF(ISBLANK(Billing__c.Billing_Format__r.Company_PostalCode__c),$Organization.PostalCode,Billing__c.Billing_Format__r.Company_PostalCode__c)}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <apex:outputText value="{!IF(ISBLANK(Billing__c.Billing_Format__r.Company_Country__c),$Organization.Country,Billing__c.Billing_Format__r.Company_Country__c)}" rendered="{!!ISBLANK(Billing__c.Billing_Format__r.Company_Country__c) || !!ISBLANK($Organization.Country)}" />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="header">
+        <table style="width:100%">
+            <tr>
+                <td style="vertical-align:top;text-align:right;">
+                    <apex:outputField value="{!Billing__c.Billing_Format__r.Image__c}" rendered="{!!ISBLANK(Billing__c.Billing_Format__r.Image__c)}" />
+                </td>
+                <td style="width:350px;">&nbsp;
+                </td>
+                <td style="text-align:right">
+                    <table style="width:300px;border-collapse:collapse;margin-bottom:25px">
+                        <tr>
+                            <td>
+                                <apex:outputText value="{!IF(ISBLANK(Billing__c.Billing_Format__r.Company_Name__c),$Organization.Name,Billing__c.Billing_Format__r.Company_Name__c)}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <apex:outputField value="{!Billing__c.Billing_Format__r.Company_Street2__c}" rendered="{!!ISBLANK(Billing__c.Billing_Format__r.Company_Street2__c)}" />
+                                <apex:outputText value="{!$Organization.Street}" rendered="{!ISBLANK(Billing__c.Billing_Format__r.Company_Street2__c)}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <apex:outputText value="{!IF(ISBLANK(Billing__c.Billing_Format__r.Company_City__c),$Organization.City, Billing__c.Billing_Format__r.Company_City__c) & IF(ISBLANK(Billing__c.Billing_Format__r.Company_City__c) && ISBLANK($Organization.City),'',', ') & IF(ISBLANK(Billing__c.Billing_Format__r.Company_State__c),$Organization.State,Billing__c.Billing_Format__r.Company_State__c) & ' ' & IF(ISBLANK(Billing__c.Billing_Format__r.Company_PostalCode__c),$Organization.PostalCode,Billing__c.Billing_Format__r.Company_PostalCode__c)}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <apex:outputText value="{!IF(ISBLANK(Billing__c.Billing_Format__r.Company_Country__c),$Organization.Country,Billing__c.Billing_Format__r.Company_Country__c)}" rendered="{!!ISBLANK(Billing__c.Billing_Format__r.Company_Country__c) || !!ISBLANK($Organization.Country)}" />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <table style="width:100%;border-collapse:collapse">
+            <colgroup span="8"></colgroup>
+            <thead class="rich-table-thead">
+            <tr>
+                <th class="tableHeader" style="width:90px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Date__c.Label}" />
+                </th>
+                <th class="tableHeader" style="width:90px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Employee__c.Label}" />
+                </th>
+                <th class="tableHeader" style="width:70px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Project__c.Label}" />
+                </th>
+                <th class="tableHeader" style="width:120px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Project_Task__c.Label}" />
+                </th>
+                <th class="tableHeader" style="width:120px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Comment__c.Label}" />
+                </th>
+                <th class="tableHeader columnHeader" style="width:80px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Hours_Units__c.Label}" />
+                </th>
+                <th class="tableHeader columnHeader" style="width:80px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Rate__c.Label}" />
+                </th>
+                <th class="tableHeader columnHeader" style="width:80px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Total__c.Label}" />
+                </th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+    <div class="footer">
+        <div>{!$Label.COMMON_PAGE}&nbsp;<span class="pagenumber" />&nbsp;{!$Label.COMMON_OF}&nbsp;<span class="pagecount" />
+        </div>
+    </div>
+    <div class="content">
+        <table style="width:100%;border-collapse:collapse;margin-top:25px;margin-bottom:25px;">
+            <tr>
+                <td style="width:50%;vertical-align:top">
+                    <table style="width:350px;border-collapse:collapse;">
+                        <tr class="tableRowAdress">
+                            <td style="padding:6px; border-top: 3px solid #000;">
+                                <apex:outputText style="font-weight:bold" value="{!$Label.AcctSeed__COMMON_CAPS_BILL_TO+':'}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top:6px">
+                                <apex:outputField value="{!Billing__c.Customer__r.Name}"
+                                                  rendered="{!ISBLANK(Billing__c.Customer__r.Alternate_Payee_Name__c)}"/>
+                                <apex:outputField value="{!Billing__c.Customer__r.Alternate_Payee_Name__c}"
+                                                  rendered="{!NOT(ISBLANK(Billing__c.Customer__r.Alternate_Payee_Name__c))}"/>
+                            </td>
+                        </tr>
+                        <tr style="display:{!IF(ISBLANK(Billing__c.Billing_Contact__c) && ISBLANK(Billing__c.Customer__r.Billing_Contact__c),'none','')}">
+                            <td>
+                                <apex:outputText value="{!Billing__c.Billing_Contact__r.Name}" rendered="{!!ISBLANK(Billing__c.Billing_Contact__c)}"/>
+                                <apex:outputText value="{!Billing__c.Customer__r.Billing_Contact__r.Name}" rendered="{!!ISBLANK(Billing__c.Customer__r.Billing_Contact__c) && ISBLANK(Billing__c.Billing_Contact__c)}"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <apex:outputField value="{!Billing__c.Billing_Street__c}" rendered="{!!ISBLANK(Billing__c.Billing_Street__c)}" />
+                                <apex:outputField value="{!Billing__c.Customer__r.BillingStreet}" rendered="{!ISBLANK(Billing__c.Billing_Street__c)}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <apex:outputField value="{!Billing__c.Billing_City__c}" rendered="{!!ISBLANK(Billing__c.Billing_City__c)}" />
+                                <apex:outputField value="{!Billing__c.Customer__r.BillingCity}" rendered="{!ISBLANK(Billing__c.Billing_City__c)}" />
+                                <apex:outputText value=",&nbsp;" escape="false" rendered="{!!ISBLANK(Billing__c.Billing_City__c) || !ISBLANK(Billing__c.Customer__r.BillingCity)}" />
+                                <apex:outputField value="{!Billing__c.Billing_State__c}" rendered="{!!ISBLANK(Billing__c.Billing_State__c)}" />
+                                <apex:outputField value="{!Billing__c.Customer__r.BillingState}" rendered="{!ISBLANK(Billing__c.Billing_State__c)}" />&nbsp;
+                                <apex:outputField value="{!Billing__c.Billing_PostalCode__c}" rendered="{!!ISBLANK(Billing__c.Billing_PostalCode__c)}" />
+                                <apex:outputField value="{!Billing__c.Customer__r.BillingPostalCode}" rendered="{!ISBLANK(Billing__c.Billing_PostalCode__c)}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-bottom:10px">
+                                <apex:outputField value="{!Billing__c.Billing_Country__c}" rendered="{!!ISBLANK(Billing__c.Billing_Country__c)}" />
+                                <apex:outputField value="{!Billing__c.Customer__r.BillingCountry}" rendered="{!ISBLANK(Billing__c.Billing_Country__c)}" />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td valign="top">
+                    <table style="width:350px;border-collapse:collapse;float:right;">
+                        <tr>
+                            <td class="topLine" ></td>
+                            <td class="topLine" ></td>
+                        </tr>
+                        <tr>
+                            <td class="tableRow" style="padding:6px">
+                                <apex:outputText value="{!$Label.AcctSeed__COMMON_BILLING_NUMBER}" />
+                            </td>
+                            <td class="tableRow" style="text-align:right;padding:6px">
+                                <apex:outputField value="{!Billing__c.Name}" rendered="{!ISBLANK(Billing__c.Proprietary_Billing_Number__c)}" />
+                                <apex:outputField value="{!Billing__c.Proprietary_Billing_Number__c}" rendered="{!!ISBLANK(Billing__c.Proprietary_Billing_Number__c)}" />
+                            </td>
+                        </tr>
+                        <tr style="display:{!IF(ISBLANK(Billing__c.PO_Number__c), 'none', 'table-row')}">
+                            <td class="tableRow" style="padding:6px">
+                                <apex:outputText value="{!$Label.AcctSeed__COMMON_PO_NUMBER}" />
+                            </td>
+                            <td class="tableRow" style="text-align:right;padding:6px">
+                                <apex:outputText value="{!IF(LEN(Billing__c.PO_Number__c) > 50, LEFT(Billing__c.PO_Number__c, 49) + '<br>' + RIGHT(Billing__c.PO_Number__c, LEN(Billing__c.PO_Number__c) - 49), Billing__c.PO_Number__c)}" rendered="{!!ISBLANK(Billing__c.PO_Number__c)}" escape="false"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="tableRow" style="padding:6px">
+                                <apex:outputText value="{!$Label.AcctSeed__COMMON_BILLING_DATE}" />
+                            </td>
+                            <td class="tableRow" style="text-align:right;padding:6px">
+                                <apex:outputField value="{!Billing__c.Date__c}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="tableRow" style="padding:6px">
+                                <apex:outputText value="{!$Label.AcctSeed__INF_BILLING_DUE_DATE}" />
+                            </td>
+                            <td class="tableRow" style="text-align:right;padding:6px">
+                                <apex:outputField value="{!Billing__c.Due_Date2__c}" />
+                            </td>
+                        </tr>
+                        <tr style="display:{!IF(ISBLANK(Billing__c.Billing_Terms_Name__c),'none','')};">
+                            <td class="tableRow" style="padding:6px">
+                                <apex:outputText value="{!$Label.AcctSeed__COMMON_BILLING_TERMS}" />
+                            </td>
+                            <td class="tableRow" style="text-align:right;padding:6px">
+                                <apex:outputField value="{!Billing__c.Billing_Terms_Name__c}" />
+                            </td>
+                        </tr>
+                        <tr class="tableRowAmount">
+                            <td style="padding:6px"><span style="font-weight:bold"><apex:outputText value="{!$Label.AcctSeed__COMMON_AMOUNT_DUE}"/></span>
+                            </td>
+                            <td style="text-align:right;padding:6px">
+                                    <span style="font-weight:bold">
+                                        <apex:outputField value="{!Billing__c.Balance__c}" rendered="{!!isCurrencyFormat}"/>
+                                        <apex:outputText value="{!CurrencyFormat}" rendered="{!isCurrencyFormat}">
+                                            <apex:param value="{!Billing__c.Balance__c}"/>
+                                        </apex:outputText>
+                                    </span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <apex:outputPanel layout="block" style="width:100%;margin-top:30px;margin-bottom:30px" rendered="{!!ISBLANK(Billing__c.Billing_Comment__c)}">
+            <apex:outputText value="{!Billing__c.Billing_Comment__c}" />
+        </apex:outputPanel>
+        <table style="width:100%;border-collapse:collapse;">
+            <colgroup span="8"></colgroup>
+            <thead class="rich-table-thead">
+            <tr>
+                <th class="tableHeader" style="width:60px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Date__c.Label}" />
+                </th>
+                <th class="tableHeader" style="width:70px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Employee__c.Label}" />
+                </th>
+                <th class="tableHeader" style="width:70px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Project__c.Label}" />
+                </th>
+                <th class="tableHeader" style="width:70px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Project_Task__c.Label}" />
+                </th>
+                <th class="tableHeader" style="width:80px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Comment__c.Label}" />
+                </th>
+                <th class="tableHeader columnHeader" style="width:80px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Hours_Units__c.Label}" />
+                </th>
+                <th class="tableHeader columnHeader" style="width:90px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Rate__c.Label}" />
+                </th>
+                <th class="tableHeader columnHeader" style="width:80px">
+                    <apex:outputText value="{!$ObjectType.Billing_Line__c.Fields.Total__c.Label}" />
+                </th>
+            </tr>
+            </thead>
+        </table>
+        <table style="width:100%;border-collapse:collapse;">
+            <apex:repeat value="{!billLines}" var="item">
+                <tr>
+                    <td class="tableRow" style="width:60px">
+                        <div class="overflowHidden">
+                            <apex:outputField value="{!item.Date__c}" />
+                        </div>
+                    </td>
+                    <td class="tableRow" style="width:70px">
+                        <div class="overflowHidden">
+                            <apex:outputField value="{!item.Employee__r.Name}" />
+                        </div>
+                    </td>
+                    <td class="tableRow" style="width:70px">
+                        <div class="overflowHidden">
+                            <apex:outputField value="{!item.Project__r.Name}" />
+                        </div>
+                    </td>
+                    <td class="tableRow" style="width:70px">
+                        <div class="overflowHidden">
+                            <apex:outputField value="{!item.Project_Task__r.Name}" />
+                        </div>
+                    </td>
+                    <td class="tableRow" style="width:80px">
+                        <div class="overflowHidden">
+                            <apex:outputField value="{!item.Comment__c}" />
+                        </div>
+                    </td>
+                    <td class="tableRow alignRight" style="width:80px">
+                        <div class="overflowHidden">
+                            <apex:outputField value="{!item.Hours_Units__c}" rendered="{!!isNumericFormat}"/>
+                            <apex:outputText value="{!NumericFormat}" rendered="{!isNumericFormat}">
+                                <apex:param value="{!item.Hours_Units__c}"/>
+                            </apex:outputText>
+                        </div>
+                    </td>
+                    <td class="tableRow alignRight" style="width:90px;white-space:nowrap;">
+                        <div class="overflowHidden">
+                            <apex:outputField value="{!item.Rate__c}" rendered="{!!isCurrencyFormat}"/>
+                            <apex:outputText value="{!CurrencyFormat}" rendered="{!isCurrencyFormat}">
+                                <apex:param value="{!item.Rate__c}"/>
+                            </apex:outputText>
+                        </div>
+                    </td>
+                    <td class="tableRow alignRight" style="width:80px">
+                        <div class="overflowHidden">
+                            <apex:outputField value="{!item.Total__c}" rendered="{!!isCurrencyFormat}"/>
+                            <apex:outputText value="{!CurrencyFormat}" rendered="{!isCurrencyFormat}">
+                                <apex:param value="{!item.Total__c}"/>
+                            </apex:outputText>
+                        </div>
+                    </td>
+                </tr>
+            </apex:repeat>
+        </table>
+        <br/>
+        <table style="width:200px;border-collapse:collapse;float:right">
+            <tr>
+                <td style="padding:6px"><span style="font-weight:bold"><apex:outputText value="{!$ObjectType.Billing__c.Fields.Total__c.Label}"/></span>
+                </td>
+                <td style="text-align:right;padding:6px">
+                        <span style="font-weight:bold">
+                            <apex:outputField value="{!Billing__c.Total__c}" rendered="{!!isCurrencyFormat}"/>
+                            <apex:outputText value="{!CurrencyFormat}" rendered="{!isCurrencyFormat}">
+                                <apex:param value="{!Billing__c.Total__c}"/>
+                            </apex:outputText>
+                        </span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding:6px">{!$Label.AcctSeed__COMMON_AMOUNT_PAID}</td>
+                <td style="text-align:right;padding:6px">
+                    <apex:outputField value="{!billBalance.Credit_Memo_Applied_Amount__c}" rendered="{!!isCurrencyFormat}"/>
+                    <apex:outputText value="{!CurrencyFormat}" rendered="{!isCurrencyFormat}">
+                        <apex:param value="{!billBalance.Credit_Memo_Applied_Amount__c}"/>
+                    </apex:outputText>
+                </td>
+            </tr>
+            <tr class="tableRowAmount">
+                <td><span style="font-weight:bold;padding:6px">{!$Label.AcctSeed__COMMON_AMOUNT_DUE}</span>
+                </td>
+                <td style="text-align:right;padding:6px">
+                        <span style="font-weight:bold">
+                            <apex:outputField value="{!Billing__c.Balance__c}" rendered="{!!isCurrencyFormat}"/>
+                            <apex:outputText value="{!CurrencyFormat}" rendered="{!isCurrencyFormat}">
+                                <apex:param value="{!Billing__c.Balance__c}"/>
+                            </apex:outputText>
+                        </span>
+                </td>
+            </tr>
+        </table>
+        <apex:outputPanel layout="block" style="width:100%;margin-top:100px" rendered="{!!ISBLANK(Billing__c.Billing_Format__r.Custom_Footer_Content__c)}">
+            <apex:outputField value="{!Billing__c.Billing_Format__r.Custom_Footer_Content__c}" />
+        </apex:outputPanel>
+    </div>
+    </body>
+</apex:page>

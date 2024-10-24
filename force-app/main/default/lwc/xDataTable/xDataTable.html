@@ -1,0 +1,96 @@
+<!-- X Data Table -->
+<template>
+    <lightning-card title={objectLabel} icon-name={iconName} data-id="datatable-card" class="slds-box cardBorder" >
+        <div slot="actions">
+            <c-x-data-table-buttons 
+                actions={actions}
+                onactionclick={handleActionClick}
+                oncolumnsort={handleColumnSorting}
+                data-id="datatable-action">
+            </c-x-data-table-buttons>
+        </div>
+        <div class="cardBody">
+            <div if:true={globalError} class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                {globalError}
+            </div>
+            <template if:true={renderTable}>
+                <table class="slds-table slds-table_bordered slds-border_left slds-border_right" data-id="datatable-table">                                
+                        <thead data-id="datatable-head">
+                            <template if:true={columns}>
+                                <c-x-data-table-header
+                                    swing-all={swingAll}
+                                    columns={columns} 
+                                    select-all={selectAll}
+                                    row-number-column={rowNumberColumn}
+                                    has-drawer-fields={hasDrawerFields}
+                                    data-id="datatable-header"
+                                    default-sorting={defaultSorting}
+                                    oncolumnsort={handleColumnSorting}
+                                    onselectall={handleSelectAll}
+                                    onswingall={handleSwingAll}>
+                                </c-x-data-table-header>
+                            </template>
+                        </thead>
+                        <tbody data-id="datatable-body">
+                            <template for:each={visibledata} for:item="row">
+                                <c-x-data-table-row child-reference={childReference} 
+                                                    has-drawer-fields={hasDrawerFields} 
+                                                    initial-data={row._row}
+                                                    row-number-column={rowNumberColumn}
+                                                    row-level-action={rowLevelAction}
+                                                    key={row.rowKey} key-field={keyField} 
+                                                    drawer={drawer} columns={columns} row={row} 
+                                                    data-id="datatable-row"
+                                                    onorderchange={handleOrderChange}
+                                                    onmutation={handleMutation} oncellblur={handleCurrencyCellChange}
+                                                    ondelete={handleRecordDelete} onrowaction={handleRowAction}></c-x-data-table-row>
+                                    <template if:true={row._drawer}>
+                                        <c-x-data-table-drawer 
+                                                    child-reference={childReference}
+                                                    initial-data={row._row}
+                                                    col-span={colSpan}
+                                                    key={row.rowKey} key-field={keyField} 
+                                                    drawer={drawer} row={row} 
+                                                    data-id="datatable-drawer"
+                                                    onmutation={handleMutation} oncellblur={handleCurrencyCellChange}></c-x-data-table-drawer>
+
+                                        <template if:true={row._hasSubgrid}>
+                                            <c-x-data-table-subgrid 
+                                                    key={row.rowKey}
+                                                    col-span={colSpan}
+                                                    columns={subGridColumns}
+                                                    key-field={keyField}  
+                                                    sub-grid-actions={subGridActions} 
+                                                    sub-grid-data={row}
+                                                    row={row}
+                                                    child-reference={subquerySobjectName}
+                                                    subquery-relationship-name={subqueryRelationshipName}
+                                                    onsubgridaction={handleSubGridAction}
+                                                    onmutation={handleSubGridMutation}
+                                                    oncellblur={handleSubGridCurrencyCellChange}
+                                                    onselect={handleSubGridSelectAll}></c-x-data-table-subgrid>
+                                        </template>
+                                    </template>                            
+                            </template>
+                        </tbody>
+                    </table>
+            </template>
+        </div>
+        <div slot="footer" class="leftAlign">
+            <template if:true={hasRecordsForPagination}>
+                <c-paginator
+                    total-records={totalNumberOfRecords}
+                    page-size={visibleRows}
+                    has-go-to-page ="true"
+                    onchange={handlePageChange}>
+                </c-paginator>
+            </template>
+        </div>
+    </lightning-card>
+    <c-x-modal-popup action-button-text={okText} data-id="datatable-modal" cancel-button-text={cancelText} template-visible="uploadFile"
+            onmodalcancelclick={handleCloseModal}  onmodalactionclick={handleModalAction} oncreatetemplate={handleCreateTemplate}
+            oncancelcreation={handleCancelCreation} onsaverecord={handleSaveRecord} onmodalaction={handleImportModalAction}
+            onmappingsave={handleMappingSave} onrecordsaved={handleRecordSave} onsavingerror={handleSavingError}  
+            onrefreshsuccess={handleRefreshSuccess}>  
+    </c-x-modal-popup>
+</template>

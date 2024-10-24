@@ -1,0 +1,80 @@
+<apex:page id="thePage" title="{!$Label.AcctSeed__COMMON_MERGE + ' ' + $Label.AcctSeed__COMMON_BILLING +' | ' +$Label.AcctSeed__COMMON_ACCOUNTING_SEED}" standardController="Billing__c" extensions="BillingMerge,EnvironmentUtils" recordSetVar="billings" >
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/javascript/Intl.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/locale-data/jsonp/' & DefaultLocale & '.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/> 
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+        AcctSeed.ASModule.currencyIsoCode = "{!JSENCODE(currencyIsoCode)}";
+    </script>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"/> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/currency-formatter.js')}" loadOnReady="true"/>
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/common.css')}" />
+    <script>
+        function setFocusOnLoad() {}
+    </script>
+    <apex:form id="theForm">
+        <apex:actionFunction name="backAction" action="{!cancel}" immediate="true"/>
+        <apex:sectionHeader title="{!$ObjectType.Billing__c.labelPlural}" subtitle="{!$Label.AcctSeed__COMMON_MERGE}" />   
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__COMMON_MERGE}">
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons id="buttons">
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')" onstop="AcctSeed.ASModule.pageLoad()"/>
+                <apex:commandButton id="saveButton"
+                                    value="{!$Label.AcctSeed__COMMON_MERGE}"
+                                    action="{!mergeBillings}"
+                                    status="saveStatus"
+                                    reRender="theForm"
+                                    rendered="{!NOT(isValidationError) && NOT(isMergerProcessed)}"/>
+                <apex:commandButton id="cancelButton"
+                                    onComplete="AcctSeed.ASModule.customBackToListAction('{!listViewId}', '', '{!SObjectApiName}');"
+                                    value="{!$Label.AcctSeed__COMMON_BACK}"/>
+            </apex:pageBlockButtons>
+
+            <apex:repeat value="{!billingMergeWrapperList}" var="billing" rendered="{!NOT(isValidationError) && NOT(isMergerProcessed)}">
+                <apex:outputPanel >
+                    <span style="font-weight:bold">{!$Label.CUSTOMER}:</span>
+                    &nbsp;{!billing.customer}
+                    <span style="font-weight:bold; padding-left: 15px;">{!$Label.COMMON_LEDGER}:&nbsp;</span>
+                        <apex:outputField value="{!billing.bill.Ledger__c}" />
+                    <div style="float:right;font-weight:bold">{!$Label.COMMON_ACCOUNTING_PERIOD}:&nbsp;
+                        <apex:inputField value="{!billing.bill.Accounting_Period__c}" />
+                    </div>
+                </apex:outputPanel>
+                <apex:pageBlockTable value="{!billing.billLines}" var="billLine">
+                    <apex:column value="{!billLine.Billing__r.Name}"/>
+                    <apex:column value="{!billLine.Name}">
+                        <apex:facet name="footer">
+                            <apex:outputText value="{!billing.billLines.size}"/>
+                        </apex:facet>
+                    </apex:column>
+                    <apex:column value="{!billLine.Date__c}"/> 
+                    <apex:column value="{!billLine.Revenue_GL_Account__c}"/>
+                    <apex:column value="{!billLine.Project__r.Name}">
+                        <apex:facet name="header">
+                            <apex:outputText value="{!$Label.AcctSeed__COMMON_PROJECT_NAME}"/>
+                        </apex:facet>
+                    </apex:column>
+                    <apex:column value="{!billLine.Project_Task__r.Name}">
+                        <apex:facet name="header">
+                            <apex:outputText value="{!$Label.AcctSeed__INF_PROJECT_TASK_NAME}"/>
+                        </apex:facet>
+                    </apex:column>
+                    <apex:column value="{!billLine.Product__r.Name}">  
+                        <apex:facet name="header">
+                            <apex:outputText value="{!$Label.AcctSeed__INF_PRODUCT_NAME}"/>
+                        </apex:facet>
+                    </apex:column>
+                    <apex:column style="text-align:right" value="{!billLine.Total__c}" headerClass="align-right" styleClass="align-right" footerClass="align-right">  
+                        <apex:facet name="footer">
+                            <apex:outputText id="totalAmount" value="{!billing.sum}"/>                              
+                        </apex:facet>
+                    </apex:column>
+                </apex:pageBlockTable>
+                <br/>
+            </apex:repeat>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

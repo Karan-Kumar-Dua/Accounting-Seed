@@ -1,0 +1,37 @@
+<template> 
+    <c-formatted-cmp-label label={labels.commonTotal}>
+        <span class="slds-text-heading_small"><c-formatted-currency 
+            currency-value={_total} 
+            currency-iso-code={currencyCode}
+            is-multi-currency-organization={isMultiCurrencyEnabled}
+            class="total">
+        </c-formatted-currency></span>
+    </c-formatted-cmp-label>
+    <c-formatted-cmp-label label={labels.commonApplied}>
+        <span class="slds-text-heading_small"><c-formatted-currency  
+            currency-value={_applied} 
+            currency-iso-code={currencyCode}
+            is-multi-currency-organization={isMultiCurrencyEnabled}
+            class="applied">
+        </c-formatted-currency ></span>
+    </c-formatted-cmp-label>
+    <template lwc:if={hasConvenienceFee}>
+        <c-formatted-cmp-label label={labels.CONVENIENCE_FEES}>
+            <span class="slds-text-heading_small"><c-formatted-currency 
+                currency-value={_convenienceFee} 
+                currency-iso-code={currencyCode}
+                is-multi-currency-organization={isMultiCurrencyEnabled}
+                class="convenienceFee">
+            </c-formatted-currency></span>
+            <span slot="help-text"><lightning-helptext content={labels.INF_CONVENIENCE_FEES_CHARGED_HELPTEXT}></lightning-helptext></span>
+        </c-formatted-cmp-label>
+    </template>
+    <c-formatted-cmp-label label={labels.commonBalance}>
+        <span class={balanceStyle}><c-formatted-currency  
+            currency-value={balance} 
+            currency-iso-code={currencyCode}
+            is-multi-currency-organization={isMultiCurrencyEnabled}
+            class="balance">
+        </c-formatted-currency></span>
+    </c-formatted-cmp-label>
+</template>

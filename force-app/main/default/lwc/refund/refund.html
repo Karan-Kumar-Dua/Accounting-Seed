@@ -1,0 +1,36 @@
+<template>
+    <div if:false={errors}>
+        <c-receipt-refund
+            title={refundTitle}
+            error-object-label={objectLabel}
+            object-name={objectName}
+            amount-title={refundAmountTitle}
+            amount-help={refundAmountHelp}
+            amount-value={refundAmountValue}
+            date-title={refundDateTitle}
+            date-help={refundDateHelp}
+            date-value={refundDateValue}
+            bank-account={refundBankAccount}
+            bank-account-value={refundBankAccountValue}
+            bank-account-search-object={refundBankAccountSearchObject}
+            bank-account-search-display-field={refundBankAccountSearchDisplayField}
+            bank-account-search-filter={refundBankAccountSearchFilter}
+            payment-type={refundPaymentType}
+            payment-reference={refundPaymentReference}
+            payment-reference-value={refundPaymentReferenceValue}
+            memo={refundMemo}
+            record={refundRecord}
+            record-id={recordId}
+            payment-type-options={paymentTypeOptions}
+            payment-type-value={paymentTypeValue}    
+            user-permission-enabled={userPermitted}
+            confirm-button-disabled={confirmDisabled}
+            error-message-info={errorMessage}
+            show-the-spinner={showSpinner}
+            oncancel={handleCancelClick}
+            onconfirm={handleConfirmClick}
+            knowledge-article-link={knowledgeArticleLink}
+            data-id="cReceiptRefund">
+        </c-receipt-refund>
+    </div>
+</template>

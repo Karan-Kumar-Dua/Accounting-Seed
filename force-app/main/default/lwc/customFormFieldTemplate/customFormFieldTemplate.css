@@ -1,0 +1,7 @@
+:host(.slds-form-element__icon) {
+  display: none;
+}
+
+.transparent-background {
+  background-color: transparent;
+}

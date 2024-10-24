@@ -1,0 +1,40 @@
+.release {
+    display: inline-block;
+}
+
+.release--container {
+    display: flex;
+    align-items: center;
+    color: #F5862D;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 15px;
+    text-transform: uppercase;
+}
+
+.release--name {
+    font-family: 'IBM Plex Sans';
+    font-size: 15px;
+    color: #2874BB;
+    font-weight: 500;
+}
+
+.release--label {
+    font-weight: 400;
+    font-family: 'IBM Plex Sans';
+    font-size: 15px;
+    color: #2874BB;
+}
+
+.release--logo {
+    width: 40px;
+    height: 40px;
+}
+
+.release--popover {
+    position: absolute;
+    max-width: 150px;
+}
+
+section.slds-popover_walkthrough.slds-nubbin_top:before {
+    background-color: rgb(0, 22, 57);
+}

@@ -1,0 +1,43 @@
+<apex:page id="JournalEntryFromRecurringJournalEntry" title="{!$Label.COMMON_CREATE_JOURNAL_ENTRY + ' | ' + $Label.COMMON_ACCOUNTING_SEED }" standardController="Recurring_Journal_Entry__c" extensions="JournalEntryFromRecurringJournalEntry,EnvironmentUtils" sideBar="false" lightningStylesheets="true" >
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/common.css')}" />
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+        function setFocusOnLoad() {}
+    </script>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/je-from-recurring-je.js')}" loadOnReady="true"/>
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Recurring_Journal_Entry__c.label}" subtitle="{!Recurring_Journal_Entry__c.Name}" />
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__COMMON_CREATE + ' ' + $ObjectType.Journal_Entry__c.label}">
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons id="buttons">
+                <apex:actionStatus id="saveStatus"
+                                   onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')"
+                                   onstop="AcctSeed.ASModule.pageLoad()"/>
+                <apex:commandButton id="saveButton"
+                                    action="{!createJE}"
+                                    value="{!$Label.AcctSeed__COMMON_CREATE}"
+                                    status="saveStatus"
+                                    reRender="theForm"
+                                    rendered="{!!isError}"/>
+                <apex:commandButton id="savePostButton"
+                                    action="{!createJEAndPost}"
+                                    value="{!$Label.AcctSeed__COMMON_CREATE_AND_POST}"
+                                    status="saveStatus"
+                                    reRender="theForm"
+                                    rendered="{!!isError}" />
+                <apex:commandButton id="cancelButton" action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection rendered="{!!isError}" columns="2">
+                <apex:inputField value="{!jEList[0].obj['Name']}"/>
+                <apex:outputText id="totalDebit" value="{!jEList[0].rObj['Total_Debits__c']}" html-data-currency="{!currencyIsoCode}"/>
+                <apex:inputField value="{!jEList[0].obj['Journal_Date__c']}"/>
+                <apex:outputText id="totalCredit" value="{!jEList[0].rObj['Total_Credits__c']}" html-data-currency="{!currencyIsoCode}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

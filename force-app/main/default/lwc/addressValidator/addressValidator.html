@@ -1,0 +1,247 @@
+<template>
+    <div if:true={errorMessage}>
+        <c-inline-error-message errors={errorMessage}></c-inline-error-message>
+    </div>
+    <div if:false={errorMessage}>
+        <section
+            title={labels.addressValidatorTitle}
+            data-id="addressValidatorModal"
+            onclose={closeQuickAction}
+            onconnected={handleConnected}
+            >
+            <div class="modal-header slds-modal__header slds-size_1-of-1">
+                <h4 class="title slds-text-heading_medium">{labels.addressValidatorTitle} </h4>
+            </div>
+            <div class="slds-border_top"></div>
+
+            <div class="slds-is-relative">
+                <template if:true={showSpinner}>
+                    <lightning-spinner
+                            variant="brand"
+                            alternative-text={labels.commonSaving}
+                            size="medium">
+                    </lightning-spinner>
+                </template>
+
+                <template if:true={isAccountSobjectType}>
+                    <template if:true={isAvalaraLicenseErrors}>
+                        <div class="slds-size_12-of-12">
+                            <c-inline-error-message errors={avalaraLicenseErrors}></c-inline-error-message>
+                        </div>
+                    </template>
+                    <div if:false={isAvalaraLicenseErrors} class="slds-p-around_small slds-border_bottom">
+                        <lightning-layout horizontal-align="spread">
+                            <lightning-layout-item size="3">
+                                <lightning-combobox
+                                        label={labels.INF_AVALARA_LICENSE}
+                                        options={avaTaxLicenses}
+                                        value={avalaraLicenseValue}
+                                        required
+                                        field-level-help={labels.avalaraLicenseDropboxHelpText}
+                                        data-id="lightningCombobox-avalaraLicense"
+                                ></lightning-combobox>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </div>
+                </template>
+
+                <template if:true={isShippingAddress}>
+                    <div class="slds-p-around_small">
+                        <lightning-layout horizontal-align="spread">
+                            <lightning-layout-item size="3" class="validation-status-holder-label">
+                                <div class="slds-float_right">
+                                    <span class="slds-text-heading_small slds-text-align_right">{labels.addressValidatorValidationStatus}</span>
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="1">
+
+                            </lightning-layout-item>
+                            <lightning-layout-item size="8">
+                                <template for:each={currentState.shipping.messages} for:item="item">
+                                    <div key={item.message} class={item.classes}>
+                                        <p>{item.message}</p>
+                                    </div>
+                                </template>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <div class="slds-border_top slds-m-top_x-small slds-m-bottom_x-small"></div>
+                        <lightning-layout horizontal-align="spread">
+                            <lightning-layout-item size="6">
+                                <lightning-layout horizontal-align="spread">
+                                    <lightning-layout-item size="6">
+                                        <div class="slds-float_right">
+                                            <span class="slds-text-heading_small slds-text-align_right">{labels.addressValidatorOriginAddress}</span>
+                                        </div>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="6"></lightning-layout-item>
+                                </lightning-layout>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="6">
+                                <lightning-layout horizontal-align="spread">
+                                    <lightning-layout-item size="6">
+                                        <div class="slds-float_right">
+                                            <span class="slds-text-heading_small slds-text-align_right">{labels.addressValidatorValidatedAddress}</span>
+                                        </div>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="6">
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <div class="slds-border_top slds-m-top_x-small slds-m-bottom_x-small"></div>
+                        <template for:each={shippingAddress} for:item="item">
+                            <lightning-layout key={item.key} horizontal-align="spread">
+                                <lightning-layout-item size="6">
+                                    <lightning-layout horizontal-align="spread">
+                                        <lightning-layout-item size="6">
+                                            <div class="slds-float_right">
+                                                <span class="slds-form-element__label slds-text-align_right">{item.origin.label}</span>
+                                            </div>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="6">
+                                            <div class="slds-form-element__control">
+                                                <div class="slds-form-element__static">
+                                                    {item.origin.value}
+                                                </div>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="6">
+                                    <lightning-layout horizontal-align="spread">
+                                        <lightning-layout-item size="6">
+                                            <div class="slds-float_right">
+                                                <span class="slds-form-element__label slds-text-align_right">{item.validated.label}</span>
+                                            </div>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="6">
+                                            <div class="slds-form-element__control">
+                                                <div class="slds-form-element__static">
+                                                    {item.validated.value}
+                                                </div>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                </lightning-layout-item>
+                            </lightning-layout>
+                        </template>
+                    </div>
+                </template>
+
+                <div if:true={isShowMiddleSeparator} class="slds-border_top slds-m-top_x-small"></div>
+
+                <template if:true={isBillingAddress}>
+                    <div class="slds-p-around_small">
+                        <lightning-layout horizontal-align="spread">
+                            <lightning-layout-item size="3" class="validation-status-holder">
+                                <div class="slds-float_right">
+                                    <span class="slds-text-heading_small slds-text-align_right">{labels.addressValidatorValidationStatus}</span>
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="1">
+
+                            </lightning-layout-item>
+                            <lightning-layout-item size="8">
+                                <template for:each={currentState.billing.messages} for:item="item">
+                                    <div key={item.message} class={item.classes}>
+                                        <p>{item.message}</p>
+                                    </div>
+                                </template>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <div class="slds-border_top slds-m-top_x-small slds-m-bottom_x-small"></div>
+                        <lightning-layout horizontal-align="spread">
+                            <lightning-layout-item size="6">
+                                <lightning-layout horizontal-align="spread">
+                                    <lightning-layout-item size="6">
+                                        <div class="slds-float_right">
+                                            <span class="slds-text-heading_small slds-text-align_right">{labels.addressValidatorOriginAddress}</span>
+                                        </div>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="6"></lightning-layout-item>
+                                </lightning-layout>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="6">
+                                <lightning-layout horizontal-align="spread">
+                                    <lightning-layout-item size="6">
+                                        <div class="slds-float_right">
+                                            <span class="slds-text-heading_small slds-text-align_right">{labels.addressValidatorValidatedAddress}</span>
+                                        </div>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="6"></lightning-layout-item>
+                                </lightning-layout>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <div class="slds-border_top slds-m-top_x-small slds-m-bottom_x-small"></div>
+                        <template for:each={billingAddress} for:item="item">
+                            <lightning-layout key={item.key} horizontal-align="spread">
+                                <lightning-layout-item size="6">
+                                    <lightning-layout horizontal-align="spread">
+                                        <lightning-layout-item size="6">
+                                            <div class="slds-float_right">
+                                                <span class="slds-form-element__label slds-text-align_right">{item.origin.label}</span>
+                                            </div>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="6">
+                                            <div class="slds-form-element__control">
+                                                <div class="slds-form-element__static">
+                                                    {item.origin.value}
+                                                </div>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="6">
+                                    <lightning-layout horizontal-align="spread">
+                                        <lightning-layout-item size="6">
+                                            <div class="slds-float_right">
+                                                <span class="slds-form-element__label slds-text-align_right">{item.validated.label}</span>
+                                            </div>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="6">
+                                            <div class="slds-form-element__control">
+                                                <div class="slds-form-element__static">
+                                                    {item.validated.value}
+                                                </div>
+                                            </div>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                </lightning-layout-item>
+                            </lightning-layout>
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            <footer class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+                <div class="slds-float_right">
+                    <lightning-button
+                            data-id="CancelButton"
+                            variant="neutral"
+                            label={labels.commonCancel}
+                            disabled={showSpinner}
+                            onclick={closeQuickAction}>
+                    </lightning-button>
+                    <lightning-button
+                            data-id="ValidateButton"
+                            if:true={isNeedValidateState}
+                            variant="brand"
+                            label={labels.addressValidatorValidateBtn}
+                            disabled={isValidatedBtnDisabled}
+                            onclick={preValidate}
+                            class="slds-m-left_small">
+                    </lightning-button>
+                    <lightning-button
+                            data-id="ReplaceAddressButton"
+                            if:true={isReplaceValidAddrState}
+                            variant="brand"
+                            label={labels.addressValidatorReplaceAddressBtn}
+                            disabled={isReplaceAddressBtnDisabled}
+                            onclick={replaceWithValidatedAddress}
+                            class="slds-m-left_small">
+                    </lightning-button>
+                </div>
+            </footer>
+        </section>
+    </div>
+</template>

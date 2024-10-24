@@ -1,0 +1,5 @@
+<aura:component description="RerunPaymentProcessingJournalEntryNavProxy" implements="lightning:isUrlAddressable">
+  <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+  <lightning:workspaceAPI aura:id="workspace"/>  
+  <c:reexecutePaymentProcessingJournalEntry onredirectback="{!c.handleBack}"></c:reexecutePaymentProcessingJournalEntry>
+</aura:component>

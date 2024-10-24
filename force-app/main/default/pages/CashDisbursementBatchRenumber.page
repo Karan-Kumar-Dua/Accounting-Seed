@@ -1,0 +1,17 @@
+<apex:page standardController="Cash_Disbursement_Batch__c" title="{!$Label.AcctSeed__COMMON_RENUMBER +' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="CashDisbursementBatchRenumber">
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/>
+
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Cash_Disbursement_Batch__c.label}" subtitle="{!Cash_Disbursement_Batch__c.Name}" />
+        <apex:pageBlock title="{!$Label.AcctSeed__COMMON_RENUMBER}">
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')"/>
+                <apex:commandButton action="{!renumberChecks}" value="{!$Label.AcctSeed__COMMON_RENUMBER}" status="saveStatus" rendered="{!isValidationPassed}" reRender="theForm"/>
+                <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

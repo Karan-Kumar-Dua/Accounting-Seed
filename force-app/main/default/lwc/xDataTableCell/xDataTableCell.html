@@ -1,0 +1,97 @@
+<!-- X Data Table Cell -->
+<template>
+    <!-- TODO: Make this a cell factory -->
+    <div role="gridcell" data-label={column.label} data-row-id={row.rowKey} data-column-field={column.apiName} onmouseover={handleMouseEnter} onmouseleave={handleMouseOut} data-id="row-datacell" class={isDirtyCell} > 
+        <template if:true={inEditMode}>           
+            <div class={editModeItemsCSS}>
+                <template if:true={showRequiredSign}>
+                    <abbr title={labels.commonRequired} class="slds-required" data-id="cell-required">*</abbr>
+                </template>             
+                <template if:true={isCheckbox}>
+                    <lightning-input type={inputType} onblur={handleCheck} checked={fieldValue} data-id="cell-checkbox" disabled={isReadOnly}></lightning-input>
+                </template>
+                <template if:true={isCurrency}>
+                    <c-x-custom-currency-cell edit-mode={inEditMode} col-id={column.apiName} row-id={row.rowKey} value={fieldValue} data-id="cell-currency" disabled={isReadOnly} oncellblur={handleInputFocusout} step={step} minimum-fraction-digits={column.typeAttributes.minimumFractionDigits} required={fieldRequiredOnUI}></c-x-custom-currency-cell>
+                </template>
+                <template if:true={isDifferentInputs}>
+                    <lightning-input type={inputType} value={fieldValue} date-style="short" formatter={formatter} onfocus={handleChange} onblur={handleBlur} variant="label-hidden" disabled={isReadOnly} onchange={handleChange} data-id="cell-input" step={step} required={fieldRequiredOnUI} class="fullWidth"></lightning-input>
+                </template>
+                <template if:true={isTimeInput}>
+                    <lightning-input type={inputType} value={timeValue} formatter={formatter} onfocus={handleChange} onblur={handleBlur} variant="label-hidden" disabled={isReadOnly} onchange={handleChange} data-id="cell-time" required={fieldRequiredOnUI}></lightning-input>
+                </template>
+                <template if:true={isPicklist}>
+                    <lightning-combobox variant="label-hidden" value={fieldValue} data-id="cell-picklist" options={picklistOptions} onchange={handlePicklistChange} disabled={isReadOnly} onblur={handleInputFocusout} dropdown-alignment="auto" required={fieldRequiredOnUI} class="fullWidth"></lightning-combobox>
+                </template>
+                <template if:true={isMultiPicklist}>
+                    <lightning-dual-listbox class="multiPicklist" source-label={labels.commonAvailable} selected-label={labels.commonSelected} options={picklistOptions} data-id="cell-multipicklist" onchange={handleMultiPickChange} value={selectedValues} disabled={isReadOnly} onblur={handleInputFocusout} required={fieldRequiredOnUI}></lightning-dual-listbox>
+                </template>
+                <template if:true={isTextArea}>
+                    <lightning-textarea value={fieldValue} onfocus={handleChange} onblur={handleBlur} variant="label-hidden" disabled={isReadOnly} onchange={handleChange} data-id="cell-textarea" required={fieldRequiredOnUI}></lightning-textarea>
+                </template>
+                <template if:true={isRichTextArea}>
+                    <lightning-input-rich-text value={fieldValue} onfocus={handleChange} onblur={handleBlur} variant="label-hidden" disabled={isReadOnly} onchange={handleChange} data-id="cell-richtext" required={fieldRequiredOnUI}></lightning-input-rich-text>
+                </template>
+                <template if:true={isReference}>
+                    <c-x-lookup row={row} sobject-name={objName} sobject-field-name={column.apiName} init-value={fieldValue} search-object={searchObject} onselectionchange={handleSelectionChange} oninputfocusout={handleInputFocusout} data-id="cell-reference" pick-selection={fieldValue} required={fieldRequiredOnUI} disabled={isReadOnly}></c-x-lookup>
+                </template>
+                
+            </div>
+        </template>
+        <div class="slds-grid">
+            <template if:false={inEditMode}>
+                <div class={outputValuesDecoration}>                   
+                    <template if:true={isFormattedText}>
+                        <template if:true={column.isNameField}>
+                            <lightning-formatted-url label={referenceLabel} value={referenceValueId} data-id="cell-reference"></lightning-formatted-url>
+                        </template>
+                        <template if:false={column.isNameField}>
+                            <lightning-formatted-text value={truncatedFieldValue} data-id="cell-formattedtext" title={fieldValue}></lightning-formatted-text>
+                        </template>
+                    </template>
+                    <template if:true={isCheckbox}>
+                        <lightning-input type={inputType} checked={fieldValue} disabled data-id="cell-checkbox"></lightning-input>
+                    </template>
+                    <template if:true={isCurrency}>
+                        <c-x-custom-currency-cell currency-code={currencyCode} edit-mode={isEditMode} col-id={column.apiName} row-id={row.rowKey} value={fieldValue} data-id="cell-currency" is-multi-currency-enabled={column.isMultiCurrencyEnabled} title={fieldValue}></c-x-custom-currency-cell>
+                    </template>
+                    <template if:true={isFormattedDate}>                      
+                        <lightning-formatted-date-time value={fieldValue} year="numeric" month="numeric" day="numeric" time-zone="UTC" data-id="cell-date" title={fieldValue}></lightning-formatted-date-time>
+                    </template>
+                    <template if:true={isFormattedNumber}>
+                        <lightning-formatted-number value={fieldValue} format-style={formatter} minimum-fraction-digits={column.typeAttributes.minimumFractionDigits} data-id="cell-number" title={fieldValue}></lightning-formatted-number>
+                    </template>
+                    <template if:true={isFormattedUrl}>
+                        <lightning-formatted-url label="" value={fieldValue} data-id="cell-url"></lightning-formatted-url>
+                    </template>
+                    <template if:true={isFormattedTime}>
+                        <lightning-formatted-time value={timeValue} data-id="cell-time" title={fieldValue}></lightning-formatted-time>
+                    </template>
+                    <template if:true={isFormattedPhone}>
+                        <lightning-formatted-phone value={fieldValue} data-id="cell-phone" title={fieldValue}></lightning-formatted-phone>
+                    </template>
+                    <template if:true={isFormattedDateTime}>
+                        <lightning-formatted-date-time value={fieldValue} data-id="cell-datetime" title={fieldValue}></lightning-formatted-date-time>
+                    </template>
+                    <template if:true={isFormattedEmail}>
+                        <lightning-formatted-email value={fieldValue} data-id="cell-email" title={fieldValue}></lightning-formatted-email>
+                    </template>
+                    <template if:true={isFormattedRichText}>
+                        <lightning-formatted-rich-text value={fieldValue} data-id="cell-richtext" title={fieldValue}></lightning-formatted-rich-text>
+                    </template>
+                    <template if:true={isReference}>
+                        <lightning-formatted-url label={referenceLabel} value={referenceValue} data-id="cell-reference-field"></lightning-formatted-url>
+                    </template>
+                    <template if:true={isFormulaHyperLink}>
+                        <lightning-formatted-url label={hyperLinkDisplayedName} value={formulaHyperlinkValue} data-id="cell-reference-field" target={column.typeAttributes.target}></lightning-formatted-url>
+                    </template>
+                    <template if:true={isFormulaImage}>
+                        <img src={formulaImageValue} alt={imageDisplayedName} style={imageStyle}/>
+                    </template>
+                </div>
+                <div if:true={column.updateable} class="slds-size_1-of-3 floatRight">
+                    <lightning-button-icon icon-name={iconName} onclick={handleEditClick} variant="bare" class="slds-m-left_xx-small cell-button_container" alternative-text={labels.commonEdit} title={labels.commonEdit} data-id="cell-button"></lightning-button-icon>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

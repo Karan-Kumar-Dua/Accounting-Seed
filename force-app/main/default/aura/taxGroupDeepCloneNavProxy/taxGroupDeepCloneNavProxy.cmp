@@ -1,0 +1,10 @@
+<aura:component description="taxGroupDeepCloneNavProxy"
+                implements="force:hasRecordId,force:lightningQuickActionWithoutHeader">
+
+    <c:taxGroupDeepClone recordId="{!v.recordId}"
+                         recordName="{!v.recordName}"
+                         ontgdc_dialog_close="{!c.closeQuickAction}">
+
+    </c:taxGroupDeepClone>
+
+</aura:component>

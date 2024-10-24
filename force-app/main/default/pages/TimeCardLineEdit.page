@@ -1,0 +1,92 @@
+<apex:page id="thePage" standardController="Time_Card_Line__c" title="{!Time_Card_Line__c.Name & ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" tabStyle="Time_Card_Line__c" extensions="TimeCardLineControllerExt" sidebar="false">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/time-card-line.js')}" loadOnReady="true"/> 
+    <apex:form id="theForm">        
+        <apex:sectionHeader title="{!$ObjectType.Time_Card_Line__c.label}" subtitle="{!Time_Card_Line__c.Name}" />
+        <apex:pageblock id="thePageBlock" tabStyle="Time_Card_Line__c" mode="edit" rendered="{!NOT(ISBLANK(timeCardLine))}" title="{!$Label.AcctSeed__COMMON_TIME_CARD_LINE_EDIT}">
+            <apex:pageMessages />
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_SAVING}')" />
+                <apex:commandButton action="{!saveback}" status="saveStatus" value="{!$Label.AcctSeed__COMMON_SAVE}" reRender="theForm" />
+                <apex:commandButton action="{!$Page.TimeCardEdit}?id={!timeCardLine.Time_Card__c}" value="{!$Label.AcctSeed__COMMON_CANCEL}" immediate="true" />
+                <apex:actionFunction name="saveback" action="{!saveback}" status="saveStatus" reRender="theForm" />
+                <script type="text/javascript">
+                    AcctSeed.ASModule.saveback = saveback;
+                </script>      
+            </apex:pageBlockButtons>
+            <table cellpadding="6" cellspacing="6" ALIGN="center">
+                <tr>
+                    <td style="text-align:center"><b>{!$Label.COMMON_LINE} #</b>
+                    </td>
+                    <td style="text-align:center"><b>{!$Label.COMMON_PROJECT}</b>
+                    </td>
+                    <td style="text-align:center"><b>{!$Label.COMMON_PROJECT_TASK}</b>
+                    </td>
+                    <td style="text-align:center"><b>{!$Label.COMMON_BILLABLE}</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <apex:outputField value="{!Time_Card_Line__c.name}" />
+                    </td>
+                    <td>
+                        <apex:outputField value="{!Time_Card_Line__c.Project__c}" />
+                    </td>
+                    <td>
+                        <apex:outputField value="{!Time_Card_Line__c.Project_Task__c}" />
+                    </td>
+                    <td>
+                        <apex:OutputField value="{!Time_Card_Line__c.Billable__c}" />
+                    </td>
+                </tr>
+            </table>
+            <br/>
+            <table cellpadding="6" cellspacing="6" align="center" width="100%">
+                <tr>
+                    <apex:repeat value="{!timeCardLineWrapper.days}" var="day">
+                        <td width="100" style="text-align:center;font-weight:bold">
+                            <apex:outputText value="{0,date,E d}">
+                                <apex:param value="{!day.Date__c}" />
+                            </apex:outputText>
+                        </td>
+                    </apex:repeat>
+                </tr>
+                <tr>
+                    <apex:repeat value="{!timeCardLineWrapper.days}" var="day">
+                        <td width="50" style="text-align:center"><b>Hours:</b>&nbsp;
+                            <apex:inputfield id="hours" value="{!day.Hours__c}" style="width:40px; text-align:right" required="false" />
+                        </td>
+                    </apex:repeat>
+                </tr>
+                <tr>
+                    <apex:repeat value="{!timeCardLineWrapper.days}" var="day">
+                        <td width="100" style="text-align:center"><b>{!$Label.COMMON_INTERNAL_COMMENT}</b>
+                        </td>
+                    </apex:repeat>
+                </tr>
+                <tr>
+                    <apex:repeat value="{!timeCardLineWrapper.days}" var="day">
+                        <td>
+                            <apex:inputfield value="{!day.Internal_Comment__c}" />
+                        </td>
+                    </apex:repeat>
+                </tr>
+                <tr>
+                    <apex:repeat value="{!timeCardLineWrapper.days}" var="day">
+                        <td width="100" style="text-align:center"><b>{!$Label.INF_INVOICE_COMMENT}</b>
+                        </td>
+                    </apex:repeat>
+                </tr>
+                <tr>
+                    <apex:repeat value="{!timeCardLineWrapper.days}" var="day">
+                        <td>
+                            <apex:inputfield value="{!day.Invoice_Comment__c}" />
+                        </td>
+                    </apex:repeat>
+                </tr>
+            </table>
+        </apex:pageblock>
+        <apex:inputHidden value="{!Time_Card_Line__c.Time_Card__c}" />
+    </apex:form>
+</apex:page>

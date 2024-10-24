@@ -1,0 +1,82 @@
+<apex:page controller="FinancialReportTransactionDetail" title="{!$Label.AcctSeed__COMMON_DETAIL + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="EnvironmentUtils" sidebar="false" tabStyle="Financial_Cube__c" readOnly="true">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.dataTables.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/javascript/Intl.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/locale-data/jsonp/' & DefaultLocale & '.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/jquery.dataTables.min.css')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/transaction-detail.js')}" loadOnReady="true" />
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+        AcctSeed.ASModule.getTransactionsAction = "{!$RemoteAction.FinancialReportTransactionDetail.getTransactions}";
+        AcctSeed.ASModule.objectMetadata = {
+            Transaction__c: {
+                fields: {
+                    Date__c: {
+                        label: "{!$ObjectType.Transaction__c.fields.Date__c.label}"
+                    },
+                    Account__c: {
+                        label: "{!$ObjectType.Transaction__c.fields.Account__c.label}"
+                    },
+                    Project__c: {
+                        label: "{!$ObjectType.Transaction__c.fields.Project__c.label}"
+                    },
+                    Project_Task__c: {
+                        label: "{!$ObjectType.Transaction__c.fields.Project_Task__c.label}"
+                    },
+                    Product__c: {
+                        label: "{!$ObjectType.Transaction__c.fields.Product__c.label}"
+                    },
+                    GL_Account_Variable_1__c: {
+                        label: "{!$ObjectType.Transaction__c.fields.GL_Account_Variable_1__c.label}"
+                    },
+                    GL_Account_Variable_2__c: {
+                        label: "{!$ObjectType.Transaction__c.fields.GL_Account_Variable_2__c.label}"
+                    },
+                    GL_Account_Variable_3__c: {
+                        label: "{!$ObjectType.Transaction__c.fields.GL_Account_Variable_3__c.label}"
+                    },
+                    GL_Account_Variable_4__c: {
+                        label: "{!$ObjectType.Transaction__c.fields.GL_Account_Variable_4__c.label}"
+                    },
+                    Amount__c: {
+                        label: "{!$ObjectType.Transaction__c.fields.Amount__c.label}"
+                    }
+                }
+            }
+        };
+    </script>
+    <apex:sectionHeader title="{!$Label.AcctSeed__INF_FINANCIAL_REPORT}" subtitle="{!$Label.AcctSeed__COMMON_TRANSACTIONS}" />
+    <apex:pageBlock id="thePageBlock" mode="maindetail">
+        <apex:pageMessages escape="false"/>
+        <apex:pageBlockSection columns="2">
+            <apex:outputField value="{!theTransaction.Ledger__c}"/>
+            <apex:outputText label="{!$Label.AcctSeed__COMMON_CURRENCY}" value="{!ledgerCurrency}"/>
+            <apex:outputField value="{!theTransaction.GL_Account__c}" rendered="{!NOT(isCashFlowGlAccount)}"/>
+            <apex:outputField value="{!theTransaction.Cash_Flow_Category__c}" rendered="{!(isCashFlowGlAccount)}"/>
+            <apex:outputText id="transactionAmount" value="{!theTransaction.Amount__c}" />
+            <apex:outputField value="{!theTransaction.Accounting_Period__c}" />
+            <apex:outputText />
+
+            <!-- ===========================HIDDEN VALUES================================= -->
+            <input id="glAccountId" type="hidden" value="{!glAccountId}"/>
+            <input id="acctPeriodId" type="hidden" value="{!acctPeriodId}"/>
+            <input id="ledgerId" type="hidden" value="{!ledgerId}"/>
+            <input id="glavVariable1" type="hidden" value="{!glavVariable1}"/>
+            <input id="glavVariable2" type="hidden" value="{!glavVariable2}"/>
+            <input id="glavVariable3" type="hidden" value="{!glavVariable3}"/>
+            <input id="glavVariable4" type="hidden" value="{!glavVariable4}"/>
+            <input id="isERPEnabled" type="hidden" value="{!isERPEnabled}"/>
+            <!-- ========================================================================= -->
+        </apex:pageBlockSection>
+        <apex:pageBlockSection columns="1" collapsible="false">
+            <br/>
+            <apex:outputPanel id="thePanel" style="display:none">
+                <table id="theTable" class="display"></table>
+            </apex:outputPanel>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+</apex:page>

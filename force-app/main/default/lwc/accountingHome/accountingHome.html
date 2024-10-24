@@ -1,0 +1,21 @@
+<template>
+    <div>
+        <c-accounting-home-header></c-accounting-home-header>
+        <div class="accountingHome--cards">
+            <div class="accountingHome--university">
+                <c-university-card></c-university-card>
+            </div>
+            <div class="accountingHome--periods">
+                <div class="accountingHome--period">
+                    <c-current-period></c-current-period>
+                </div>
+                <div class="accountingHome--period">
+                    <c-last-period-closed></c-last-period-closed>
+                </div>
+            </div>
+        </div>
+        <div class="accountingHome--cards-small">
+            <c-release-info></c-release-info>
+        </div>
+    </div>
+</template>

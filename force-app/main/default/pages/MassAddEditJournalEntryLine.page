@@ -1,0 +1,19 @@
+<apex:page standardController="Journal_Entry_Line__c"
+           extensions="MassAddEditLineController" 
+           recordSetVar="jeLines"
+           title="{!$Label.AcctSeed__COMMON_MASS_ADD_EDIT + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}"
+           lightningStylesheets="true"
+           sideBar="false">
+
+    <apex:variable var="customLEX" value="customLEXOn" rendered="{!$User.UIThemeDisplayed = 'Theme4d' || $User.UIThemeDisplayed = 'Theme4u'}">
+        <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/visualforce-lex-ext.css')}" />
+    </apex:variable>
+    
+    <apex:pageMessages />
+    <apex:outputLink rendered="{!isError}" onClick="javascript: history.back();" style="margin-left: 20px;">&nbsp;«&nbsp;Back</apex:outputLink>
+
+    <c:MassAddEditLineComponent masterRecordAttr="{!masterRecord}"
+                                isRecordPostedAttr="{!isRecordPosted}"
+                                cancelAction="{!cancel}" rendered="{!!isError}"/>
+
+</apex:page>

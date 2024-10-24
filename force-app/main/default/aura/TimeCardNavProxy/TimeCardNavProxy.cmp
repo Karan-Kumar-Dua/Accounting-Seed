@@ -1,0 +1,6 @@
+<aura:component description="TimeCardNavProxy" implements="lightning:isUrlAddressable,force:hasRecordId,force:hasSObjectName">
+    <aura:handler name="init" value="{!this}" action="{! c.onInit }"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+    <lightning:workspaceAPI aura:id="workspace"/>
+    <c:timeCardLineAddEdit recordId="{!v.recordId}" objectApiName="{!v.sObjectName}" isFullScreenMode="true"></c:timeCardLineAddEdit>
+</aura:component>

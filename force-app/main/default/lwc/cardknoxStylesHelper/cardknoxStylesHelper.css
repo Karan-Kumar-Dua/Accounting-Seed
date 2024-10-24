@@ -1,0 +1,65 @@
+.slds-modal__content {
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+.slds-modal__header {
+    padding-top: initial;
+}
+
+.formHeadings {
+    font-weight: bold;
+    padding-top: 25px;
+    padding-left: 15%;
+    width: 50%;
+}
+
+.formHeadingsMerchant {
+    padding-top: 25px;
+    padding-left: 15%;
+    width: 55%;
+}
+
+.width35 {
+    width: 35%;
+}
+
+.width70 {
+    width: 70%;
+}
+
+.width50 {
+    width: 50%;
+}
+
+.width100 {
+    width: 100%;
+}
+
+.inputCheckbox {
+    padding-left: 15%;
+}
+
+.textItalic {
+    font-style: italic;
+}
+
+.pointerAll {
+    pointer-events: all !important;
+}
+
+.textAlignCenter {
+    text-align: center;
+}
+
+.width37 {
+    width: 37%;
+}
+
+.width90 {
+    width: 90%;
+}
+
+.width41 {
+    width: 41%;
+}

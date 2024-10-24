@@ -1,0 +1,43 @@
+<aura:component description="FinancialReportViewerProxy" implements="lightning:isUrlAddressable">
+    <aura:handler name="init" value="{!this}" action="{! c.onInit }"/>
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+    <!-- ledger inquiry report params -->
+    <aura:attribute type="id" name="ledgerId" /> 
+    <aura:attribute type="id" name="defaultAcctPeriod" />
+    <aura:attribute type="id" name="glAccountId" /> 
+    <aura:attribute type="id" name="defaultglav1" />
+    <aura:attribute type="id" name="defaultglav2" /> 
+    <aura:attribute type="id" name="defaultglav3" /> 
+    <aura:attribute type="id" name="defaultglav4" />
+    <!-- 
+    standard report 
+        - profitLoss
+        - profitLossVsBudget
+        - balanceSheet
+        - trialBalance
+        - cashFlow
+        - ledgerInquiry 
+    -->
+    <aura:attribute type="string" name="standardReport" />
+    <!-- 
+    active tab 
+        - standardReports
+        - customReports
+        - reportSettings
+        - runConsolidations
+        - setupConsolidations 
+    -->
+    <aura:attribute type="string" name="activeTab" />
+    <lightning:workspaceAPI aura:id="workspace"/>
+    <c:finReporterTabs 
+        activeTab="{!v.pageReference.state.c__activeTab}"
+        activeReportValue="{!v.pageReference.state.c__standardReport}" 
+        ledgerId="{!v.pageReference.state.c__ledgerId}" 
+        defaultAcctPeriod = "{!v.pageReference.state.c__defaultAcctPeriod}"
+        glAccountId="{!v.pageReference.state.c__glAccountId}"
+        defaultglav1="{!v.pageReference.state.c__defaultglav1}"  
+        defaultglav2="{!v.pageReference.state.c__defaultglav2}" 
+        defaultglav3="{!v.pageReference.state.c__defaultglav3}" 
+        defaultglav4="{!v.pageReference.state.c__defaultglav4}"> 
+    </c:finReporterTabs>
+</aura:component>

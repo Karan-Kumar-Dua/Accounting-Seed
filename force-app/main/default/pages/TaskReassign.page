@@ -1,0 +1,15 @@
+<apex:page standardController="Task" title="{!$Label.AcctSeed__COMMON_REASSIGN + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="TaskReassign">
+	<apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Task.label}" subtitle="{!$Label.AcctSeed__COMMON_REASSIGN + ' ' + $ObjectType.Task.label}" />  
+		<apex:pageblock id="thePageBlock" title="{!$Label.AcctSeed__COMMON_REASSIGN + ' ' + $ObjectType.Task.label}">
+		     <apex:pageMessages escape="false"/>
+		     <apex:pageBlockButtons >
+		          <apex:commandButton value="{!$Label.AcctSeed__COMMON_SAVE}" action="{!reassign}"/>
+		          <apex:commandButton value="{!$Label.AcctSeed__COMMON_BACK}" action="{!cancel}" immediate="true"/>
+		     </apex:pageBlockButtons>
+             <apex:pageBlockSection >
+                <apex:inputField value="{!theTaskReassign.OwnerId}"/>
+             </apex:pageBlockSection>
+		</apex:pageblock>
+	</apex:form> 
+</apex:page>

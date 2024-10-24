@@ -1,0 +1,22 @@
+.taxSettings--link {
+    text-decoration: underline;
+    color: #000;
+}
+
+.taxSettings--tableHeader th {
+    background-color: #172b50;
+    color: #ffffff;
+    font-weight: normal;
+}
+
+.taxSettings--layoutEditMode {
+    flex-direction: column;
+}
+
+.taxSettings--heading {
+    font-size: 14px;
+}
+
+.taxSettings--subheading {
+    font-size: 13px;
+}

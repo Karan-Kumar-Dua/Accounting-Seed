@@ -1,0 +1,33 @@
+:host .recordPopover--field {
+    --lwc-colorTextLabel: #fff;
+    --lwc-inputStaticColor: #fff;
+    --lwc-formLabelFontSize: 13px;
+}
+
+.recordPopover {
+    background-color: #00396b;
+    position: absolute;
+    top: -12px;
+    margin-left: 3px;
+}
+
+.recordPopover--header {
+    background-color: #00396b;
+}
+
+.recordPopover--target {
+    position: relative;
+    display: inline-block;
+}
+
+.recordPopover--link {
+    color: #000;
+    text-decoration: underline;
+}
+.recordPopover--header h2 {
+    font-size: 14px;
+    font-weight: bold;
+}
+.recordPopover--leftArrangement {
+    right: 105%;
+}

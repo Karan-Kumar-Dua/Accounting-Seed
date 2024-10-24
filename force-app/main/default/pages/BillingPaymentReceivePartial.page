@@ -1,0 +1,191 @@
+<apex:page standardController="Billing__c" title="{!$Label.AcctSeed__INF_RECEIVE_PAYMENTS + ' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="BillingPaymentReceive,EnvironmentUtils">
+
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/common.css')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/javascript/Intl.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/locale-data/jsonp/' & DefaultLocale & '.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/>
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+        AcctSeed.ASModule.currencyIsoCode = "{!JSENCODE(currencyIsoCode)}";
+        function setFocusOnLoad() {}
+    </script>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/billing-payment-partial.js')}" loadOnReady="true"/>
+
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Billing__c.label}" subtitle="{!Billing__c.Name}" />
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__INF_RECEIVE_PAYMENT}">
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons id="buttons">
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')" onstop="AcctSeed.ASModule.pageLoad()"/>
+                <apex:commandButton id="saveButton"
+                                    action="{!createItems}"
+                                    value="{!$Label.AcctSeed__INF_RECEIVE_PAYMENT}"
+                                    status="saveStatus"
+                                    reRender="theForm"
+                                    rendered="{!isActionSelect && !isPaymentMethodError && !isDataAvailableError}" />
+                <apex:commandButton id="cancelButton" action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true" />
+            </apex:pageBlockButtons>
+
+            <apex:actionRegion rendered="{!$ObjectType.Cash_Receipt__c.fields.Purpose__c.Accessible}">
+                <apex:pageBlockSection title="{!$Label.AcctSeed__INF_SELECT_PAYMENT}"
+                                       id="thePageBlockSection"
+                                       collapsible="false"
+                                       rendered="{!!isDataAvailableError}">
+                    <div style="text-align:center">
+                        <apex:outputPanel styleClass="requiredInput" layout="block">
+                            <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                            <apex:selectList value="{!selectedTransactionType}" label="Type" size="1">
+                                <apex:selectOptions value="{!AvailableTypes}"/>
+                                <apex:actionSupport event="onchange"
+                                                    action="{!checkReceiptTypeErrors}"
+                                                    rerender="theForm"
+                                                    oncomplete="AcctSeed.ASModule.pageLoad()"/>
+                            </apex:selectList>
+                        </apex:outputPanel>
+                    </div>
+                </apex:pageBlockSection>
+            </apex:actionRegion>
+
+            <apex:pageBlockSection title="{!$Label.AcctSeed__COMMON_PAYMENT_INFORMATION}"
+                                   columns="2"
+                                   collapsible="false"
+                                   rendered="{!isActionSelect && !isPaymentMethodError && !isDataAvailableError}">
+
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__INF_RECEIPT_TYPE}" />
+                    <apex:outputText value="{!selectedTransactionType}"/>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!actionName = 'Receipt'}">
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_DATE}" />
+                    <apex:actionRegion >
+                        <apex:inputField id="payDate" value="{!wrappedBillings[0].cashReceipt.Receipt_Date__c}">
+                            <apex:actionSupport event="onchange"
+                                                action="{!updateSuggestedDiscountAmount}"
+                                                rerender="suggestedDiscount"/>
+                        </apex:inputField>
+                    </apex:actionRegion>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!actionName = 'Payment'}">
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_PAYMENT_METHOD}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList value="{!wrappedBillings[0].pmProvider.selectedSourceId}"
+                                         size="1"
+                                         rendered="{!!wrappedBillings[0].pmProvider.noActiveSources}" >
+                            <apex:selectOptions value="{!wrappedBillings[0].pmProvider.sourceIdsSelectOptions}"/>
+                            <apex:actionSupport event="onchange"
+                                                oncomplete="AcctSeed.ASModule.pageLoad();"
+                                                rerender="theForm" />
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!$ObjectType.Billing__c.fields.Total__c.Accessible}">
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_TOTAL}"/>
+                    <apex:outputText id="totalAmount" value="{!wrappedBillings[0].totalAmount}"/>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__INF_DISCOUNT_DUE_DATE}" />
+                    <apex:outputField value="{!wrappedBillings[0].proxyBillingCashReceipt.Applied_Date__c}"/>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__INF_EARLY_PAYMENT_DISCOUNT_AMT}"
+                                      rendered="{!$ObjectType.Billing_Cash_Receipt__c.fields.Adjustment_Amount__c.Accessible}"/>
+                    <apex:outputField id="suggestedDiscount"
+                                      value="{!wrappedBillings[0].proxyBillingCashReceipt.Applied_Amount__c}"
+                                      rendered="{!$ObjectType.Billing_Cash_Receipt__c.fields.Adjustment_Amount__c.Accessible}"/>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!actionName = 'Receipt'}">
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_PAYMENT_REFERENCE}" />
+                    <apex:inputField value="{!wrappedBillings[0].cashReceipt.Payment_Reference__c}"/>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!actionName = 'Payment' && $ObjectType.Cash_Receipt__c.fields.Ledger__c.Accessible}" >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_LEDGER}" />
+                    <apex:outputField value="{!wrappedBillings[0].bills[0].Ledger__c}"/>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_DISCOUNT_ADJUSTMENT_AMT}"
+                                      rendered="{!$ObjectType.Billing_Cash_Receipt__c.fields.Adjustment_Amount__c.Accessible}"/>
+                    <apex:outputPanel rendered="{!$ObjectType.Billing_Cash_Receipt__c.fields.Adjustment_Amount__c.Accessible}">
+                        <apex:inputField id="adjustmentAmount" value="{!wrappedBillings[0].proxyBillingCashReceipt.Adjustment_Amount__c}"
+                                         onKeyUp="AcctSeed.ASModule.calculateAdjustmentAmount();" onChange="AcctSeed.ASModule.calculateAdjustmentAmount();"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!actionName = 'Payment' && $ObjectType.Cash_Receipt__c.fields.Bank_Account__c.Accessible}">
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_BANK_ACCOUNT}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList value="{!wrappedBillings[0].cashReceipt.Bank_Account__c}" label="{!$Label.AcctSeed__COMMON_BANK_ACCOUNT}" size="1">
+                            <apex:selectOptions value="{!BankAccounts}"/>
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!actionName = 'Receipt' && $ObjectType.Cash_Receipt__c.fields.Ledger__c.Accessible}">
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_LEDGER}" />
+                    <apex:outputField value="{!wrappedBillings[0].bills[0].Ledger__c}"/>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!$ObjectType.Billing__c.fields.Received_Amount__c.Accessible}">
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_RECEIVED_AMOUNT}" />
+                    <apex:outputText id="receivedAmount" value="{!wrappedBillings[0].totalReceivedAmount}"/>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!actionName = 'Payment'}">
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_ADJUSTMENT_GL_ACCOUNT}" />
+                    <apex:inputField value="{!wrappedBillings[0].proxyBillingCashReceipt.Adjustment_GL_Account__c}"/>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!actionName = 'Receipt' && $ObjectType.Cash_Receipt__c.fields.Bank_Account__c.Accessible}">
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_BANK_ACCOUNT}" />
+                    <apex:outputPanel styleClass="requiredInput" layout="block">
+                        <apex:outputPanel styleClass="requiredBlock" layout="block" />
+                        <apex:selectList value="{!wrappedBillings[0].cashReceipt.Bank_Account__c}" label="{!$Label.AcctSeed__COMMON_BANK_ACCOUNT}" size="1">
+                            <apex:selectOptions value="{!BankAccounts}"/>
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_BALANCE}" />
+                    <apex:outputText id="balance" value="{!wrappedBillings[0].totalBalance}"/>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!actionName = 'Receipt'}">
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_ADJUSTMENT_GL_ACCOUNT}" />
+                    <apex:inputField value="{!wrappedBillings[0].proxyBillingCashReceipt.Adjustment_GL_Account__c}"/>
+                </apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem rendered="{!actionName = 'Payment'}"></apex:pageBlockSectionItem>
+
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_AMOUNT}" />
+                    <apex:inputField id="payAmount" value="{!wrappedBillings[0].cashReceipt.Amount__c}"/>
+                </apex:pageBlockSectionItem>
+
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="{!$Label.AcctSeed__COMMON_ACCOUNTING_INFORMATION}" collapsible="false" rendered="{!isActionSelect && !isPaymentMethodError && !isDataAvailableError && $ObjectType.Cash_Receipt__c.fields.GL_Account_Variable_1__c.Accessible}">
+                <apex:inputField value="{!wrappedBillings[0].cashReceipt.GL_Account_Variable_1__c}"/>
+                <apex:inputField value="{!wrappedBillings[0].cashReceipt.Product__c}"/>
+                <apex:inputField value="{!wrappedBillings[0].cashReceipt.GL_Account_Variable_2__c}"/>
+                <apex:inputField value="{!wrappedBillings[0].cashReceipt.Project__c}"/>
+                <apex:inputField value="{!wrappedBillings[0].cashReceipt.GL_Account_Variable_3__c}"/>
+                <apex:inputField value="{!wrappedBillings[0].cashReceipt.Project_Task__c}"/>
+                <apex:inputField value="{!wrappedBillings[0].cashReceipt.GL_Account_Variable_4__c}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+
+</apex:page>

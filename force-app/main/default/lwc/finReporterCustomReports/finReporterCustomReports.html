@@ -1,0 +1,15 @@
+<template>
+    <div class="slds-p-top_medium">
+        <lightning-button label={labels.INF_MANAGE_REPORT_DEFINITIONS} onclick={navigateToManageReports} ></lightning-button>
+    </div>
+
+    <div class="slds-p-top_medium slds-p-bottom_medium">
+            <div class="slds-box box-shadow">
+                <h2 data-jest="title" class="slds-page-header__title slds-p-top_medium">{selectedReportType.fullLabel}</h2>
+                <c-fin-reporter-criteria-custom-reports></c-fin-reporter-criteria-custom-reports>
+            </div>
+            <div class="slds-box slds-m-top_xx-large box-shadow">
+                <c-fin-reporter-table report-name="custom"></c-fin-reporter-table>
+            </div>
+        </div>
+</template>

@@ -1,0 +1,3 @@
+<aura:component description="BankRecCreatePDFReport" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader">
+    <c:bankRecCreatePdfReport recordId="{!v.recordId}" reportType="pdf" onclosedialog="{!c.closeQuickAction}"></c:bankRecCreatePdfReport>
+</aura:component>

@@ -1,0 +1,167 @@
+<template>
+    <lightning-card>
+
+        <template if:true={isShowSpinner}>
+            <lightning-spinner variant="brand" alternative-text={labelFactory.commonLoading} size="medium">
+            </lightning-spinner>
+        </template>
+
+        <div class="slds-var-m-top_x-small">
+            <div class="slds-grid slds-gutters">
+                <div class="slds-size_5-of-6">
+                    <span>
+                        <div class="slds-button-group" role="group">
+                            <button class="slds-m-left_large slds-button slds-button_brand no-shadow" name={labelFactory.BASIC_FILTER_SEARCH} data-id="basicSearchBtn" onclick={handleToggleChange}>{labelFactory.BASIC_FILTER_SEARCH}</button>
+                            <button class="slds-button slds-button_neutral no-shadow" name={labelFactory.ADVANCE_FILTER_SEARCH} data-id="advanceSearchBtn" onclick={handleToggleChange}>{labelFactory.ADVANCE_FILTER_SEARCH}</button>
+                        </div>
+                    </span>
+                </div>
+                <div class="slds-size_1-of-6">
+                    <div class="slds-float_right slds-m-right_small">
+                        <lightning-button variant="brand" label={labelFactory.COMMON_SEARCH}
+                        title={labelFactory.COMMON_SEARCH} class="slds-p-left_xx-large slds-m-right_small" disabled={searchDisabled}
+                        onclick={handleSearch}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </div>
+            <hr class="slds-var-m-horizontal_medium slds-var-m-bottom_small slds-var-m-top_x-small divider" />
+
+            <lightning-layout multiple-rows="true">
+                <lightning-layout-item size="6" class="slds-p-around_medium" lwc:if={isAdvanceSearch}>
+                    <b><label class="slds-form-element__label"
+                            for="form-element-01">{labelFactory.REPORT_NAME}</label></b>
+                    <lightning-combobox name="reportNames" value={selectedReport} options={reports}
+                        onchange={handleReportChange}></lightning-combobox>
+                </lightning-layout-item>
+
+                <template lwc:else>
+                    <lightning-layout-item size="12" class="slds-var-p-around_xx-small">
+                        <lightning-record-edit-form lwc:ref="record_edit_form" record-id={recordId}
+                            object-api-name="AcctSeed__Payment_Proposal__c" onload={handleLoad} onerror={handleErrors}
+                            class="slds-p-bottom_large">
+
+                            <lightning-layout multiple-rows="true">
+                                <template for:each={operatorFields} for:item="basicFld">
+                                    <lightning-layout-item size="3" key={basicFld}  class="slds-var-p-around_xx-small" >
+                                        <lightning-input-field class='inputFlds' field-name={basicFld.fieldApiName} autocomplete="false" variant="label-inline"></lightning-input-field>
+                                    </lightning-layout-item>
+                                </template>
+                            </lightning-layout> 
+                                <lightning-layout multiple-rows="true">
+                                        <lightning-layout-item size="3" class="slds-var-p-around_xx-small">
+                                            <lightning-input-field class='inputFlds' field-name={ppDateField.fieldApiName} autocomplete="false" variant="label-inline"></lightning-input-field>
+                                        </lightning-layout-item>
+                                </lightning-layout>
+
+                                <lightning-layout multiple-rows="true">
+                                    <template for:each={dateFields} for:item="basicFld">
+                                        <lightning-layout-item size="3" key={basicFld}  class="slds-var-p-around_xx-small">
+                                            <lightning-input-field class='inputFlds' field-name={basicFld.fieldApiName} autocomplete="false" variant="label-inline"></lightning-input-field>
+                                        </lightning-layout-item>
+                                    </template>
+                                </lightning-layout>
+
+                        </lightning-record-edit-form>
+                    </lightning-layout-item>
+                </template> <!--basic search ends here-->
+                
+                <template lwc:if={isAdvanceSearch}>
+                    <lightning-layout-item size="12" class="slds-p-top_small">
+                        <hr
+                            class="slds-var-m-horizontal_medium slds-var-m-bottom_small slds-var-m-top_x-small divider" />
+                            <div class="slds-m-left_small">
+                                <c-card-title-stacked icon-name="standard:filter" value={labelFactory.REPORT_FILTERS_TEXT}>
+                                </c-card-title-stacked>
+                            </div>
+                    </lightning-layout-item>
+
+                    <lightning-layout-item size="12" class="slds-m-top_x-small">
+                        <lightning-layout multiple-rows="true">
+                            <template lwc:if={isFilterAvailable}>
+                                <lightning-layout-item padding="around-small" size="4">
+                                    <b><label class="slds-form-element__label"
+                                            for="form-element-01">{labelFactory.REPORT_COLUMN_NAME}
+                                        </label></b>
+                                </lightning-layout-item>
+
+                                <lightning-layout-item padding="around-small" size="4">
+                                    <b><label class="slds-form-element__label"
+                                            for="form-element-01">{labelFactory.REPORT_OPERATOR}</label></b>
+                                </lightning-layout-item>
+
+                                <lightning-layout-item padding="around-small" size="4">
+                                    <b><label class="slds-form-element__label"
+                                            for="form-element-01">{labelFactory.REPORT_VALUE}</label></b>
+                                </lightning-layout-item>
+
+                                <template for:each={filterDetails} for:item="filter" for:index="ind">
+                                    <lightning-layout-item key={filter} padding="around-small"
+                                        size="4">
+                                        <lightning-input type="text" variant="label-hidden"
+                                            value={filter.reportColumnName} class="filterName" readonly>
+                                        </lightning-input>
+                                    </lightning-layout-item>
+                                    
+                                    <lightning-layout-item key={filter} padding="around-small" size="3">
+                                        <lightning-input type="text" variant="label-hidden" value={filter.operator}
+                                            readonly>
+                                        </lightning-input>
+                                    </lightning-layout-item>
+
+                                    <lightning-layout-item key={filter} padding="around-small" size="4">
+                                        <lightning-input type="text" variant="label-hidden" value={filter.value}
+                                            onchange={handleValueChange} data-ind={filter.reportColumnName} data-operator={filter.operator}
+                                            class="filterValues">
+                                        </lightning-input>
+                                    </lightning-layout-item>
+                                </template>
+                            </template>
+                            <template lwc:else>
+                                <lightning-layout-item padding="around-small" size="12">
+                                    <c-accounting-seed-info-box lwc:spread={properties}></c-accounting-seed-info-box>
+                                </lightning-layout-item>
+                            </template>
+                        </lightning-layout>
+                    </lightning-layout-item>
+                </template> <!--Advance search end here-->
+
+                
+                <lightning-layout-item size="12" class="slds-p-top_small">
+                    <hr class="slds-var-m-horizontal_medium slds-var-m-bottom_small slds-var-m-top_x-small divider" />
+                </lightning-layout-item>
+
+                <lightning-layout-item size="12" class="slds-p-top_xx-small">
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-size_1-of-2">
+                            <span>
+                                <div class="slds-grid slds-m-left_large">
+                                    <c-card-title-stacked icon-name="standard:record" value={resultLabel}>
+                                    </c-card-title-stacked>
+                                    <template if:true={currencyISOCode}>
+                                        <p>({currencyISOCode})</p>
+                                    </template>
+                                </div>
+                            </span>
+                        </div>
+                        <div class="slds-size_1-of-2">
+                            <div class="slds-float_right slds-m-right_small">
+                                <lightning-button variant="brand" lwc:ref="addBtn" label={labelFactory.commonAdd}
+                                    title={labelFactory.commonAdd} onclick={handleAdd} class="slds-p-left_xx-large slds-m-right_small" disabled>
+                                </lightning-button>
+                            </div>
+                        </div>
+                    </div>
+                </lightning-layout-item>
+        
+                <template lwc:if={searchData}>
+                    <lightning-layout-item size="12" padding="around-small">
+                        <c-search-result-data-table lwc:ref="searchTable" search-data={searchData}
+                            onrowselect={handleRowSelection}>
+                        </c-search-result-data-table>
+                    </lightning-layout-item>
+                </template> <!--search grid ends here-->
+            </lightning-layout>
+        </div>
+    </lightning-card>
+</template>

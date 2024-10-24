@@ -1,0 +1,15 @@
+.toggleOffClass{
+    width: 26%;
+}
+
+.toggleOnClass{
+    width: 10%;
+}
+
+.toggleOffOnLoadClass{
+    width: 14%;
+}
+
+.iconProp{
+    --lwc-colorTextIconDefault: red;
+}

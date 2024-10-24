@@ -1,0 +1,13 @@
+<template>
+    <template if:true={recordId}>
+        <c-cardknox-merchant-keys data-id="merchant-keys"
+            record-id={recordId} 
+            oncreateaccount={hideMerchantKeyForm}
+            oncancel={handleCancelButton}>
+        </c-cardknox-merchant-keys>
+        <c-cardknox-account-boarding-form 
+            data-id="boarding-form"
+            oncancel={handleCancelButton}>
+        </c-cardknox-account-boarding-form>
+    </template>
+</template>

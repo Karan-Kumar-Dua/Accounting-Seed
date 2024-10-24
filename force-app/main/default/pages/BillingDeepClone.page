@@ -1,0 +1,30 @@
+<apex:page id="thePage" title="{!$Label.AcctSeed__COMMON_CLONE +' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" standardController="Billing__c" extensions="BillingDeepClone" lightningStylesheets="true">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/>
+    <apex:variable var="customLEX" value="customLEXOn" rendered="{!$User.UIThemeDisplayed = 'Theme4d' || $User.UIThemeDisplayed = 'Theme4u'}">
+        <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/visualforce-lex-ext.css')}" />
+    </apex:variable>
+    <script>
+        function setFocusOnLoad() {}
+    </script>
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$Label.AcctSeed__COMMON_CLONE +' '+ $ObjectType.Billing__c.label}" subtitle="{!Billing__c.Name}" />
+        <apex:pageBlock id="thePageBlock">
+            <apex:pageMessage summary="{!$Label.AcctSeed__INF_CLONE_FUNCTION +' '+ $ObjectType.Billing__c.label +' '+ $Label.AcctSeed__INF_AND_ALL_ASSOCIATED +' '+ $ObjectType.Billing__c.label +' '+ $Label.AcctSeed__COMMON_LINES +'.'}" severity="info" strength="3" />
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}');"/>
+                <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true"/>
+                <apex:commandButton action="{!cloneWithlines}" status="saveStatus" value="{!$Label.AcctSeed__COMMON_CLONE +' ' +$ObjectType.Billing__c.label}" rendered="{!!disableCloneButton}" reRender="theForm"  style="background-color: #1B5297; color: white"/>
+                <apex:commandButton action="{!cloneWithlines}" status="saveStatus" value="{!$Label.AcctSeed__COMMON_CLONE +' ' +$ObjectType.Billing__c.label}" rendered="{!disableCloneButton}" reRender="theForm" disabled="{!disableCloneButton}" style="background-color: #f1f2f2; color: #1B5297"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="1">
+                <apex:inputField label="{!$Label.AcctSeed__COMMON_BILLING_DATE}" value="{!tempBilling.Date__c}" />
+                <apex:inputField value="{!tempBilling['CurrencyIsoCode']}" rendered="{!isMultiCurrencyEnabled}"/>
+                <div class="slds-grid slds-gutters slds-p-around_x-small">
+                    <apex:inputCheckbox value="{!makeCreditMemo}" label="{!$Label.AcctSeed__COMMON_CLONE_AS_CREDIT_MEMO}" rendered="{!!isCreditMemo}" />
+                </div>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

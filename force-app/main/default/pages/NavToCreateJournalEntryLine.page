@@ -1,0 +1,10 @@
+<apex:page standardController="Journal_Entry_Line__c"
+           extensions="NavToCreateController"
+           recordSetVar="jeLines"
+           title="{!$Label.AcctSeed__COMMON_NEW + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}"
+           lightningStylesheets="true"
+           sideBar="false">
+
+    <c:NavToCreateStatusComponent isError="{!isError}" url="{!redirectUrl}"/>
+
+</apex:page>

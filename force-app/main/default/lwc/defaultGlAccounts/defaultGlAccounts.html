@@ -1,0 +1,146 @@
+<template>
+    <div class="slds-var-m-bottom_medium">
+        <c-page-header
+            title={labels.defaultGlAccountsSubtitle}
+            breadcrumbs={breadcrumbs}
+            knowledge-base={knowledgeBase}
+            icon-name="standard:custom"
+        ></c-page-header>
+    </div>
+    <lightning-card if:false={userCanView}>
+        <c-insufficient-privileges></c-insufficient-privileges>
+    </lightning-card>
+    <div if:true={error} class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error">
+        <lightning-icon icon-name="utility:warning" variant="inverse" size="small"></lightning-icon>
+        <h2 class="slds-p-left_x-small warn-no-records">{error}</h2>
+    </div>
+    <lightning-card if:true={isShowMainSection}>
+        <div slot="title" class="defaultGlAccounts--header">
+            <span class="slds-text-heading_small"><strong>{labels.defaultGlAccountsTitle}</strong></span>
+            <lightning-button-icon
+                class="slds-var-m-left_medium"
+                if:false={isEditable}
+                icon-name="utility:edit"
+                onclick={handleEdit}
+                disabled={userCannotEdit}
+                data-id="lightningButtonIcon-edit"
+            ></lightning-button-icon>
+            <lightning-button
+                class="slds-var-m-left_medium"
+                if:true={isEditable}
+                label={labels.commonCancel}
+                variant="neutral"
+                onclick={handleCancel}
+                disabled={userCannotEdit}
+                data-id="lightningButton-cancel"
+            ></lightning-button>
+            <lightning-button
+                class="slds-var-m-left_medium"
+                if:true={isEditable}
+                label={labels.commonSave}
+                variant="brand"
+                onclick={handleSave}
+                disabled={userCannotEdit}
+                data-id="lightningButton-save"
+            ></lightning-button>
+        </div>
+        <lightning-button
+                slot="actions"
+                if:false={isGLDefaultRecordsExist}
+                disabled={userCannotEdit}
+                class="slds-col_bump-left"
+                label={labels.INF_CREATE_GL_ACCT_DEFAULTS}
+                onclick={handleInitialCreating}
+        >
+        </lightning-button>
+        <template if:true={showSpinner}>
+            <lightning-spinner
+                    variant="brand"
+                    alternative-text={labels.commonLoading}
+                    size="medium">
+            </lightning-spinner>
+        </template>
+        
+        <section>
+            <div class="slds-var-m-bottom_small slds-var-p-horizontal_medium"><strong>{labels.accountingHomeLedger}</strong></div>
+            <lightning-layout class="slds-is-relative">
+                <lightning-layout-item padding="horizontal-medium">
+                    <lightning-combobox
+                            if:false={recordLedgerId}
+                            validity="valid"
+                            options={ledgerOptions}
+                            variant="label-hidden"
+                            value={selectedLedgerId}
+                            read-only={isEditable}
+                            onchange={handleLedgerChange}
+                    ></lightning-combobox>
+                    <c-record-popover
+                            if:true={recordLedgerId}
+                            record-id={recordLedgerId}
+                            object-api-name={ledgerApiName}
+                            fields={ledgerFields}
+                    ></c-record-popover>
+                </lightning-layout-item>
+            </lightning-layout>
+        </section>
+
+        <template for:each={sections} for:item="section">
+            <template if:true={section.isShowSection}>
+                <section key={section.id}>
+                    <hr if:true={section.isShowSeparator} class="slds-var-m-horizontal_medium" />
+                    <div if:false={section.isShowSeparator} class="slds-var-m-bottom_large"></div>
+                    <h2 if:true={section.title} class="defaultGlAccounts--heading slds-var-m-bottom_small slds-var-p-horizontal_medium">
+                        <strong>{section.title}</strong>
+                    </h2>
+                    <h2 if:true={section.subtitle} class="defaultGlAccounts--subheading slds-var-m-bottom_small slds-var-p-horizontal_medium">
+                        <strong>{section.subtitle}</strong>
+                    </h2>
+                    <lightning-layout multiple-rows="true">
+                        <template for:each={section.items} for:item="spec">
+                            <lightning-layout-item key={spec.devName} size="3" padding="horizontal-medium" class="slds-m-bottom_x-small">
+                                <label class="slds-form-element__label">
+                                    <abbr if:true={spec.required} class="slds-required" title={labels.commonRequired}>* </abbr>
+                                    {spec.label}
+                                </label>
+                                <lightning-helptext
+                                        if:true={spec.helpText}
+                                        class="slds-var-m-left_xx-small"
+                                        content={spec.helpText}
+                                ></lightning-helptext>
+                                <c-lookup-a
+                                        onselectionchange={handleSelectionChange}
+                                        if:false={isDisabled}
+                                        search-object={glAccountApiName}
+                                        data-id="lookup-defaultJournalEntry"
+                                        data-lookup={spec.devName}
+                                        init-value={spec.glAccountId}
+                                        required={spec.required}
+                                        search-filter={spec.lookupFilter}
+                                >
+                                </c-lookup-a>
+                                <c-record-popover
+                                        if:true={isDisabled}
+                                        record-id={spec.glAccountId}
+                                        object-api-name={glAccountApiName}
+                                        fields={glAccountFields}
+                                        data-id="popover-"
+                                ></c-record-popover>
+                            </lightning-layout-item>
+                        </template>
+                    </lightning-layout>
+                </section>
+            </template>
+        </template>
+    </lightning-card>
+    <c-modal-popup-base title={labels.commonConfirm} is-open={isModalOpen} data-id="modalPopupBase" onclose={handleCloseModal}>
+        <div class="slds-var-p-around_medium">
+            <lightning-formatted-rich-text value={labels.defaultGlAccountsForPrimaryLedgerModal}></lightning-formatted-rich-text>
+        </div>
+        <footer class="slds-modal__footer">
+            <lightning-button label={labels.commonCancel} class="slds-var-m-right_small" variant="neutral"
+                              data-id="lightningButton-closeModal" onclick={handleCloseModal}></lightning-button>
+            <lightning-button label={labels.commonOk} variant="brand" data-id="lightningButton-submitModal"
+                              onclick={handleSubmitModal}></lightning-button>
+        </footer>
+    </c-modal-popup-base>
+</template>

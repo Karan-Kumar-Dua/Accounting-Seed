@@ -1,0 +1,20 @@
+.automatedJobs--tableHeader th {
+    background-color: #172b50;
+    color: #ffffff;
+    font-weight: normal;
+}
+
+.automatedJobs--subtitle {
+    font-size: .825rem;
+    font-weight: bold;
+}
+
+.schedule-combobox {
+    width: 20em;
+}
+.areYouSure-body {
+    color: #3E3E3C;
+}
+.areYouSure-body-list {
+    font-weight: bold;
+}

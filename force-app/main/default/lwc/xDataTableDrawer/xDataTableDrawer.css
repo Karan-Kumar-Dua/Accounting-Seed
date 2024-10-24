@@ -1,0 +1,9 @@
+:host {
+    display: table-row;
+}
+.bgYellow{
+    background-color: rgba(250,255,189,1);
+}
+.bottomBorder{
+    border-bottom: 1px solid #BDBDBD;
+}

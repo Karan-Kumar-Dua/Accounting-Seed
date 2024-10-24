@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 398.91 399">
+    <defs>
+        <style>.cls-1{fill:#1aa2dc;}.cls-2{fill:#2874bb;}.cls-3{fill:#4cb748;}</style>
+    </defs>
+    <title>LogoMark_RGB</title>
+    <path class="cls-1" d="M139.88,0C63.05,0,.54,62.51.54,139.34V398.91H260.11c74,0,138.27-64.11,139.34-139.34V0ZM302.15,221.23a80.34,80.34,0,0,1-80.35,80.35h-124v-124a80.34,80.34,0,0,1,80.35-80.34h124Z" transform="translate(-0.54)"/>
+    <path class="cls-2" d="M363.37,352.94c36.22-39.77,36.09-92.6,36.08-93.13V0L302.18,97.27V219.63c0,81.95-68.07,179.28-301.64,179.28l259.57.09C274.49,399,324.45,395.68,363.37,352.94Z" transform="translate(-0.54)"/>
+    <path class="cls-3" d="M200,244.78a45.33,45.33,0,0,1,0-90.65h45.33v45.33A45.32,45.32,0,0,1,200,244.78Z" transform="translate(-0.54)"/>
+</svg>

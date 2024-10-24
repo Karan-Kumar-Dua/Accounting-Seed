@@ -1,0 +1,28 @@
+<apex:page standardController="Financial_Report_Definition__c" title="{!$Label.AcctSeed__COMMON_CLONE + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="ReportDeepCloneController">
+    <apex:form >
+        <apex:sectionHeader title="{!$ObjectType.Financial_Report_Definition__c.label}" subtitle="{!Financial_Report_Definition__c.Name}" />
+        <apex:pageBlock title="{!$Label.AcctSeed__COMMON_REPORT_CLONE}">
+            <apex:pageMessages escape="false"/>
+            <apex:outputLabel style="font-weight:bold" for="new-report-name" value="{!$Label.AcctSeed__CLONE_ENTER_REPORT_NAME}" />
+            <br />
+            <apex:inputText size="50" id="new-report-name" value="{!newReportName}" />
+            <br />
+            <br />
+            <apex:outputLabel style="font-weight:bold" for="new-report-description" value="{!$Label.AcctSeed__CLONE_ENTER_REPORT_DESCRIPTION}" />
+            <br />
+            <apex:inputTextarea cols="50" rows="5" id="new-report-description" value="{!newReportDescription}" />
+            <br />
+            <br />
+            <apex:outputText style="font-weight:bold" value="{!$Label.AcctSeed__CLONE_SELECT_CRITERIA}" />
+            <br />
+            <apex:outputLabel style="display:inline-block; width:150px" for="clone-rows" value="{!$Label.AcctSeed__COMMON_CLONE_REPORT_ROWS} ({!numRows})? " />
+            <apex:inputCheckbox disabled="{!disableCloneRows}" id="clone-rows" value="{!cloneRows}" />
+            <br />
+            <apex:outputLabel style="display:inline-block; width:150px" for="clone-cols" value="{!$Label.AcctSeed__COMMON_CLONE_REPORT_COLUMNS} ({!numCols})? " />
+            <apex:inputCheckbox disabled="{!disableCloneCols}" id="clone-cols" value="{!cloneCols}" />
+            <br />
+            <br />
+            <apex:commandButton action="{!deepClone}" value="{!$Label.AcctSeed__COMMON_START_DEEP_CLONE}" />
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

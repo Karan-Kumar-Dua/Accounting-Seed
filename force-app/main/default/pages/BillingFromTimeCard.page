@@ -1,0 +1,99 @@
+<apex:page id="thePage" standardController="Time_Card__c" title="{!$Label.AcctSeed__COMMON_CREATE_BILLING + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="BillingFromTimeCard,EnvironmentUtils" recordSetVar="timeCardVar" lightningStylesheets="true">
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/javascript/Intl.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/locale-data/jsonp/' & DefaultLocale & '.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/> 
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+        function setFocusOnLoad() {}
+    </script> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"/> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/currency-formatter.js')}" loadOnReady="true"/>
+
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/common.css')}" />
+
+    <apex:variable var="customLEX" value="customLEXOn" rendered="{!$User.UIThemeDisplayed = 'Theme4d' || $User.UIThemeDisplayed = 'Theme4u'}">
+        <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/visualforce-lex-ext.css')}" />
+    </apex:variable>
+
+    <apex:form id="theForm">
+        <apex:actionFunction name="backAction" action="{!cancel}" immediate="true"/>
+        <apex:sectionHeader title="{!$ObjectType.Time_Card__c.labelPlural}" subtitle="{!$Label.AcctSeed__COMMON_CREATE + $ObjectType.Billing__c.labelPlural}" />
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__COMMON_CREATE + $ObjectType.Billing__c.labelPlural}">
+            <apex:pageMessages escape="false"/>
+            <apex:pageMessage summary="{!$Label.AcctSeed__COMMON_IN_ORDER_TO_BILL_A +' '+ $ObjectType.Time_Card__c.label +' '+ $Label.AcctSeed__INF_FOLLOWING_COND_TO_BE_MET +' '+ $ObjectType.Time_Card__c.label +' '+ $Label.AcctSeed__INF_STATUS_MUST_NOT_BE_POSTED_ACCOUNT_FIELD_PROJECT_ASSOCIATED +' '+ $ObjectType.Time_Card_Line__c.label +' '+ $Label.AcctSeed__INF_MUST_BE_POPULATED_BILLING_FIELD_TEXT +' '+ $ObjectType.Time_Card_Line__c.label +' '+ $Label.AcctSeed__INF_MUST_BE_CHECKED_TEXT +' '+ $ObjectType.Time_Card_Line__c.label +' '+ $Label.AcctSeed__INF_HAS_NOT_BILLED_BILLABLE_FIELD_TEXT +' '+ $ObjectType.Time_Card_Line__c.label  +' '+ $Label.AcctSeed__INF_MUST_BE_CHECKED_TEXT}"
+                              escape="false"
+                              severity="info"
+                              strength="3"
+                              rendered="{!showInfo}">
+            </apex:pageMessage>
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="saveStatus"
+                                   onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')"
+                                   onstop="AcctSeed.ASModule.pageLoad()"/>
+                <apex:commandButton action="{!createBillings}"
+                                    value="{!$Label.AcctSeed__COMMON_CREATE}"
+                                    status="saveStatus"
+                                    reRender="theForm" rendered="{!!isSuccess && showData}" />
+                <apex:commandButton action="{!createBillingAndPost}"
+                                    value="{!$Label.AcctSeed__COMMON_CREATE_AND_POST}"
+                                    status="saveStatus"
+                                    reRender="theForm" rendered="{!!isSuccess && showData}" />
+                <apex:commandButton onComplete="AcctSeed.ASModule.customBackToListAction('{!listViewId}', '', '{!SObjectApiName}');"
+                                    value="{!$Label.AcctSeed__COMMON_BACK}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection rendered="{!!isSuccess && showData}">
+                <apex:inputField value="{!bill.Date__c}" required="true" />
+                <apex:inputField value="{!bill.Billing_Cycle_Start_Date__c}" required="true" />
+                <apex:inputField value="{!bill.Billing_Format__c}" required="true" />
+                <apex:inputField value="{!bill.Billing_Cycle_End_Date__c}" required="true" />
+            </apex:pageBlockSection>
+            <apex:dataTable value="{!timeCardWrapperList}" var="tcw" cellpadding="6" cellspacing="6" width="100%" rendered="{!!isSuccess && showData}">
+                <apex:column width="100%">
+                    <div style="padding-bottom: 10px">
+                        <apex:outputLabel value="{!$Label.AcctSeed__COMMON_ACCOUNT}:" style="font-weight:bold;" />&nbsp;&nbsp;
+                        <apex:outputField value="{!tcw.acct.Name}" />
+                        <span style="font-weight:bold; padding-left: 15px;">{!$Label.COMMON_LEDGER}:&nbsp;</span>
+                        <apex:outputField value="{!tcw.timeCardLineList[0].tcLine.Time_Card__r.Ledger__c}" />
+                    </div>
+                    <apex:pageBlockTable value="{!tcw.timeCardLineList}" var="tclw">
+                        <apex:column value="{!tclw.tcLine.Name}" width="10%" />
+                        <apex:column value="{!tclw.tcline.Time_Card__r.Time_Card_Period__r.Name}" width="15%" />
+                        <apex:column headerValue="{!$Label.AcctSeed__COMMON_EMPLOYEE_NAME}" value="{!tclw.tcLine.Time_Card__r.Employee__r.Name}" width="10%" />
+                        <apex:column value="{!tclw.tcLine.Project__r.Name}" width="10%" />
+                        <apex:column value="{!tclw.tcLine.Project_Task__r.Name}" width="10%" />
+                        <apex:column headerValue="{!$Label.AcctSeed__COMMON_REVENUE_GL_ACCOUNT}" width="10%">
+                            <apex:inputField value="{!tclw.glAccountBillLine.Revenue_GL_Account__c}" style="width:180px" required="true" />
+                        </apex:column>
+                        <apex:column value="{!tclw.tcLine.Total_Hours__c}" width="10%" headerClass="align-right" styleClass="align-right" footerClass="align-right"/>
+                        <apex:column headerValue="{!$Label.AcctSeed__COMMON_BILLING_RATE}" headerClass="align-right" styleClass="align-right" footerClass="align-right">
+                            <apex:outputText id="rateWithCurrency" value="{!tclw.BillingRateAmount}">
+                                <apex:outputText style="white-space:pre-wrap;"
+                                                 value="{!ledgerMap[tcw.timeCardLineList[0].tcLine.Time_Card__r.Ledger__c]['CurrencyIsoCode']} "
+                                                 rendered="{!isMultiCurrencyEnabled}"/>
+                            </apex:outputText>
+                        </apex:column>
+                        <apex:column headerValue="{!$Label.AcctSeed__COMMON_BILL_AMOUNT}" headerClass="align-right" styleClass="align-right" footerClass="align-right">
+                            <apex:outputText id="billWithCurrency" value="{!tclw.Amount}" >
+
+                                <apex:outputText style="white-space:pre-wrap;"
+                                                 value="{!ledgerMap[tcw.timeCardLineList[0].tcLine.Time_Card__r.Ledger__c]['CurrencyIsoCode']} "
+                                                 rendered="{!isMultiCurrencyEnabled}"/>
+                            </apex:outputText>
+                            <apex:facet name="footer">
+                                <apex:outputText id="totalWithCurrency" value="{!tcw.amount}">
+                                    <apex:outputText style="white-space:pre-wrap;"
+                                                     value="{!ledgerMap[tcw.timeCardLineList[0].tcLine.Time_Card__r.Ledger__c]['CurrencyIsoCode']} "
+                                                     rendered="{!isMultiCurrencyEnabled}"/>
+                                </apex:outputText>
+                            </apex:facet>
+                        </apex:column>
+                    </apex:pageBlockTable>
+                </apex:column>
+            </apex:dataTable>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

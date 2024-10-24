@@ -1,0 +1,161 @@
+<apex:page id="thePage"
+           standardController="Time_Card__c"
+           extensions="TimeCardPostTransaction"
+           title="{!Time_Card__c.Name & ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" recordSetVar="timeCards" action="{!validateBeforePost}" sideBar="false" lightningStylesheets="true">
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.dataTables.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/post-unpost-intermediate-screen.js')}" loadOnReady="true"/>
+
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/jquery.dataTables.min.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/post-table.css')}" />
+    <apex:variable var="customLEX" value="customLEXOn" rendered="{!$User.UIThemeDisplayed = 'Theme4d' || $User.UIThemeDisplayed = 'Theme4u'}">
+        <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/visualforce-lex-ext.css')}" />
+    </apex:variable>
+
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Time_Card__c.labelPlural}" subtitle="{!$Label.AcctSeed__COMMON_BATCH_POST}"/>
+        <apex:pageBlock title="{!$Label.AcctSeed__COMMON_BATCH_POST}">
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="processingStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')"/>
+                <apex:commandButton action="{!post}" value="{!$Label.AcctSeed__COMMON_POST}" status="processingStatus"
+                                    rendered="{!showActionButton}" reRender="theForm"
+                                    onComplete="AcctSeed.ASModule.formatSystemExceptionTable();"/>
+                <apex:commandButton action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true"/>
+            </apex:pageBlockButtons>
+
+            <apex:pageBlockSection collapsible="false" title="{!$Label.AcctSeed__COMMON_POSTING_ERROR_DETAIL}"
+                                   columns="1" rendered="{!showErrorStatisticsTable}">
+                <div id="spinner" style="font-weight:bold; position:absolute; left:50%; margin-left: -100px; display:block">
+                    <img src="/img/loading.gif" style="text-align:center" width="16" height="16" alt="loading gif" />
+                    &nbsp;&nbsp;}{!$Label.COMMON_LOADING}
+                </div>
+                <apex:dataTable id="errorStatisticsTable" styleClass="display"
+                                value="{!errorStatisticsLines}" var="statisticsLine" style="visibility:hidden">
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_NAME}">
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.sourceObjectId}"
+                                         target="_blank" value="/{!statisticsLine.sourceObjectId}">
+                            {!statisticsLine.sourceObjectName}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['NO_LABOR_CONTROL_ACCOUNT_DEFINED']}
+                            <img src="/s.gif" class="helpImg" title="{!helpTextMap['NO_LABOR_CONTROL_ACCOUNT_DEFINED']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['NO_LABOR_CONTROL_ACCOUNT_DEFINED'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['NO_LABOR_CONTROL_ACCOUNT_DEFINED'].id}">
+                            {!statisticsLine.lineCells['NO_LABOR_CONTROL_ACCOUNT_DEFINED'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['NO_TASK_EXPENSE_GL_ACCOUNT_DEFINED']}
+                            <img src="/s.gif" class="helpImg" title="{!helpTextMap['NO_TASK_EXPENSE_GL_ACCOUNT_DEFINED']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['NO_TASK_EXPENSE_GL_ACCOUNT_DEFINED'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['NO_TASK_EXPENSE_GL_ACCOUNT_DEFINED'].id}">
+                                {!statisticsLine.lineCells['NO_TASK_EXPENSE_GL_ACCOUNT_DEFINED'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['CLOSED_ACCOUNTING_PERIOD']}
+                            <img src="/s.gif" class="helpImg" title="{!helpTextMap['CLOSED_ACCOUNTING_PERIOD']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['CLOSED_ACCOUNTING_PERIOD'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['CLOSED_ACCOUNTING_PERIOD'].id}">
+                                {!statisticsLine.lineCells['CLOSED_ACCOUNTING_PERIOD'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['LEDGER_TYPE_NOT_ALLOWED']}
+                            <img src="/s.gif" class="helpImg" title="{!helpTextMap['LEDGER_TYPE_NOT_ALLOWED']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['LEDGER_TYPE_NOT_ALLOWED'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['LEDGER_TYPE_NOT_ALLOWED'].id}">
+                            {!statisticsLine.lineCells['LEDGER_TYPE_NOT_ALLOWED'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['ALREADY_POSTED']}
+                            <img src="/s.gif" class="helpImg" title="{!helpTextMap['ALREADY_POSTED']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['ALREADY_POSTED'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['ALREADY_POSTED'].id}">
+                            {!statisticsLine.lineCells['ALREADY_POSTED'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['STATUS_NOT_APPROVED']}
+                            <img src="/s.gif" class="helpImg" title="{!helpTextMap['STATUS_NOT_APPROVED']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['STATUS_NOT_APPROVED'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['STATUS_NOT_APPROVED'].id}">
+                            {!statisticsLine.lineCells['STATUS_NOT_APPROVED'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['MAX_TIME_CARD_DAYS_EXCEEDED']}
+                            <img src="/s.gif" class="helpImg" title="{!helpTextMap['MAX_TIME_CARD_DAYS_EXCEEDED']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['LINE_COUNT_LIMIT_EXCEEDED'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['LINE_COUNT_LIMIT_EXCEEDED'].id}">
+                            {!statisticsLine.lineCells['LINE_COUNT_LIMIT_EXCEEDED'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            {!headerMap['ONLY_ACTUAL_TIME_CARD_ALLOW']}
+                            <img src="/s.gif" class="helpImg" title="{!helpTextMap['ONLY_ACTUAL_TIME_CARD_ALLOW']}"/>
+                        </apex:facet>
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!statisticsLine.lineCells['ONLY_ACTUAL_TIME_CARD_ALLOW'].id}"
+                                         target="_blank" value="/{!statisticsLine.lineCells['ONLY_ACTUAL_TIME_CARD_ALLOW'].id}">
+                            {!statisticsLine.lineCells['ONLY_ACTUAL_TIME_CARD_ALLOW'].name}
+                        </apex:outputLink>
+                    </apex:column>
+                </apex:dataTable>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection collapsible="false" title="{!$Label.AcctSeed__COMMON_POSTING_ERROR_DETAIL}"
+                                   columns="1" rendered="{!showSystemExceptionTable}">
+                <div id="spinner2" style="font-weight:bold; position:absolute; left:50%; margin-left: -100px; display:block">
+                    <img src="/img/loading.gif" style="text-align:center" width="16" height="16" alt="loading gif" />
+                    &nbsp;&nbsp;{!$Label.COMMON_LOADING}
+                </div>
+                <apex:dataTable id="systemExceptionTable" styleClass="display"
+                                value="{!errorStatisticsLines}" var="systemExceptionLine" style="visibility:hidden">
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_NAME}">
+                        <apex:outputLink styleClass="sourceLink"
+                                         html-data-sourceid="{!systemExceptionLine.sourceObjectId}"
+                                         target="_blank" value="/{!systemExceptionLine.sourceObjectId}">
+                                {!systemExceptionLine.sourceObjectName}
+                        </apex:outputLink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">
+                            System Exception Error Message
+                        </apex:facet>
+                        <!-- escape="false" because error message might contain html tags -->
+                        <apex:outputText escape="false" value="{!systemExceptionLine.systemExceptionErrorMessage}"/>
+                    </apex:column>
+                </apex:dataTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+
+</apex:page>

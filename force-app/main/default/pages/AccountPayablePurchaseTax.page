@@ -1,0 +1,107 @@
+<apex:page standardController="Account_Payable__c" title="{!Account_Payable__c.Name &  ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="AccountPayablePurchaseTax,EnvironmentUtils" action="{!init}">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.dataTables.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/tax-intermediate-screen.js')}" loadOnReady="true"/>
+
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/jquery.dataTables.min.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/tax-intermediate-screen.css')}" />
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+        AcctSeed.ASModule.currencyIsoCode = "{!JSENCODE(currencyIsoCode)}";
+    </script>
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Account_Payable__c.labelPlural}"
+                subtitle="{!$ObjectType.Account_Payable__c.labelPlural +' '+ $Label.AcctSeed__COMMON_SALES_TAX}" />
+        <apex:pageBlock >
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')"/>
+                <apex:commandButton action="{!save}"
+                        value="{!$Label.AcctSeed__COMMON_CALC_TAX}"
+                        status="saveStatus"
+                        rendered="{!isValidationPassed}"
+                        reRender="theForm"/>
+                <apex:commandButton action="/{!Account_Payable__c.Id}"
+                        value="{!$Label.AcctSeed__COMMON_BACK}"/>
+            </apex:pageBlockButtons>
+            <apex:dataTable id="taxTable" styleClass="display" value="{!taxTableData}" var="taxData"
+                            rendered="{!AND(isTaxableProductsExisted, isValidationPassed)}" style="visibility:hidden" >
+                <apex:facet name="header">{!$ObjectType.Account_Payable__c.labelPlural} {!$Label.AcctSeed__COMMON_SALES_TAX}</apex:facet>
+
+                <apex:column headerValue="{!$Label.AcctSeed__TAX_RATE_NAME}">
+                    <div class="child">
+                        <apex:outputLink value="/{!taxData.taxRateId}" target="_blank" rendered="{!!taxData.isTotalsRow}">
+                            {!taxData.taxRateName}
+                        </apex:outputLink>
+                    </div>
+                </apex:column>
+
+                <apex:column headerValue="{!$ObjectType.Account_Payable_Line__c.label}">
+                    <apex:repeat value="{!taxData.linesNames}" var="lineData" >
+                        <div class="child">
+                            <apex:outputLink value="/{!lineData}" target="_blank" >
+                                {!taxData.linesNames[lineData]}
+                            </apex:outputLink>
+                        </div>
+                    </apex:repeat>
+                </apex:column>
+
+                <apex:column headerValue="{!$Label.AcctSeed__COMMON_TAXABLE_PROD}">
+                    <apex:repeat value="{!taxData.taxableProducts}" var="lineData" >
+                        <div class="child">
+                            <apex:repeat value="{!taxData.taxableProducts[lineData]}" var="line" >
+                                <apex:outputLink value="/{!line}" target="_blank" >
+                                    {!taxData.taxableProducts[lineData][line]}
+                                </apex:outputLink>
+                            </apex:repeat>
+                        </div>
+                    </apex:repeat>
+                </apex:column>
+
+                <apex:column headerValue="{!$Label.AcctSeed__COMMON_AMOUNT}">
+                    <div class="align">
+                        <apex:repeat value="{!taxData.amount}" var="lineData">
+                            <div class="child">
+                                <apex:outputText id="Amounts" value="{!taxData.amount[lineData]}" />
+                            </div>
+                        </apex:repeat>
+                    </div>
+                </apex:column>
+
+                <apex:column headerValue="{!$Label.AcctSeed__TAX_RATE_PERCENTAGE}">
+                    <apex:repeat value="{!taxData.taxableProducts}" var="lineData" >
+                        <div class="child">
+                            <apex:outputText id="TaxRate" value="{!taxData.taxRate}" />
+                        </div>
+                    </apex:repeat>
+                </apex:column>
+
+                <apex:column headerValue="{!$Label.AcctSeed__COMMON_TAX_AMOUNT}" id="amountPosition">
+                    <div class="align">
+                        <apex:repeat value="{!taxData.taxAmount}" var="lineData">
+                            <div class="child">
+                                <apex:outputText id="Amount" value="{!taxData.taxAmount[lineData]}" />
+                            </div>
+                        </apex:repeat>
+                    </div>
+                </apex:column>
+
+                <apex:column breakBefore="true" colspan="6">
+                    <div class="parent" style="justify-content: flex-end; display: flex;">
+                        <apex:outputText value="{!taxData.taxTotalName}"/>
+                        <div class="setBlockPosition">
+                            <div class="align">
+                                <apex:outputText id="Amounts" value="{!taxData.taxAmountTotal}"/>
+                            </div>
+                        </div>
+                     </div>
+                </apex:column>
+
+            </apex:dataTable>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

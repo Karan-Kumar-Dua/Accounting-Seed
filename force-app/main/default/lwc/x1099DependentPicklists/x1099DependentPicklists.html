@@ -1,0 +1,22 @@
+<template>
+    <div>
+        <lightning-combobox
+            data-jest="form-type"
+            label={formTypeInputLabel}
+            value={selectedForm1099Type}              
+            options={form1099TypeOpts}
+            spinner-active={isLoadingform1099TypeOpts}
+            onchange={handleTypeChange}>
+        </lightning-combobox>
+        <lightning-combobox
+            data-jest="form-box"
+            label={boxInputLabel}
+            value={selectedForm1099Box}             
+            options={form1099BoxOpts}
+            disabled={isForm1099BoxInputDisabled}
+            spinner-active={isLoadingForm1099BoxOpts}
+            onchange={handleBoxChange}
+            class="slds-p-top_small">                                    
+        </lightning-combobox>
+    </div>
+</template>

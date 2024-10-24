@@ -1,0 +1,174 @@
+<apex:page standardController="Cash_Disbursement__c" title="{!Cash_Disbursement__c.Name & ' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="CashDisbursementApplyAccountPayable,EnvironmentUtils" sidebar="false">
+
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/cash-apply.css')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/javascript/Intl.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/locale-data/jsonp/' & DefaultLocale & '.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" />
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(IS_MULTI_CURRENCY_ENABLED, "true", "false"))}";
+        AcctSeed.ASModule.currencyIsoCode = "{!JSENCODE(currencyIsoCode)}";
+        AcctSeed.ASModule.LABELS = {CONFIRM_DO_YOU_WANT_TO_LEAVE_THIS_PAGE: "{!HTMLENCODE(JSENCODE($Label.AcctSeed__CONFIRM_DO_YOU_WANT_TO_LEAVE_THIS_PAGE))}"};
+    </script>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/cash-apply.js')}" loadOnReady="true" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.dataTables.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/jquery.dataTables.min.css')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, 'javascript/vex.combined.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, 'css/vex.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, 'css/vex-theme-default.css')}" />
+
+
+    <apex:form id="theForm" onkeypress="return AcctSeed.ASModule.noenter(event);">
+        <apex:actionFunction name="refreshTable" action="{!refreshAndInitRecords}" status="loadingStatus" rerender="theForm" oncomplete="AcctSeed.ASModule.redrawTable();" />
+        <apex:actionstatus id="loadingStatus" onstart="AcctSeed.ASModule.loadingTable(true);AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}');AcctSeed.ASModule.disableArrowButtons();" onstop="AcctSeed.ASModule.loadingTable(false)">
+            <apex:facet name="start">
+                <div class="waitingSearchDiv" id="el_loading" style="left:220px;top:360px;position:absolute;width:84%;height:70px;">
+                    <div class="waitingHolder" style="align:top;margin-top:0px">
+                        <img class="waitingImage" src="/img/loading.gif" title="{!$Label.COMMON_PLEASE_WAIT}" />
+                        <span class="waitingDescription">{!$Label.COMMON_LOADING}</span>
+                    </div>
+                </div>
+            </apex:facet>
+        </apex:actionstatus>
+        <script>
+            AcctSeed.ASModule.refreshTable = refreshTable;
+        </script>
+        <apex:sectionHeader title="{!$ObjectType.Cash_Disbursement__c.label}" subtitle="{!Cash_Disbursement__c.Name}" />
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__INF_APPLY_CASH_DISBURSEMENT}">
+            <!-- Error messages block -->
+            <apex:pageMessages id="thePageMessages" escape="false" />
+            <!-- Main controls -->
+            <apex:pageBlockButtons id="buttons">
+                <apex:commandButton id="saveButton"
+                                    action="{!save}"
+                                    value="{!$Label.AcctSeed__COMMON_SAVE_AND_COMPLETE}"
+                                    status="loadingStatus"
+                                    reRender="theForm"
+                                    oncomplete="AcctSeed.ASModule.pageLoad()"
+                                    rendered="{!execStatusDispatcher.canShowSaveButton}" />
+
+                <apex:commandButton id="refreshButton"
+                                    action="{!saveAndRefresh}"
+                                    value="{!$Label.AcctSeed__COMMON_SAVE_AND_REFRESH}"
+                                    status="loadingStatus"
+                                    reRender="theForm"
+                                    oncomplete="AcctSeed.ASModule.redrawTable()"
+                                    rendered="{!execStatusDispatcher.canShowSaveButton}" />
+
+                <apex:commandButton id="cancelButton" action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true" />
+
+            </apex:pageBlockButtons>
+            <!-- The Cash Disbursement Information Section -->
+            <apex:pageBlockSection id="cashDisbursementInfo"
+                                   title="{!$Label.AcctSeed__COMMON_CASH_DISBURSEMENT}"
+                                   columns="2"
+                                   collapsible="false"
+                                   rendered="{!execStatusDispatcher.canShowHeaderSection}">
+                <!-- Cash Disbursement Fields -->
+                <apex:outputField value="{!Cash_Disbursement__c.Payee__c}"/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_TOTAL}" />
+                    <apex:outputText id="applyAmount" value="{!cashDisbursement.Amount__c}" />
+                </apex:pageBlockSectionItem>
+                <apex:outputField value="{!Cash_Disbursement__c.Ledger__c}"/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_APPLIED_AMOUNT}" />
+                    <apex:outputText id="applyAppliedAmount" value="{!cashDisbursement.Applied_Amount__c}"/>
+                </apex:pageBlockSectionItem>
+                <apex:outputtext />
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__INF_CASH_DISBURSEMENT_BALANCE}" />
+                    <apex:outputText id="applyBalanceAmount"/>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <!-- Available Account Payable records -->
+            <apex:pageBlockSection id="theAccountPayableSection"
+                                   title="{!$Label.AcctSeed__COMMON_PAYABLES}"
+                                   columns="1"
+                                   collapsible="false"
+                                   rendered="{!execStatusDispatcher.canShowTableSection}">
+
+                <apex:outputPanel id="thePanel" style="visibility:hidden">
+
+                    <apex:dataTable id="theCDApplyTable" styleClass="display" value="{!wrappedRecords}" var="item" >
+                        <apex:column style="vertical-align:top; width:120px">
+                            <apex:facet name="header">{!$Label.AcctSeed__COMMON_PAYABLE_NAME}</apex:facet>
+                            <apex:outputField value="{!item.apDisbursement.Account_Payable__c}"
+                                              rendered="{!item.acctPayable.Proprietary_Payable_Number__c == NULL}"/>
+                            <apex:outputLink value="/{!item.apDisbursement.Account_Payable__c}"
+                                             target="_blank"
+                                             rendered="{!item.acctPayable.Proprietary_Payable_Number__c != NULL}">
+                                <apex:outputField value="{!item.acctPayable.Proprietary_Payable_Number__c}"/>
+                            </apex:outputLink>
+                        </apex:column>
+                        <apex:column style="vertical-align:top;width:120px">
+                            <apex:facet name="header">{!$Label.AcctSeed__COMMON_PAYEE_REFERENCE}</apex:facet>
+                            <apex:outputField value="{!item.acctPayable.Payee_Reference__c}" />
+                        </apex:column>
+                        <apex:column style="vertical-align:top; width:60px">
+                            <apex:facet name="header">{!$Label.AcctSeed__COMMON_DATE}</apex:facet>
+                            <apex:outputField value="{!item.acctPayable.Date__c}" />
+                        </apex:column>
+                        <apex:column style="vertical-align:top; width:60px">
+                            <apex:facet name="header">{!$Label.AcctSeed__COMMON_DUE_DATE}</apex:facet>
+                            <apex:outputField value="{!item.acctPayable.Due_Date__c}" />
+                        </apex:column>
+                        <apex:column style="vertical-align:top; text-align:right; width:100px" footerClass="alignRight" headerClass="alignRight">
+                            <apex:facet name="header">{!$Label.AcctSeed__COMMON_PAYABLE_AMOUNT}</apex:facet>
+                            <apex:outputText id="billingAmount" value="{!item.acctPayable.Total__c}" />
+                            <apex:outputText id="discountAmount" value="{!item.acctPayable.Discount_Amount__c}" style="display:none" />
+                            <apex:outputText id="taxAmount" value="{!item.acctPayable.Purchase_Tax3__c}" rendered="{!item.acctPayable.Reverse_Charge__c}" style="display:none" />
+                        </apex:column>
+                        <apex:column style="width:260px;vertical-align:top;text-align:right;width:100px" footerClass="alignRight" headerClass="alignRight">
+                            <apex:facet name="header">{!$Label.AcctSeed__COMMON_TOTAL_APPLIED}</apex:facet>
+                            <apex:outputText id="appliedAmountOrig" value="{!item.originalTotalAppliedAmount}" style="display:none" />
+                            <apex:outputText id="appliedAmount" value="{!item.AppliedAmount}" />
+                        </apex:column>
+                        <apex:column id="theAccountPayableBalance" style="width:100px;vertical-align:top;text-align:right" footerClass="alignRight" headerClass="alignRight">
+                            <apex:facet name="header">{!$Label.AcctSeed__COMMON_PAYABLE_BALANCE}</apex:facet>
+                            <apex:outputText id="balanceAmount" value="{!item.Balance}" />
+                        </apex:column>
+                        <apex:column style="width:80px;text-align:center;vertical-align:top;" rendered="{!!execStatusDispatcher.isCompleted}">
+                            <apex:outputPanel id="buttonPanel" layout="inline" rendered="{!!item.isPeriodClosed}">
+                                <apex:commandLink styleClass="buttonLink" id="from" onclick="return false;" style="display:{!IF(!ISBLANK(item.apDisbursement.Paid_Amount__c),'none','')}">
+                                    <button type="button" class="arrowButton" style="background: url('/img/icon/t4v35/utility/forward_60.png') center no-repeat; background-size: 70% 70%;"/>
+                                </apex:commandLink>
+                                <apex:commandLink styleClass="buttonLink" id="to" onclick="return false;" style="display:{!IF(ISBLANK(item.apDisbursement.Paid_Amount__c),'none','')}">
+                                    <button type="button" class="arrowButton .slds-icon-text-warning" style="background: url('/img/icon/t4v35/utility/back_60.png') center no-repeat; background-size: 70% 70%;"/>
+                                </apex:commandLink>
+                            </apex:outputPanel>
+                        </apex:column>
+                        <apex:column style="width:80px;vertical-align:top;text-align:right" footerClass="alignRight" headerClass="alignRight">
+                            <apex:facet name="header">{!$Label.AcctSeed__COMMON_APPLIED_AMOUNT}</apex:facet>
+                            <apex:inputField id="receivedAmount" style="width:60px;text-align:right" value="{!item.apDisbursement.Paid_Amount__c}" required="false" rendered="{!!execStatusDispatcher.isCompleted && !item.isPeriodClosed}" />
+                            <apex:outputText id="billingAppliedAmount" value="{!item.apDisbursement.Paid_Amount__c}" rendered="{!execStatusDispatcher.isCompleted || item.isPeriodClosed}" />
+                        </apex:column>
+                        <apex:column style="width:150px;vertical-align:top;">
+                            <apex:facet name="header">{!$Label.AcctSeed__COMMON_ACCOUNTING_PERIOD}</apex:facet>
+                            <apex:outputPanel styleClass="requiredInput" style="margin-left:5px" layout="block">
+                                <apex:outputPanel id="accountingPeriodPanel" layout="block">
+                                    <apex:outputPanel id="accountingPeriodRequired" styleClass="requiredBlock" style="display:{!IF(ISBLANK(item.apDisbursement.Paid_Amount__c),'none','')}" />
+                                </apex:outputPanel>
+                                <apex:inputField style="width:60px" value="{!item.apDisbursement.Accounting_Period__c}" required="false" rendered="{!!execStatusDispatcher.isCompleted && !item.isPeriodClosed}"/>
+                            </apex:outputPanel>
+                            <apex:outputField style="width:60px" value="{!item.apDisbursement.Accounting_Period__c}" rendered="{!execStatusDispatcher.isCompleted || item.isPeriodClosed}" />
+                        </apex:column>
+                    </apex:dataTable>
+
+                </apex:outputPanel>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:inputHidden id="offset" value="{!offset}" />
+        <apex:inputHidden id="recLimit" value="{!recLimit}" />
+        <apex:inputHidden id="sortFieldIndex" value="{!sortFieldIndex}" />
+        <apex:inputHidden id="sortOrderIndex" value="{!sortOrderIndex}" />
+        <apex:inputHidden id="appliedApplyAmountOrig" value="{!appliedAmount}" />
+        <apex:inputHidden id="recordSetSize" value="{!recordSetSize}" />
+        <apex:inputHidden id="isDirty" value="{!execStatusDispatcher.isDirty}" />
+        <apex:inputHidden id="isError" value="{!execStatusDispatcher.isErrorState}" />
+    </apex:form>
+
+</apex:page>

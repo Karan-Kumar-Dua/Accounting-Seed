@@ -1,0 +1,19 @@
+.currency-style-single {
+    color: #1589EE;
+    font-weight:bold;  
+    font-size:18px;
+}
+
+.currency-style-total {
+    font-size: 13px;
+    font-weight: bold;
+    color: #16325C;
+}
+
+.currency-style {
+    font-size: 13px;
+    color: #16325C;
+}
+.header-cell-holder {
+    color: #080707;
+}

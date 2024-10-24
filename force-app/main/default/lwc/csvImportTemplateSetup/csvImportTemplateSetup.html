@@ -1,0 +1,8 @@
+<template>
+    <lightning-spinner alternative-text={labels.commonLoading} variant="brand" class={spinnerClass} data-id="modal-spinner"></lightning-spinner>
+
+    <template if:true={csvImportData}>
+        <c-csv-import data-id="csvimport" onaction={handleModalAction} oncancel={handleCancel} import-data={csvImportData} kb-help-link={helpLink}></c-csv-import>
+    </template>
+    <c-csv-import-mapping data-id="mapping" onaction={handleAction} oncancel={handleCancel} onready={handleReady}></c-csv-import-mapping>
+</template>

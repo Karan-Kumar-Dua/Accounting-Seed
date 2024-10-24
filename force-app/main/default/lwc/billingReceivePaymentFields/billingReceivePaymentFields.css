@@ -1,0 +1,25 @@
+.defaultWidth {
+    width: 100%;
+}
+
+.fixWidth {
+    width: 20%
+}
+
+.extendedWidth {
+    width: 25%;
+}
+
+.inlineFlex {
+    display: inline-flex;
+    margin-left: 3px;
+}
+
+.headingStyle {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.fontAmount {
+    font-size: 14px;
+}

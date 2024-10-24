@@ -1,0 +1,7 @@
+:host {
+  --lwc-colorTextError: rgb(194, 57, 52);
+}
+
+.generic-error-container-width {
+  width: 100%;
+}

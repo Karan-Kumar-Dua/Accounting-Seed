@@ -1,0 +1,379 @@
+<apex:page standardController="Expense_Report__c" title="{!Expense_Report__c.Name & ' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" id="thePage" extensions="ExpenseReportControllerExt,EnvironmentUtils" sidebar="false">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/javascript/Intl.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.internationalization_resources, '/locale-data/jsonp/' & DefaultLocale & '.js')}"/> 
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/> 
+    <apex:stylesheet value="/sCSS/21.0/sprites/1297816277000/Theme3/default/gc/versioning.css" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/expense-report.css')}" />  
+    <apex:form id="theForm">
+        <script type="text/javascript">
+            AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+            AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+            AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+            AcctSeed.ASModule.currencyIsoCode = "{!JSENCODE(currencyIsoCode)}";
+        </script>
+        <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"/> 
+        <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/expense-report.js')}" loadOnReady="true"/> 
+        <apex:sectionHeader title="Expense Report" subtitle="{!Expense_Report__c.Name}" />
+        <apex:pageBlock id="thePageBlockHeader" mode="maindetail" title="{!$Label.AcctSeed__INF_EXPENSE_REPORT_EDIT}">
+            <apex:pageMessages escape="false"/>
+            <apex:pageBlockButtons location="top">
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_SAVING}')" onstop="AcctSeed.ASModule.updateExpenseAmount();AcctSeed.ASModule.updateMileageTotal();AcctSeed.ASModule.updateMileageAmount()"/>
+                <apex:commandButton status="saveStatus" value="{!$Label.AcctSeed__COMMON_SAVE_AND_REFRESH}" reRender="theForm" action="{!saveAndRefresh}" rendered="{!!isError}"/>
+                <apex:commandButton status="saveStatus" value="{!$Label.AcctSeed__COMMON_SAVE_AND_COMPLETE}" reRender="theForm" action="{!saveAndClose}" rendered="{!!isError}"/>
+                <apex:commandButton value="{!$Label.AcctSeed__COMMON_CANCEL}" immediate="true" action="{!cancel}" />
+                <apex:actionFunction name="saveAndClose" action="{!saveAndClose}" status="saveStatus" reRender="theForm" />
+                <script type="text/javascript">
+                    AcctSeed.ASModule.saveAndClose = saveAndClose;
+                </script>               
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection id="reportData" columns="2" rendered="{!!isError}">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_NAME}" />
+                    <apex:outputPanel layout="block" styleClass="requiredInput">
+                        <apex:outputPanel styleClass="requiredBlock" />
+                        <apex:inputField value="{!expReport.Name}" required="false" />
+                        <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!isNameError}">
+                            <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_EMPLOYEE}" />
+                    <apex:outputPanel layout="block" styleClass="requiredInput">
+                        <apex:outputPanel styleClass="requiredBlock" rendered="{!$ObjectType.Expense_Report__c.Fields.Status__c.Updateable}" />
+                        <apex:inputField value="{!expReport.Employee__c}" />
+                        <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!isEmployeeError}">
+                            <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_LEDGER}" />
+                    <apex:outputPanel layout="block" styleClass="requiredInput">
+                        <apex:outputPanel styleClass="requiredBlock"/>
+                    <apex:selectList required="true"
+                                     value="{!expReport.Ledger__c}"
+                                     multiselect="false"
+                                     size="1">
+                        <apex:selectOptions value="{!allLedgers}" />
+                    </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_STATUS}" />
+                    <apex:outputPanel layout="block" styleClass="requiredInput">
+                        <apex:outputPanel styleClass="requiredBlock" rendered="{!$ObjectType.Expense_Report__c.Fields.Status__c.Updateable}" />
+                        <apex:inputField value="{!expReport.Status__c}" />
+                        <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!isStatusError}">
+                            <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!expReport['CurrencyIsoCode']}" rendered="{!isMultiCurrencyEnabled && ISBLANK(expReport.Id)}">
+                    <apex:actionSupport event="onchange"
+                                        onComplete="AcctSeed.ASModule.currencyIsoCode = '{!JSENCODE(expReport['CurrencyIsoCode'])}'; AcctSeed.ASModule.updateExpenseAmount(); AcctSeed.ASModule.updateMileageTotal(); AcctSeed.ASModule.updateMileageAmount();"
+                                        reRender="expenseTotalAmount"/>
+                </apex:inputField>
+                <apex:outputText rendered="{!isMultiCurrencyEnabled && ISBLANK(expReport.Id)}"/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__INF_TOTAL_EXPENSES}" />
+                    <apex:outputText id="expenseTotalAmount"/>
+                </apex:pageBlockSectionItem>
+                <br/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__INF_EXPENSE_REPORT_EDIT}" >
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton status="saveStatus" value="{!$Label.AcctSeed__COMMON_SAVE_AND_REFRESH}" reRender="theForm" action="{!saveAndRefresh}" oncomplete="AcctSeed.ASModule.updateExpenseAmount();AcctSeed.ASModule.updateMileageTotal();AcctSeed.ASModule.updateMileageAmount()" rendered="{!!isError}"/>
+                <apex:commandButton status="saveStatus" value="{!$Label.AcctSeed__COMMON_SAVE_AND_COMPLETE}" reRender="theForm" action="{!saveAndClose}" oncomplete="AcctSeed.ASModule.updateExpenseAmount();AcctSeed.ASModule.updateMileageTotal();AcctSeed.ASModule.updateMileageAmount()" rendered="{!!isError}"/>
+                <apex:commandButton value="{!$Label.AcctSeed__COMMON_CANCEL}" immediate="true" action="{!cancel}" />
+            </apex:pageBlockButtons>
+            <!-- Create Tab panel -->
+            <apex:tabPanel switchType="client" selectedTab="tab1" id="ExpenseTabPanel" styleClass="theTabPanel" tabClass="theTabPanel" contentClass="tabContent" activeTabClass="activeTab" inactiveTabClass="inactiveTab" rendered="{!!isError}">
+                <apex:tab label="{!$Label.AcctSeed__ACCOUNTING_HOME_EXPENSES}" name="tab1" id="tabOne" styleClass="">
+                    <apex:outputPanel id="tableSection1">
+                        <apex:pageBlockTable value="{!expensesList}" var="item" id="billableExpenses" footerClass="footer-row">
+                            <apex:column headerClass="action-col">
+                                <apex:actionStatus id="mydeleteStatus1">
+                                    <apex:facet name="stop">
+                                        <apex:actionRegion >
+                                            <apex:commandLink action="{!deleteExpenseLine}" title="{!$Label.AcctSeed__COMMON_REMOVE_LINE}" status="mydeleteStatus1" oncomplete="AcctSeed.ASModule.updateExpenseAmount();AcctSeed.ASModule.updateMileageAmount()" rerender="tableSection1">
+                                                <apex:image url="{!URLFOR($Resource.accounting_resources, 'images/red-x.png')}" alt="{!$Label.AcctSeed__COMMON_REMOVE_LINE}" />
+                                                <apex:param id="rowCount1" name="rowCount1" assignTo="{!selectedExpenseRow}" value="{!item.intRowNum}" />
+                                            </apex:commandLink>
+                                        </apex:actionRegion>
+                                    </apex:facet>
+                                    <apex:facet name="start">
+                                        <apex:image url="{!URLFOR($Resource.accounting_resources, 'images/red-x.png')}" />
+                                    </apex:facet>
+                                </apex:actionStatus>
+                                <apex:facet name="footer">
+                                    <apex:commandlink rerender="tableSection1" title="{!$Label.AcctSeed__COMMON_ADD_LINE}" action="{!addExpenseLine}" oncomplete="AcctSeed.ASModule.updateExpenseAmount();AcctSeed.ASModule.updateMileageAmount()">
+                                        <apex:image url="{!URLFOR($Resource.accounting_resources, 'images/green-cross.png')}" alt="{!$Label.AcctSeed__COMMON_ADD_LINE}" /><span style="position:absolute;margin-left:1px;margin-top:2px;text-decoration:underline">{!$Label.AcctSeed__COMMON_LINE}</span>
+                                    </apex:commandlink>
+                                </apex:facet>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Project__c.Label}"
+                                         headerClass="project-col">
+                                <apex:actionRegion >
+                                    <apex:outputPanel layout="block" styleClass="requiredInput">
+                                        <apex:outputPanel styleClass="requiredBlock" />
+                                        <apex:inputField value="{!item.expenseLine.Project__c}">
+                                            <apex:actionSupport event="onchange" rerender="projTaskId" status="reloadStatus">
+                                                <apex:param id="selectedRow1" name="selectedRow1" assignTo="{!selectedExpenseRow}" value="{!item.intRowNum}" />
+                                            </apex:actionSupport>
+                                        </apex:inputField>
+                                        <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isProjectError}">
+                                            <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                                        </apex:outputPanel>
+                                    </apex:outputPanel>
+                                </apex:actionRegion>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Project_Task__c.Label}"
+                                         headerClass="project-task-col">
+                                <apex:actionStatus id="reloadStatus">
+                                    <apex:facet name="start">
+                                        <apex:image value="/img/loading.gif" title="{!$Label.AcctSeed__COMMON_PROCESSING}" />
+                                    </apex:facet>
+                                    <apex:facet name="stop">
+                                        <apex:outputPanel id="projTaskId" style="white-space: nowrap" layout="block" styleClass="requiredInput">
+                                            <apex:outputPanel styleClass="requiredBlock" />
+                                            <apex:selectList value="{!item.expenseLine.Project_Task__c}" size="1" title="{!$Label.AcctSeed__COMMON_PROJECT_TASKS}">
+                                                <apex:selectOptions value="{!item.ProjectTasks}" id="tasks" />
+                                            </apex:selectList>&nbsp;
+	                                        <apex:commandButton styleClass="refreshButton" rerender="projTaskId" status="reloadStatus" title="{!$Label.AcctSeed__COMMON_REFRESH_PROJECT_TASK}">
+	                                            <apex:param id="selectedRow1" name="selectedRow1" assignTo="{!selectedExpenseRow}" value="{!item.intRowNum}" />
+	                                        </apex:commandButton>   
+                                            <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isProjectTaskError}">
+                                                <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                                            </apex:outputPanel>                                                                                       
+                                        </apex:outputPanel>                                      
+                                    </apex:facet>
+                                </apex:actionStatus>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Billable__c.Label}" headerClass="bill-reim-col" rendered="{!$ObjectType.Expense_Line__c.fields.Billable__c.Accessible}">
+                                <apex:inputField value="{!item.expenseLine.Billable__c}" />
+                            </apex:column>
+                            <apex:column headerClass="bill-reim-col" rendered="{!$ObjectType.Expense_Line__c.fields.Employee_Reimburse__c.Accessible}">
+                                <apex:facet name="header">
+                                    <apex:outputText >{!$Label.AcctSeed__COMMON_EMPLOYEE}
+                                        <br/>{!$Label.AcctSeed__COMMON_REIMBURSE}</apex:outputText>
+                                </apex:facet>
+                                <apex:inputField value="{!item.expenseLine.Employee_Reimburse__c}" />
+                            </apex:column>
+                            <apex:column headerValue="{!$Label.AcctSeed__COMMON_CREDIT_CARD_VENDOR}" headerClass="project-task-col" rendered="{!IF(ccVendorList.size>1,'','none')}">
+                                <apex:selectList value="{!item.ccVendorId}" size="1" style="width:100px">
+                                    <apex:selectOptions value="{!ccVendorList}" />
+                                </apex:selectList>
+                                <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isReimburseAndCCVendorError}">
+                                    <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_EMPLOYEE_CREDIT_CARD_VENDOR}
+                                </apex:outputPanel>
+                            </apex:column>
+                            <apex:column headerValue="Date" headerClass="date-col">
+                                <apex:outputPanel layout="block" styleClass="requiredInput">
+                                    <apex:outputPanel styleClass="requiredBlock" />
+                                    <apex:inputField value="{!item.expenseLine.Date__c}" required="false" />
+                                    <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isDateError}">
+                                        <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                                    </apex:outputPanel>
+                                </apex:outputPanel>
+                            </apex:column>
+                            <apex:column headerValue="{!$Label.AcctSeed__COMMON_EXPENSE_TYPE}" headerClass="project-task-col">
+                                <apex:outputPanel layout="block" styleClass="requiredInput">
+                                    <apex:outputPanel styleClass="requiredBlock" />
+                                    <apex:selectList value="{!item.strExpenseTypeId}" size="1" title="{!$Label.AcctSeed__COMMON_TYPE}">
+                                        <apex:selectOptions value="{!expenseTypesList}" />
+                                    </apex:selectList>
+                                    <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isExpenseTypeError}">
+                                        <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                                    </apex:outputPanel>
+                                </apex:outputPanel>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Amount__c.Label}" headerClass="amt-col" footerClass="align-right">
+                                <apex:outputPanel layout="block" styleClass="requiredInput">
+                                    <apex:outputPanel styleClass="requiredBlock" />
+                                        <!-- Amount field has JS listener -->
+                                        <apex:inputField id="expenseAmount"
+                                                         value="{!item.expenseLine.Amount__c}"
+                                                         onchange="AcctSeed.ASModule.updateExpenseAmount()"
+                                                         onkeyup="AcctSeed.ASModule.updateExpenseAmount()"
+                                                         style="width:80px;text-align:right"/>
+                                    <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isAmountError}">
+                                        <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                                    </apex:outputPanel>
+                                </apex:outputPanel>
+                                <apex:facet name="footer">
+                                    <apex:outputText id="expenseFooterAmount"/>
+                                </apex:facet>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Internal_Comment__c.Label}" headerClass="com-col">
+                                <apex:inputField value="{!item.expenseLine.Internal_Comment__c}" />
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Invoice_Comment__c.Label}">
+                                <apex:inputField value="{!item.expenseLine.Invoice_Comment__c}" />
+                            </apex:column>
+                            <apex:repeat value="{!expenseReportEditFieldSet}" var="fs">
+                                <apex:column headerValue="{!fs.Label}">
+                                    <apex:inputField value="{!item.expenseLine[fs]}" />
+                                </apex:column>
+                            </apex:repeat>
+                        </apex:pageBlockTable>
+                    </apex:outputPanel>
+                </apex:tab>
+                <apex:tab label="Mileage" id="tabTwo">
+                    <apex:outputPanel id="tableSection2">
+                        <apex:pageBlockTable value="{!mileageList}" var="item" id="mileageExpenses" width="100%" styleClass="column">
+                            <apex:column headerClass="action-col">
+                                <apex:actionStatus id="mydeleteStatus2">
+                                    <apex:facet name="stop">
+                                        <apex:actionRegion >
+                                            <apex:commandLink action="{!deleteMileageLine}" title="{!$Label.AcctSeed__COMMON_REMOVE_LINE}" status="mydeleteStatus2" rerender="tableSection2" immediate="true" oncomplete="AcctSeed.ASModule.updateMileageTotal();AcctSeed.ASModule.updateMileageAmount()">
+                                                <apex:image url="{!URLFOR($Resource.accounting_resources, 'images/red-x.png')}" alt="{!$Label.AcctSeed__COMMON_REMOVE_LINE}" />
+                                                <apex:param id="rowCount2" name="rowCount2" assignTo="{!selectedMileageRow}" value="{!item.intRowNum}" />
+                                            </apex:commandLink>
+                                        </apex:actionRegion>
+                                    </apex:facet>
+                                    <apex:facet name="start">
+                                        <apex:image url="{!URLFOR($Resource.accounting_resources, 'images/red-x.png')}" />
+                                    </apex:facet>
+                                </apex:actionStatus>
+                                <apex:facet name="footer">
+                                    <apex:commandlink rerender="tableSection2" title="{!$Label.AcctSeed__COMMON_ADD_LINE}" action="{!addMileageLine}" oncomplete="AcctSeed.ASModule.updateMileageTotal();AcctSeed.ASModule.updateMileageAmount()">
+                                        <apex:image url="{!URLFOR($Resource.accounting_resources, 'images/green-cross.png')}" alt="{!$Label.AcctSeed__COMMON_ADD_LINE}" /><span style="position:absolute;margin-left:1px;margin-top:2px;text-decoration:underline">Line</span>
+                                    </apex:commandlink>
+                                </apex:facet>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Project__c.Label}" headerClass="project-col">
+                                <apex:actionRegion >
+                                    <apex:outputPanel layout="block" styleClass="requiredInput">
+                                        <apex:outputPanel styleClass="requiredBlock" />
+                                        <apex:inputField value="{!item.expenseLine.Project__c}" style="width:120px">
+                                            <apex:actionSupport event="onchange" rerender="projTaskId" status="reloadStatus">
+                                                <apex:param id="selectedRow2" name="selectedRow2" assignTo="{!selectedMileageRow}" value="{!item.intRowNum}" />
+                                            </apex:actionSupport>
+                                        </apex:inputField>
+                                        <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isProjectError}">
+                                            <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                                        </apex:outputPanel>
+                                    </apex:outputPanel>
+                                </apex:actionRegion>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Project_Task__c.Label}" headerClass="project-task-col">
+                                <apex:actionStatus id="reloadStatus">
+                                    <apex:facet name="start">
+                                        <apex:image value="/img/loading.gif" title="{!$Label.AcctSeed__COMMON_PROCESSING}" />
+                                    </apex:facet>
+                                    <apex:facet name="stop">
+                                        <apex:outputPanel id="projTaskId" style="white-space: nowrap" layout="block" styleClass="requiredInput">
+                                            <apex:outputPanel styleClass="requiredBlock" />
+                                            <apex:selectList value="{!item.expenseLine.Project_Task__c}" size="1" title="{!$Label.AcctSeed__COMMON_TASK}">
+                                                <apex:selectOptions value="{!item.ProjectTasks}" id="tasks" />
+                                            </apex:selectList>&nbsp;
+	                                        <apex:commandButton styleClass="refreshButton" rerender="projTaskId" status="reloadStatus" title="{!$Label.AcctSeed__COMMON_REFRESH_PROJECT_TASK}">
+	                                            <apex:param id="selectedRow2" name="selectedRow2" assignTo="{!selectedMileageRow}" value="{!item.intRowNum}" />
+	                                        </apex:commandButton> 
+                                            <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isProjectTaskError}">
+                                                <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                                            </apex:outputPanel>                                                                                       
+                                        </apex:outputPanel>                                       
+                                    </apex:facet>
+                                </apex:actionStatus>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Billable__c.Label}" rendered="{!$ObjectType.Expense_Line__c.fields.Billable__c.Accessible}" headerClass="bill-reim-col">
+                                <apex:inputField value="{!item.expenseLine.Billable__c}" />
+                            </apex:column>
+                            <apex:column rendered="{!$ObjectType.Expense_Line__c.fields.Employee_Reimburse__c.Accessible}" headerClass="bill-reim-col">
+                                <apex:facet name="header">
+                                    <apex:outputText >{!$Label.AcctSeed__COMMON_EMPLOYEE}
+                                        <br/>{!$Label.AcctSeed__COMMON_REIMBURSE}</apex:outputText>
+                                </apex:facet>
+                                <apex:inputField value="{!item.expenseLine.Employee_Reimburse__c}" />
+                            </apex:column>
+                            <apex:column headerValue="{!$Label.AcctSeed__COMMON_DATE}" headerClass="date-col">
+                                <apex:outputPanel layout="block" styleClass="requiredInput">
+                                    <apex:outputPanel styleClass="requiredBlock" />
+                                    <apex:inputField value="{!item.expenseLine.Date__c}" required="false" />
+                                    <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isDateError}">
+                                        <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                                    </apex:outputPanel>
+                                </apex:outputPanel>
+                            </apex:column>
+                            <apex:column headerValue="{!$Label.AcctSeed__COMMON_EXPENSE_TYPE}" headerClass="project-task-col">
+                                <apex:outputPanel layout="block" styleClass="requiredInput">
+                                    <apex:outputPanel styleClass="requiredBlock" />
+                                    <apex:actionRegion >
+                                        <apex:selectList value="{!item.strExpenseTypeId}" size="1" title="{!$Label.AcctSeed__COMMON_TYPE}">
+                                            <apex:selectOptions value="{!mileageTypesList}" />
+                                            <apex:actionSupport event="onchange" oncomplete="AcctSeed.ASModule.updateMileageTotal();AcctSeed.ASModule.updateMileageAmount()" rerender="mileageAmount" />
+                                        </apex:selectList>
+                                    </apex:actionRegion>
+                                    <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isExpenseTypeError}">
+                                        <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                                    </apex:outputPanel>
+                                </apex:outputPanel>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Mileage_Origin__c.Label}" headerClass="mileage-col">
+                                <apex:outputPanel layout="block" styleClass="requiredInput">
+                                    <apex:outputPanel styleClass="requiredBlock" />
+                                    <apex:inputField value="{!item.expenseLine.Mileage_Origin__c}" />
+                                    <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isOriginError}">
+                                        <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                                    </apex:outputPanel>
+                                </apex:outputPanel>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Mileage_Destination__c.Label}" headerClass="mileage-col">
+                                <apex:outputPanel layout="block" styleClass="requiredInput">
+                                    <apex:outputPanel styleClass="requiredBlock" />
+                                    <apex:inputField value="{!item.expenseLine.Mileage_Destination__c}" />
+                                    <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isDestinationError}">
+                                        <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                                    </apex:outputPanel>
+                                </apex:outputPanel>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Miles__c.Label}" headerClass="miles-col" footerClass="align-right">
+                                <apex:outputPanel layout="block" styleClass="requiredInput">
+                                    <apex:outputPanel styleClass="requiredBlock" />
+                                    <apex:actionRegion >
+                                        <apex:inputField id="mileage" value="{!item.expenseLine.Miles__c}" style="width:50px;text-align:right">
+                                            <apex:actionSupport event="onkeyup" oncomplete="AcctSeed.ASModule.updateMileageTotal();AcctSeed.ASModule.updateMileageAmount()" rerender="mileageAmount" />
+                                            <apex:actionSupport event="onchange" oncomplete="AcctSeed.ASModule.updateMileageTotal();AcctSeed.ASModule.updateMileageAmount()" rerender="mileageAmount" />
+                                        </apex:inputField>
+                                    </apex:actionRegion>
+                                    <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isMilesError}">
+                                        <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_REQUIRED_FIELD}
+                                    </apex:outputPanel>
+                                    <apex:outputPanel styleClass="errorMsg" layout="block" rendered="{!item.isMilesNegativeError}">
+                                        <strong>{!$Label.AcctSeed__ERR_COMMON_TOAST_ERROR_TITLE}:</strong> {!$Label.AcctSeed__ERR_CANNOT_NEGATIVE_NO}
+                                    </apex:outputPanel>
+                                </apex:outputPanel>
+                                <apex:facet name="footer">
+                                    <apex:outputText id="mileageTotal" rendered="{!mileageList.size>0}" />                                   
+                                </apex:facet>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Amount__c.Label}" styleClass="align-right" headerClass="amt-col" footerClass="align-right">
+                                <apex:outputText id="mileageAmount" value="{!item.amount}"/>
+                                <apex:facet name="footer">
+                                    <apex:outputText id="mileageTotalAmount" rendered="{!mileageList.size>0}"/>
+                                </apex:facet>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Internal_Comment__c.Label}" headerClass="com-col">
+                                <apex:inputField value="{!item.expenseLine.Internal_Comment__c}" />
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.Expense_Line__c.fields.Invoice_Comment__c.Label}">
+                                <apex:inputField value="{!item.expenseLine.Invoice_Comment__c}" />
+                            </apex:column>
+                            <apex:repeat value="{!expenseReportEditFieldSet}" var="fs">
+                                <apex:column headerValue="{!fs.Label}">
+                                    <apex:inputField value="{!item.expenseLine[fs]}" />
+                                </apex:column>
+                            </apex:repeat>
+                        </apex:pageBlockTable>
+                    </apex:outputPanel>
+                </apex:tab>
+            </apex:tabPanel>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

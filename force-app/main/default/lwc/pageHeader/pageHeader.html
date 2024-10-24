@@ -1,0 +1,96 @@
+<template>
+    <div class="slds-page-header">
+        <div class="slds-page-header__row">
+            <div class="slds-page-header__col-title">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        <lightning-icon
+                            class="pageHeader-iconHolder"
+                            data-id="lightningIcon-headerIcon"
+                            icon-name={iconName}
+                            alternative-text={iconAltText}
+                        ></lightning-icon>
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-page-header__name">
+                            <div class="slds-page-header__name-title">
+                                <template if:true={breadcrumbs}>
+                                    <nav
+                                        role="navigation"
+                                        aria-label="Breadcrumbs"
+                                    >
+                                        <ol
+                                            class="
+                                                slds-breadcrumb
+                                                slds-list_horizontal
+                                                slds-wrap
+                                            "
+                                        >
+                                            <template
+                                                for:each={breadcrumbs}
+                                                for:item="breadcrumb"
+                                            >
+                                                <li
+                                                    key={breadcrumb.title}
+                                                    class="
+                                                        slds-breadcrumb__item
+                                                    "
+                                                >
+                                                    <a
+                                                        if:true={breadcrumb.tab}
+                                                        data-id="a-headerBreadcrumbLink"
+                                                        data-tab={breadcrumb.tab}
+                                                        onclick={handleClick}
+                                                        >{breadcrumb.title}</a
+                                                    >
+                                                    <div if:false={breadcrumb.tab} class="slds-p-horizontal_x-small">{breadcrumb.title}</div>
+                                                </li>
+                                            </template>
+                                        </ol>
+                                    </nav>
+                                </template>
+                                <h1>
+                                    <template if:false={breadcrumbs}>
+                                        <span data-id="span-headerSubtitle"
+                                            >{subtitle}</span
+                                        >
+                                    </template>
+                                    <span
+                                        class="
+                                            slds-page-header__title
+                                            slds-truncate
+                                        "
+                                        title={title}
+                                        data-id="span-headerTitle"
+                                        >{title}</span
+                                    >
+                                </h1>
+                            </div>
+                        </div>
+                    </div>
+                    <template if:true={knowledgeBase}>
+                        <div class="slds-media__figure">
+                            <template
+                                for:each={knowledgeBase}
+                                for:item="article"
+                            >
+                                <a
+                                    key={article.iconAltText}
+                                    href={article.url}
+                                    target="_blank"
+                                    class="slds-var-m-left_small"
+                                    data-id="a-headerKnowledgeLink"
+                                >
+                                    <lightning-icon
+                                        icon-name={article.iconName}
+                                        alternative-text={article.iconAltText}
+                                    ></lightning-icon>
+                                </a>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>X1099_Vendor__c</fullName>
+    <defaultValue>false</defaultValue>
+    <inlineHelpText>Select if a 1099 must be issued to this vendor at year end. Includes disbursements made to this vendor on 1099 reports and file export. Change by selecting Update 1099 Info button.</inlineHelpText>
+    <label>1099 Vendor</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Checkbox</type>
+</CustomField>

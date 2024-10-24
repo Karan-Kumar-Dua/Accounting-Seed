@@ -1,0 +1,24 @@
+<template>
+    <template if:true={wrappedData}>
+        <lightning-layout multiple-rows="true" class="slds-p-left_xx-large">
+            <template for:each={wrappedData.fieldSetColumns.mainColumns} for:item="obj">
+                <lightning-layout-item size="3" key={obj.apiName} class="slds-p-right_large slds-p-bottom_large">
+                    <template if:true={obj.isRequired}>
+                        <abbr title="required" class="slds-required" data-id="cell-required">*</abbr>
+                    </template> 
+                    <label>{obj.label}</label>
+                    <template lwc:if={obj.inlineHelpText}>
+                        <lightning-helptext class="helptext" content={obj.inlineHelpText}></lightning-helptext>
+                    </template>
+                    <c-x-data-table-cell child-reference={wrappedData.additionalLookupValues.parentObj} 
+                                            column={obj} 
+                                            initial-data={wrappedData.cashReceipt} 
+                                            row={wrappedData.cashReceipt} 
+                                            key-field={wrappedData.Id} 
+                                            data-id="datatable-cell">
+                    </c-x-data-table-cell>
+                </lightning-layout-item>
+            </template>
+        </lightning-layout>
+    </template>
+</template>

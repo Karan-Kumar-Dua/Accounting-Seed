@@ -1,0 +1,37 @@
+<template>
+    <lightning-record-edit-form record-id={recordId}
+                                object-api-name={objectApiName}>
+
+        <template if:true={error}>
+            <c-error-panel friendly-message={labels.ERR_PROJECT_TASK_RECEIVE_PROCESS} errors={error}>
+            </c-error-panel>
+        </template>
+
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input-field field-name='AcctSeed__Project__c'
+                                       value={projectId}
+                                       onchange={handleProjectSelection}
+                                       class={customErrorClass}>
+                </lightning-input-field>
+                <div if:true={projectNotValid} class="slds-form-element__help" style="color: rgb(194, 57, 52);">
+                    {labels.COMMON_PROJECT_IS_REQUIRED}
+                </div>
+            </div>
+
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox id="projectTaskComboBox"
+                                    name="projectTask"
+                                    label={labels.COMMON_PROJECT_TASK}
+                                    value={projectTaskId}
+                                    placeholder={labels.COMMON_SELECT_PROJECT_TASK}
+                                    message-when-value-missing={labels.COMMON_PROJECT_TASK_IS_REQUIRED}
+                                    options={ptOptions}
+                                    onchange={handleProjectTaskSelection}
+                                    required>
+                </lightning-combobox>
+            </div>
+        </div>
+
+    </lightning-record-edit-form>
+</template>

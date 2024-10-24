@@ -1,0 +1,18 @@
+<apex:page standardController="Cash_Disbursement__c" recordSetVar="records" extensions="UpdateDefault1099InfoCntrlExt" showHeader="false" sidebar="false" >
+    <apex:outputpanel rendered="{!isMyDomainEnabled}">    
+        <apex:includeLightning />
+        <div id="LightningComponentid" style="height:670px" />
+        <script>
+            $Lightning.use("AcctSeed:Update1099InfoApp", function() {
+                $Lightning.createComponent("AcctSeed:X1099InfoCashDisbursements",
+                { recordIds: "{!JSENCODE(recordIds)}", ltngOut: true },
+                "LightningComponentid",
+                function(cmp) {}
+                );
+            });
+        </script>
+    </apex:outputpanel>
+    <apex:outputpanel rendered="{!!isMyDomainEnabled}">
+        <h3>{!$Label.AcctSeed__INF_INSTALL_MY_DOMAIN} <a href="https://developer.salesforce.com/docs/atlas.en-us.identityImplGuide.meta/identityImplGuide/domain_name_overview.htm">{!$Label.AcctSeed__INF_THIS_MY_DOMAIN_KNOWLEDGE_ARTICLE}</a> {!$Label.AcctSeed__INF_FOR_FURTHER_INFO}</h3>
+    </apex:outputpanel>
+</apex:page>

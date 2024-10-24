@@ -1,0 +1,22 @@
+.multiLedgerDefaults--header lightning-button {
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.multiLedgerDefaults--heading {
+    font-size: 14px;
+}
+
+.multiLedgerDefaults--link {
+    text-decoration: underline;
+    color: #000;
+}
+
+.multiLedgerDefaults--tableHeader th {
+    background-color: #172b50;
+    color: #ffffff;
+    font-weight: normal;
+}
+td, th {
+    vertical-align: baseline;
+}

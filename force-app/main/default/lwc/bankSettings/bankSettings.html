@@ -1,0 +1,375 @@
+<template>
+    <!-- loading spinner -->
+    <template if:true={isSpinner}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoadingText} size="medium"></lightning-spinner>
+    </template>
+    <c-modal-popup class="deleteFIConfirm" popup-title={labels.INF_DELETE_FINANCIAL_INSTITUTION}
+        popup-body={labels.bdcConfirmFIDelete} action-button-text={labels.commonYes}
+        cancel-button-text={labels.commonNo} onmodalactionclick={popupSaveEvent} onmodalcancelclick={popupCancelEvent}
+        open-modal={showPopup}>
+    </c-modal-popup>
+    <c-modal-popup class="unsavedChangesConfirm" popup-title={labels.INF_CHANGES_DETECTED}
+        popup-body={labels.bdcConfirmCancel} action-button-text={labels.commonYes}
+        cancel-button-text={labels.commonNo} onmodalactionclick={popupCancelYesEvent} onmodalcancelclick={popupCancelNoEvent}
+        open-modal={showCancelPopup}>
+    </c-modal-popup>
+    <c-custom-lightbox class="fastlink" header-text={labels.INF_FINANCIAL_INSTITUTIONS} open-modal={showLightbox}
+        onlightboxcloseclick={lightboxCloseEvent}>
+        <div class="slds-m-around_medium">
+            <div class="resp-container">
+                <iframe class="resp-iframe" src={fullUrl} onload={iframeOnload}></iframe>
+            </div>
+        </div>
+    </c-custom-lightbox>
+
+    <c-generic-modal if:true={showProviderPopup} show={showProviderPopup} title={labels.INF_MANAGE_AGGREGATION_PROVIDERS}
+        tagline={labels.INF_REGISTER_DEREGISTER_WITH_PROVIDER} oncloseaction={closeProviderPopup}>
+        <span slot="body">
+            <template for:each={providerResult} for:item="provs">
+                <c-custom-toggle key={provs} show-warnings="true" providervalue={provs} ontoggleswitch={handleToggle}>
+                </c-custom-toggle>
+            </template>
+        </span>
+        <span slot="footer">
+            <lightning-button label={labels.commonCancel} class="slds-m-left_x-small" onclick={handleProviderClicks}>
+            </lightning-button>
+            <lightning-button label={labels.commonSave} data-id="saveToggleBtn" class="slds-m-left_x-small" disabled="true"
+                variant="brand" onclick={handleProviderClicks}>
+            </lightning-button>
+        </span>
+    </c-generic-modal>
+
+    <c-generic-modal if:true={showProviderConfirmPopup} show={showProviderConfirmPopup}
+        section-css='z-index: 90000; left: 310px' cross-not-visible="true"
+        title={labels.INF_CONFIRM_MANAGE_AGGREGATION_PROVIDERS}>
+        <span slot="body">
+            <div class="slds-p-left_medium provMsg">
+            </div>
+        </span>
+        <span slot="footer">
+            <lightning-button label={labels.commonNo} class="slds-m-left_x-small" onclick={handleProviderClicks}>
+            </lightning-button>
+            <lightning-button label={labels.commonYes} class="slds-m-left_x-small" variant="brand" onclick={handleConfrimYes}>
+            </lightning-button>
+        </span>
+    </c-generic-modal>
+
+    <lightning-card>
+        <div slot="title">
+            <c-card-title-stacked icon-name="custom:custom108" value={labels.commonBankSettings}>
+            </c-card-title-stacked>
+        </div>
+        <lightning-button label={labels.INF_MANAGE_PROVIDERS} disabled={hasBDCAcess} slot="actions"
+            onclick={handleManageProvClick}>
+        </lightning-button>
+        <lightning-button label={labels.INF_RELOAD_PAGE} class="refreshBtn" disabled={hasProvAndFI} slot="actions" onclick={handleRefreshClick}>
+        </lightning-button>
+        <lightning-button label={labels.commonSave} class="saveBtn" slot="actions" onclick={handleSaveClick}
+            disabled={hasProvAndFI}></lightning-button>
+        <lightning-button label={labels.commonCancel} class="cancelBtn" slot="actions" onclick={handleCancelClick}
+            disabled={hasProvAndFI}></lightning-button>
+
+        <template if:true={error}>
+            <c-inline-error-message class="errMsg" errors={error}></c-inline-error-message>
+        </template>
+            <div class="slds-section slds-is-open">
+                <h3 class="slds-section__title slds-theme_shade">
+                    <span class="slds-truncate slds-p-horizontal_small" title={labels.commonSectionTitle}>{labels.INF_SELECT_PROVIDER_AND_CONNECT_FINANCIAL_INSTITUTIONS}</span>
+                </h3>
+                <div aria-hidden="false" class="slds-section__content">
+                    <div class="slds-p-around_small">
+                        <div if:false={displayAggregationProvider} class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning">
+                            <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+                            <h2 class="slds-p-left_x-small warn-no-records">{labels.MANAGE_PROVIDER_WARNING}</h2>
+                            <h2 class="slds-p-left_x-small warn-no-records">{labels.MANAGE_PROVIDER_WARNING}</h2>
+                        </div>
+                        <lightning-layout multiple-rows if:true={displayAggregationProvider}>
+                            <lightning-layout-item size="2" flexibility="auto, no-grow" padding="around-small">
+                                <template if:true={displayAggregationProvider}>
+                                    <lightning-combobox class="selectFinancialInstitution" name="bankName"
+                                        label={labels.INF_SELECT_AGGREGATION_PROVIDER} value={providerValue} options={providers}
+                                        field-level-help={labels.INF_AGGREGATION_SERVICE_PROVIDER_FINANCIAL_INSTITUTION_PICKLIST}
+                                        required onchange={handleProviderSelection}>
+                                    </lightning-combobox>
+                                </template>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="2" flexibility="auto, no-grow" padding="around-small">
+                                <template if:true={displayFinancialInst}>
+                                    <lightning-combobox class="selectFinancialInstitution" name="bankName"
+                                        label={labels.INF_SELECT_FINANCIAL_INSTITUTION} required
+                                        value={selectedFinancialInstitutionId}
+                                        onchange={selectedFinancialInstitutionIdChange} 
+                                        options={financialInstitutions}
+                                        field-level-help={labels.INF_FINANCIAL_INSTITUTIONS_FOR_SERVICE_PROVIDER}>
+                                    </lightning-combobox>
+                                </template>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="2" flexibility="auto, no-grow" padding="around-small">
+                                <template if:true={displayFinancialInstIden}>
+                                    <lightning-combobox
+                                    name="chooseConnection"
+                                    label={labels.INF_SELECT_IDENTITY}
+                                    value={selectedConnection}
+                                    placeholder={labels.INF_SELECT_IDENTITY}
+                                    options={availableConnections}
+                                    onchange={selectedFinancialInstitutionIdentityIdChange} 
+                                    field-level-help={labels.INF_IDENTITY_SELECT_HELP}>
+                                    </lightning-combobox>
+                                </template>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item if:true={dispalyCountryPicklist} size="4" flexibility="auto, no-grow" padding="around-small">
+                                <div class="header-column slds-form-element">
+                                    <label class="slds-form-element__label">{labels.bdcCountry}</label>
+                                    <div class="slds-form-element__icon">
+                                        <lightning-helptext content={labels.bdcInfoCountryHelptext}>
+                                        </lightning-helptext>
+                                    </div>
+                                    <lightning-dual-listbox size="3" class="dual-box" label-hidden options={countries} 
+                                        disable-reordering	onchange={handlecountryChange} value={selectedCountries}>
+                                    </lightning-dual-listbox>
+                                </div>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="4" flexibility="auto, no-grow" padding="around-small">
+                                <div class="FIButtons">
+                                    <lightning-button label={labels.commonNew} class="newFI" onclick={handleNewFI}
+                                        disabled={disableButtons}></lightning-button>
+                                    <lightning-button label={labels.commonRefresh} class="refreshFI"
+                                        onclick={handleRefreshFI} disabled={disableButtonsFI}></lightning-button>
+                                    <lightning-button label={labels.BDCRefCredentials} class="editFI" onclick={handleEditFI}
+                                        disabled={disableButtonsFI}></lightning-button>
+                                    <lightning-button label={labels.commonDelete} class="deleteFI"
+                                        onclick={handleDeleteFI} disabled={disableButtonsFI}></lightning-button>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </div>
+                </div>
+            </div>  
+    <template if:true={displayAggregationProvider}><!--if there are no providers then hide every section on UI and show warining msg-->
+            <div class="slds-section slds-is-open">
+                <h3 class="slds-section__title slds-theme_shade">
+                    <span class="slds-truncate slds-p-horizontal_small" title={labels.commonSectionTitle}>{labels.INF_MAP_FINANCIAL_INSTITUTION_TO_GL_ACCOUNTS}</span>
+                </h3>
+                <div aria-hidden="false" class="slds-section__content">
+                    <div class="singleFIA">
+                        <lightning-layout>
+                            <lightning-layout-item size="5" flexibility="auto, no-grow">
+                                <lightning-layout>
+                                    <lightning-layout-item size="4" flexibility="auto, no-grow">
+                                        <div class="slds-form-element__label">{labels.INF_SINGLE_FIA_PER_BANK_ACCOUNT}
+                                            <lightning-helptext class="slds-m-left_x-small" content={labels.INF_SETTING_CHECKED_CANNOT_MAP_MORE_FIA_TO_BANK_ACCOUNT}>
+                                            </lightning-helptext>
+                                        </div>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="2" flexibility="auto, no-grow">
+                                        <lightning-input type="checkbox" data-id="FIAbox" name="singlefia" checked>
+                                        </lightning-input>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </div>
+                    <div class="slds-p-around_none">
+                        <lightning-layout horizontal-align="center">
+                            <lightning-layout-item size="1" flexibility="auto, no-grow" padding="around-small">
+                            </lightning-layout-item>
+                            <lightning-layout-item size="10" flexibility="auto, no-grow" padding="around-small">
+                                <div class="slds-p-top_medium invoices-card">
+                                    <lightning-card>
+                                        <c-applicable-items class="glMappings-table" items={glams} object-name="Account"
+                                            columns={glamColumns} key-field={keyField}
+                                            max-records-displayed={maxInvoicesDisplayed} oncellchange={handleCellChange}>
+                                        </c-applicable-items>
+                                    </lightning-card>
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="1" flexibility="auto, no-grow" padding="around-small">
+                            </lightning-layout-item>
+                        </lightning-layout>                    
+                    </div>    
+                </div>
+            </div>  
+        <div class="slds-section slds-is-open">
+            <h3 class="slds-section__title slds-theme_shade">
+                <span class="slds-truncate slds-p-horizontal_small" title={labels.commonSectionTitle}>{labels.INF_ADD_SETTINGS}</span>
+            </h3>
+            <div aria-hidden="false" class="slds-section__content">
+                <div class="slds-p-around_small">
+                    <lightning-layout horizontal-align="center" multiple-rows>
+                        <lightning-layout-item size="3" flexibility="auto, no-grow" padding="around-small">
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="around-small">
+                            <lightning-layout horizontal-align="center">
+                                <lightning-layout-item size="3" flexibility="auto, no-grow">
+                                    <div class="slds-form-element__label">{labels.INF_ENABLE_GLOBAL_AUTOMATED_ADD}</div>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="3" flexibility="auto, no-grow">
+                                    <lightning-input class="enableAdd" type="checkbox" name="enableAdd"
+                                        label={labels.INF_ENABLE_GLOBAL_AUTOMATED_ADD} variant="label-hidden"
+                                        onchange={enableAddChange} checked={enableAdd}>
+                                    </lightning-input>                                                           
+                                </lightning-layout-item>
+                                <lightning-layout-item size="6" flexibility="auto, no-grow">                                    
+                                    <lightning-layout horizontal-align="center" multiple-rows>
+                                        <lightning-layout-item size="6" flexibility="auto, no-grow">
+                                            <div class="slds-form-element__label">{labels.INF_CASH_IN_DEFAULT_SOURCE_RECORD_TYPE}
+                                            </div>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="6" flexibility="auto, no-grow">
+                                            <lightning-combobox class="cashInDefaultSourceRecordType"
+                                                name="cashInDefaultSourceRecordType"
+                                                label={labels.INF_CASH_IN_DEFAULT_SOURCE_RECORD_TYPE} variant="label-hidden"
+                                                value={cashInDefaultSourceRecordType}
+                                                onchange={cashInDefaultSourceRecordTypeChange}
+                                                options={cashInDefaultSourceRecordTypeOptions}>
+                                            </lightning-combobox>                                                               
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="6" flexibility="auto, no-grow">
+                                            <div class="slds-form-element__label">{labels.INF_CASH_OUT_DEFAULT_SOURCE_RECORD_TYPE}
+                                            </div>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="6" flexibility="auto, no-grow">
+                                            <lightning-combobox class="cashOutDefaultSourceRecordType"
+                                                name="cashOutDefaultSourceRecordType"
+                                                label={labels.INF_CASH_OUT_DEFAULT_SOURCE_RECORD_TYPE} variant="label-hidden"
+                                                value={cashOutDefaultSourceRecordType}
+                                                onchange={cashOutDefaultSourceRecordTypeChange}
+                                                options={cashOutDefaultSourceRecordTypeOptions}>
+                                            </lightning-combobox>                                                                   
+                                        </lightning-layout-item>
+                                    </lightning-layout>   
+                                </lightning-layout-item> 
+                            </lightning-layout>   
+                        </lightning-layout-item>
+                        <lightning-layout-item size="3" flexibility="auto, no-grow" padding="around-small">
+                        </lightning-layout-item>
+                    </lightning-layout>              
+                </div>  
+            </div>
+        </div>
+        <div class="slds-section slds-is-open">
+            <h3 class="slds-section__title slds-theme_shade">
+                <span class="slds-truncate slds-p-horizontal_small" title={labels.commonSectionTitle}>{labels.INF_PRE_POPULATED_ACCT_INFORMATION}</span>
+            </h3>
+            <div aria-hidden="false" class="slds-section__content">
+                <div class="slds-p-around_small">
+                    <lightning-layout horizontal-align="center" multiple-rows>
+                        <lightning-layout-item size="3" flexibility="auto, no-grow" padding="around-small">
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="around-small">
+                            <lightning-layout horizontal-align="center">
+                                <lightning-layout-item size="3" flexibility="auto, no-grow">
+                                    <label class="slds-form-element__label">
+                                        {labels.INF_PRE_POPULATE_ACCT_INFO}
+                                        <c-help-text class="slds-m-left_xx-small help-text"
+                                            object-api-name={accountingSettings.objectApiName}
+                                            field-api-name={accountingSettings.prePopulateAccountInfo.fieldApiName}>
+                                        </c-help-text>
+                                    </label>
+
+                                </lightning-layout-item>
+                                <lightning-layout-item size="3" flexibility="auto, no-grow">
+                                    <lightning-input class="prepopulateAccountInfo" type="checkbox" variant="label-hidden"
+                                        checked={prepopulateAccountInfo} onchange={prepopulateAccountInfoChange}>
+                                    </lightning-input>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="6" flexibility="auto, no-grow"></lightning-layout-item>
+                            </lightning-layout>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="3" flexibility="auto, no-grow" padding="around-small">
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </div>
+            </div>
+        </div>
+        <div class="slds-section slds-is-open">
+            <h3 class="slds-section__title slds-theme_shade">
+                <span class="slds-truncate slds-p-horizontal_small" title={labels.commonSectionTitle}>{labels.INF_MATCH_SETTINGS}</span>
+            </h3>
+            <div aria-hidden="false" class="slds-section__content">
+                <div class="slds-p-around_small">
+                    <lightning-layout horizontal-align="center" multiple-rows>
+                        <lightning-layout-item size="3" flexibility="auto, no-grow" padding="around-small">
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto, no-grow" padding="around-small">
+                            <lightning-layout horizontal-align="center">
+                                <lightning-layout-item size="3" flexibility="auto, no-grow">
+                                    <div class="slds-form-element__label">{labels.INF_ENABLE_GLOBAL_AUTOMATED_MATCH}</div>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="3" flexibility="auto, no-grow">
+                                    <lightning-input class="enableMatch" type="checkbox" name="enableMatch"
+                                        label={labels.INF_ENABLE_GLOBAL_AUTOMATED_MATCH} variant="label-hidden"
+                                        onchange={enableMatchChange} checked={enableMatch}>
+                                    </lightning-input>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="6" flexibility="auto, no-grow">
+                                    <lightning-layout horizontal-align="center" multiple-rows>
+                                        <lightning-layout-item size="6" flexibility="auto, no-grow">
+                                            <div class="slds-form-element__label">{labels.bdcCashInMatchingSetting}</div>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="6" flexibility="auto, no-grow">
+                                            <lightning-layout horizontal-align="center">
+                                                <lightning-layout-item size="1" flexibility="auto, no-grow"
+                                                    class="slds-m-right_small">
+                                                    <div class="slds-form-element__label">+/-</div>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="3" class="matching-settings">
+                                                    <lightning-input class="validValue cashInDefaultMatchingSetting"
+                                                        type="number" name="CashInDefaultMatchingSetting"
+                                                        label={labels.bdcCashInMatchingSetting} variant="label-hidden"
+                                                        value={cashInDefaultMatchingSetting}
+                                                        onchange={cashInDefaultMatchingSettingChange} min="0" max="30"
+                                                        step="1" required message-when-value-missing={labels.commonValueReq}>
+                                                    </lightning-input>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="1" flexibility="auto, no-grow">
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="1" flexibility="auto, no-grow">
+                                                    <div class="slds-form-element__label">{labels.INF_DAYS}</div>
+                                                </lightning-layout-item>
+                                            </lightning-layout>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="6" flexibility="auto, no-grow">
+                                            <div class="slds-form-element__label">{labels.INF_CASH_OUT_DEFAULT_MATCH_SETTING}
+                                            </div>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="6" flexibility="auto, no-grow">
+                                            <lightning-layout horizontal-align="center">
+                                                <lightning-layout-item size="1" flexibility="auto, no-grow"
+                                                    class="slds-m-right_small">
+                                                    <div class="slds-form-element__label">+/-</div>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="3" class="matching-settings">
+                                                    <lightning-input class="validValue cashOutDefaultMatchingSetting"
+                                                        type="number" name="CashOutDefaultMatchingSetting"
+                                                        label={labels.INF_CASH_OUT_DEFAULT_MATCH_SETTING} variant="label-hidden"
+                                                        value={cashOutDefaultMatchingSetting}
+                                                        onchange={cashOutDefaultMatchingSettingChange} min="0" max="365"
+                                                        step="1" required message-when-value-missing={labels.commonValueReq}>
+                                                    </lightning-input>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="1" flexibility="auto, no-grow">
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="1" flexibility="auto, no-grow">
+                                                    <div class="slds-form-element__label">{labels.INF_DAYS}</div>
+                                                </lightning-layout-item>
+                                            </lightning-layout>
+                                        </lightning-layout-item>
+                                    </lightning-layout>   
+                                </lightning-layout-item>
+                            </lightning-layout>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="3" flexibility="auto, no-grow" padding="around-small">
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </div>
+            </div>
+        </div>
+    </template>
+    </lightning-card>
+    
+</template>

@@ -1,0 +1,7 @@
+.resp-iframe {
+    height: 23rem;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}

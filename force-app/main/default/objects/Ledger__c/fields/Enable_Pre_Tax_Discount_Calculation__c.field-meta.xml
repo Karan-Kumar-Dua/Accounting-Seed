@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Enable_Pre_Tax_Discount_Calculation__c</fullName>
+    <defaultValue>false</defaultValue>
+    <inlineHelpText>When enabled, discounts on billings will be calculated on a pre-tax basis (Sub-Total).  When unchecked, discounts will be calculated on the Total.</inlineHelpText>
+    <label>Enable Pre-Tax Discount Calculation</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

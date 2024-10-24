@@ -1,0 +1,191 @@
+<template>
+    <template if:false={loaded}>
+        <lightning-spinner
+                variant="brand"
+                alternative-text={labels.commonLoading}
+                size="medium">
+        </lightning-spinner>
+    </template>
+
+    <template if:true={error}>
+        <c-inline-error-message class="inline-error-msg" errors={error}></c-inline-error-message>
+    </template>
+
+    <template if:true={loaded}>
+        <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+            <div class="slds-col slds-size_2-of-12">
+                <c-lookup-a
+                        data-jest="ledger"
+                        label={labels.INF_TRANSACTIONAL_LEDGER}
+                        search-object={ledger.objectApiName}
+                        search-filter={ledgerFilter}
+                        init-value={defaults.ledger}
+                        onselectionchange={setLedger}
+                        required
+                        title={labels.commonTransactionalLedgerForReport}
+                        class="slds-form-element slds-form-element_stacked">
+                </c-lookup-a>
+            </div>
+            <div if:true={isMultiCurrencyEnabled} class="slds-col slds-size_2-of-12">
+                <lightning-combobox
+                        label={labels.commonCurrency}
+                        value={selectedCurrency}
+                        options={rateTableCurrencies}
+                        onchange={handleCurrencyChange}>
+                </lightning-combobox>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <c-lookup-a
+                        data-jest="budgetLedger"
+                        label={labels.commonBudgetLedger}
+                        search-object={ledger.objectApiName}
+                        search-filter={budgetLedgerFilter}
+                        init-value={defaults.budgetLedger}
+                        onselectionchange={setBudgetLedger}
+                        required
+                        title={labels.INF_BUDGET_LEDGER_FOR_REPORT}
+                        class="slds-form-element slds-form-element_stacked">
+                </c-lookup-a>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <c-lookup-a
+                        data-jest="startingAccountingPeriod"
+                        label={labels.commonStartingAccountPeriod}
+                        search-object={accountingPeriod.objectApiName}
+                        init-value={defaults.startingAccountingPeriod}
+                        onselectionchange={setStartPeriod}
+                        required
+                        class="slds-form-element slds-form-element_stacked">
+                </c-lookup-a>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <c-lookup-a
+                        data-jest="endingAccountingPeriod"
+                        label={labels.commonEndingAccountPeriod} 
+                        search-object={accountingPeriod.objectApiName}
+                        init-value={defaults.endingAccountingPeriod}
+                        onselectionchange={setEndPeriod}
+                        required
+                        class="slds-form-element slds-form-element_stacked">
+                </c-lookup-a>
+            </div>
+        </div>
+
+        <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-input
+                        data-jest="includeSubType1"
+                        type="checkbox"
+                        label={labels.commonIncludeSubType1}
+                        checked={defaults.includeSubType1}
+                        onchange={setIncludeSubType1}>
+                </lightning-input>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-input
+                        data-jest="includeSubType2"
+                        type="checkbox"
+                        label={labels.commonIncludeSubType2}
+                        checked={defaults.includeSubType2}
+                        onchange={setIncludeSubType2}>
+                </lightning-input>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-input
+                        data-jest="suppressZeroAmountRows"
+                        type="checkbox"
+                        label={labels.commonSuppressZeroAmtRows}
+                        checked={defaults.suppressZeroAmountRows}
+                        onchange={setSuppressZeroRows}>
+                </lightning-input>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-input
+                        data-jest="showAllPeriods"
+                        type="checkbox"
+                        label={labels.commonShowAllPeriods}
+                        onchange={setShowAllPeriods}>
+                </lightning-input>
+            </div>
+        </div>
+
+        <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-input
+                        data-jest="subtitle"
+                        type="text"
+                        label={labels.commonReportSubtitle}
+                        value={defaults.subtitle}
+                        onchange={setSubtitle}
+                        variant="label-stacked"
+                        maxlength="80"
+                        title={labels.commonReportSubtitleDisplay}>
+                </lightning-input>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-combobox
+                    data-jest="roundingMode"
+                    name="roundingMode"
+                    label={labels.commonReportRounding}
+                    value={defaultRoundingMode}
+                    options={roundingOptions}
+                    onchange={setRoundingMode} >
+                </lightning-combobox>
+            </div>
+        </div>
+
+        <lightning-record-edit-form object-api-name={financialReportResult.objectApiName}>
+            <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+                <div class="slds-col slds-size_2-of-12">
+                    <lightning-input-field
+                            data-form="acct-variables"
+                            data-jest="glVariable1"
+                            field-name={financialReportResult.gl_account_variable_1.fieldApiName}
+                            value={defaults.glVariable1}
+                            onchange={setGLVar1}>
+                    </lightning-input-field>
+                </div>
+                <div class="slds-col slds-size_2-of-12">
+                    <lightning-input-field
+                            data-form="acct-variables"
+                            data-jest="glVariable2"
+                            field-name={financialReportResult.gl_account_variable_2.fieldApiName}
+                            value={defaults.glVariable2}
+                            onchange={setGLVar2}>
+                    </lightning-input-field>
+                </div>
+                <div class="slds-col slds-size_2-of-12">
+                    <lightning-input-field
+                            data-form="acct-variables"
+                            data-jest="glVariable3"
+                            field-name={financialReportResult.gl_account_variable_3.fieldApiName}
+                            value={defaults.glVariable3}
+                            onchange={setGLVar3}>
+                    </lightning-input-field>
+                </div>
+                <div class="slds-col slds-size_2-of-12">
+                    <lightning-input-field
+                            data-form="acct-variables"
+                            data-jest="glVariable4"
+                            field-name={financialReportResult.gl_account_variable_4.fieldApiName}
+                            value={defaults.glVariable4}
+                            onchange={setGLVar4}>
+                    </lightning-input-field>
+                </div>
+            </div>
+        </lightning-record-edit-form>
+
+        <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+            <div class="slds-col slds-size_1-of-12">
+                <lightning-button
+                        variant="brand"
+                        label={labels.commonRun}
+                        title={labels.commonRunReport}
+                        disabled={runButtonDisabled}
+                        onclick={handleRun}>
+                </lightning-button>
+            </div>
+        </div>
+    </template>
+
+</template>

@@ -1,0 +1,74 @@
+<template>
+    <template if:false={additional}>
+        <template if:true={showDrawer}>
+            <td class="slds-text-align_right" style="width:3.25rem">
+                <lightning-button-icon icon-name={iconLink}
+                                       variant="bare"
+                                       size="small"
+                                       alternative-text={labels.INF_EXPAND_OR_COLLAPSE}
+                                       class="slds-m-left_xx-small"
+                                       onclick={handleSectionAction}>
+
+                </lightning-button-icon>
+            </td>
+        </template>
+        <template for:each={columns} for:item="column">
+            <td key={column.label} data-label={column.label} style={column.style} data-jest-name="tableData">
+                <c-custom-cell key={column.label}
+                               column={column}
+                               row={row}
+                               edit-mode={isEditModeAllComponents}
+                               oneditaction={handleComponentEditAction}
+                               onselectvalue={handleComponentChangeValue}
+                               onselectaction={handleCustomAction}>
+                </c-custom-cell>
+            </td>
+        </template>
+        <template if:true={actions.showRowActionsButtons}>
+            <th data-label="Action">
+                <lightning-button-menu icon-size="x-small"
+                                       alternative-text={labels.INF_MENU_LOWERCASE}
+                                       menu-alignment="right">
+                    <template for:each={actions.actions} for:item="action">
+                        <lightning-menu-item key={action.label}
+                                             data-action={action.actionName}
+                                             class="btn-save-complete"
+                                             label={action.label}
+                                             onclick={handleAction}
+                                             data-jest-name="rowAction">
+
+                        </lightning-menu-item>
+                    </template>
+                    <template if:true={cancelButton}>
+                        <lightning-menu-item
+                            label={labels.commonCancel}
+                            onclick={handleCancelAction}
+                            data-jest-name="cancelAction">
+                        </lightning-menu-item>
+                    </template>
+                </lightning-button-menu>
+            </th>
+        </template>
+    </template>
+
+    <template if:true={additional}>
+        <template if:true={showAdditional}>
+        <td class="slds-text-align_right drawer" style="width:3.25rem;">
+
+        </td>
+        <td data-label="Name" colspan="12" class="drawer">
+            <div class="drawer">
+                <c-drawer-template-container is-edit-mode={isEditModeAllComponents}
+                                             columns={additionalColumns}
+                                             row={row}
+                                             template-name={additionalSectionTemplateName}
+                                             oneditaction={handleComponentEditAction}
+                                             onselectvalue={handleComponentChangeValue}
+                                             onselectaction={handleCustomAction}
+                                             onrowchange={handleTemplateRowChange}>
+                </c-drawer-template-container>
+            </div>
+        </td>
+        </template>
+    </template>
+</template>

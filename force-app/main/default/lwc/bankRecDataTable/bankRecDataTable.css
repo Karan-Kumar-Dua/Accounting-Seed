@@ -1,0 +1,11 @@
+:host {
+  --lwc-colorTextError: white;
+}
+
+.color-black {
+  color:black;
+}
+
+.color-white {
+  color:white;
+}

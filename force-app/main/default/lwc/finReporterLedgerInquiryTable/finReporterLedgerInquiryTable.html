@@ -1,0 +1,32 @@
+<template>
+  <div>
+    <div class="slds-p-around_medium">
+      <div class="slds-grid slds-p-bottom_large">
+        <h2 class="slds-page-header__title slds-p-top_xx-small">{labels.commonReportResults}</h2>
+        <div class="slds-is-relative">
+          <lightning-button label={labels.INF_EXPORT_TO_EXCEL}
+                            class="slds-m-left_small"
+                            data-id="exportToExcel"
+                            onclick={handleExportExcel}>
+          </lightning-button>
+          <template if:true={isXlsExportInProgress}>
+            <lightning-spinner alternative-text={labels.commonLoadingText} size="small"></lightning-spinner>
+          </template>
+        </div>
+
+      </div>
+      <c-applicable-items class="itemsGrid"
+                          items={recItems}
+                          columns={columns}
+                          key-field={keyField}
+                          max-records-displayed={maxItemsDisplayed}
+                          page-size={pageSize}
+                          sorted-by={sortOpts.sortedBy}
+                          sorted-direction={sortOpts.sortedDirection}
+                          object-name="item"
+                          suppress-more-records-message
+                          onsort={handleSort}>
+      </c-applicable-items>
+    </div>
+  </div>
+</template>

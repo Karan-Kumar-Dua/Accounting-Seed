@@ -1,0 +1,309 @@
+<template>
+    <template if:true={showSpinner}>
+        <lightning-spinner
+                variant="brand"
+                alternative-text={labels.commonSaving}
+                size="medium">
+        </lightning-spinner>
+    </template>
+    <lightning-layout vertical-align="start" multiple-rows="true">
+        <lightning-layout-item size="12" class="slds-var-m-bottom_medium">
+            <c-page-header title={labels.automatedJobsPageHeader} breadcrumbs={breadcrumbs} icon-name="standard:custom" knowledge-base={knowledgeBase}></c-page-header>
+        </lightning-layout-item>
+        <lightning-layout-item size="12" if:false={userCanView}>
+            <lightning-card>
+                <c-insufficient-privileges></c-insufficient-privileges>
+            </lightning-card>
+        </lightning-layout-item>
+        <lightning-layout-item size="12" class="slds-var-m-bottom_medium">
+            <lightning-card if:true={userCanView}>
+                <lightning-layout class="slds-var-p-around_medium slds-var-m-bottom_x-large">
+                    <lightning-layout-item class="slds-var-p-right_xx-large slds-border_right">
+                        <h2 class="slds-text-heading_small slds-var-m-bottom_large">
+                            <strong>{labels.automatedJobsAddEdit}</strong>    
+                        </h2>
+                        <lightning-layout class="slds-var-m-bottom_large">
+                            <lightning-layout-item>
+                                <lightning-combobox
+                                    label={labels.automatedJobsSelectLabel}
+                                    placeholder={labels.automatedJobsSelectPlaceholder}
+                                    options={availableJobs.data}
+                                    required
+                                    message-when-value-missing={labels.errorValueMissing}
+                                    data-id="lightningCombobox-scheduledJob"
+                                    class="slds-var-m-right_medium schedule-combobox"
+                                    disabled={userCannotEdit}
+                                    onchange={handleScheduledJobUpdate}
+                                ></lightning-combobox>
+                            </lightning-layout-item>
+                            <lightning-layout-item>
+                                <lightning-combobox
+                                    label={labels.commonPreferredStartTime}
+                                    options={startTimes}
+                                    data-id="lightningCombobox-startTime"
+                                    value={jobToScheduleTime}
+                                    disabled={userCannotEdit}
+                                    onchange={handleScheduleJobTimeUpdate}
+                                    class="schedule-combobox"
+                                ></lightning-combobox>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-button
+                            label={labels.automatedJobsAddButton}
+                            variant="brand"
+                            data-id="lightningButton-addScheduledJob"
+                            disabled={userCannotEdit}
+                            onclick={handleAddScheduledJob}
+                        ></lightning-button>
+                    </lightning-layout-item>
+                    <lightning-layout-item class="slds-var-p-left_xx-large">
+                        <h2 class="slds-text-heading_small slds-var-m-bottom_large">
+                            <strong>{labels.automatedJobsRun}</strong>
+                        </h2>
+                        <lightning-combobox
+                            label={labels.automatedJobsSelectLabel}
+                            placeholder={labels.automatedJobsSelectPlaceholder}
+                            options={onDemandJobs}
+                            required
+                            message-when-value-missing={labels.errorValueMissing}
+                            data-id="lightningCombobox-runJob"
+                            class="slds-var-m-bottom_large schedule-combobox"
+                            disabled={userCannotEdit}
+                            onchange={handleRunJobUpdate}
+                        ></lightning-combobox>
+                        <lightning-button 
+                            label={labels.automatedJobsRunNowButton}
+                            variant="brand"
+                            data-id="lightningButton-runJob"
+                            disabled={userCannotEdit}
+                            onclick={handleRunNow}
+                        ></lightning-button>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout class="slds-var-p-around_medium">
+                    <lightning-layout-item size="12">
+                        <h2 class="slds-text-heading_small slds-var-m-bottom_medium">
+                            <strong>{labels.automatedJobsScheduled}</strong>
+                        </h2>
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered automatedJobs--table" aria-labelledby="element-with-table-label other-element-with-table-label">
+                            <thead class="automatedJobs--tableHeader">
+                              <tr class="slds-line-height_reset">
+                                <th class="" scope="col">
+                                  <div class="slds-truncate" title={labels.automatedJobsScheduledJob}>{labels.automatedJobsScheduledJob}</div>
+                                </th>
+                                <th class="" scope="col">
+                                  <div class="slds-truncate" title={labels.automatedJobsStartDate}>{labels.automatedJobsStartDate}</div>
+                                </th>
+                                <th class="" scope="col">
+                                  <div class="slds-truncate" title={labels.automatedJobsNextRunDate}>{labels.automatedJobsNextRunDate}</div>
+                                </th>
+                                <th class="" scope="col">
+                                  <div class="slds-truncate" title={labels.commonPreferredStartTime}>{labels.commonPreferredStartTime}</div>
+                                </th>
+                                <th class="" scope="col" if:true={userCanEdit}>
+                                  <div class="slds-truncate" title={labels.automatedJobsAction}>{labels.automatedJobsAction}</div>
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={scheduledJobs} for:item="job">
+                                    <tr key={job.jobId} data-id="scheduled-jobs-row" class="slds-hint-parent">
+                                        <th data-id="th-jobType" data-label={labels.automatedJobsScheduledJob} scope="row">
+                                          <div class="slds-truncate" title={job.jobType}>{job.jobType}</div>
+                                        </th>
+                                        <td data-id="td-startDate" data-label={labels.automatedJobsStartDate}>
+                                          <div class="slds-truncate" title={job.startDate}>{job.startDate}</div>
+                                        </td>
+                                        <td data-id="td-nextRunDate" data-label={labels.automatedJobsNextRunDate}>
+                                          <div class="slds-truncate" title={job.nextRunDate}>{job.nextRunDate}</div>
+                                        </td>
+                                        <td data-id="td-preferredStartTime" data-label={labels.commonPreferredStartTime}>
+                                          <div class="slds-truncate" title={job.preferredStartTime}>{job.preferredStartTime}</div>
+                                        </td>
+                                        <td data-id="td-action" data-label={labels.automatedJobsAction} if:true={userCanEdit}>
+                                          <div class="slds-truncate" title={labels.automatedJobsDelete}>
+                                              <a onclick={handleOpenModal} data-sfid={job.jobId} href="#">{labels.automatedJobsDelete}</a>
+                                            </div>
+                                        </td>
+                                      </tr>
+                                </template>
+                                <tr if:false={scheduledJobs.length}>
+                                    <td colspan="5">{labels.automatedJobsNoJobsScheduled}</td>
+                                </tr>
+                            </tbody>
+                          </table>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </lightning-card>
+        </lightning-layout-item>
+        <lightning-layout-item size="12" class="slds-var-m-bottom_medium">
+            <lightning-card if:true={userCanView}>
+                <lightning-layout class="slds-var-p-around_medium" if:true={accountingSettings}>
+                    <lightning-layout-item size="12">
+                        <h2 class="slds-var-m-bottom_medium">
+                            <span class="slds-text-heading_small"><strong>{labels.automatedJobsNotifications}</strong></span>
+                            <lightning-button-icon
+                                class="slds-var-m-left_medium"
+                                if:false={isEditable}
+                                icon-name="utility:edit"
+                                onclick={handleEdit}
+                                disabled={userCannotEdit}
+                                data-id="lightningButtonIcon-edit"
+                            ></lightning-button-icon>
+                            <lightning-button
+                                class="slds-var-m-left_medium"
+                                if:true={isEditable}
+                                label={labels.commonCancel}
+                                variant="neutral"
+                                onclick={handleCancel}
+                                disabled={userCannotEdit}
+                                data-id="lightningButton-cancel"
+                            ></lightning-button>
+                            <lightning-button
+                                class="slds-var-m-left_medium"
+                                if:true={isEditable}
+                                label={labels.commonSave}
+                                variant="brand"
+                                onclick={handleSave}
+                                disabled={userCannotEdit}
+                                data-id="lightningButton-save"
+                            ></lightning-button>
+                        </h2>
+                        <h3 class="automatedJobs--subtitle slds-var-m-bottom_small">{labels.automatedJobsEmailNotification}</h3>
+                        <lightning-layout>
+                            <lightning-layout-item>
+                                <lightning-input data-name=""
+                                                data-id="lightningInput-emailNotifications"
+                                                data-field="Disable_Email_Confirmations__c"
+                                                type="toggle"
+                                                variant="label-hidden"
+                                                disabled={isDisabled}
+                                                checked={accountingSettings.Disable_Email_Confirmations__c}
+                                                message-toggle-active={labels.commonOn}
+                                                message-toggle-inactive={labels.commonOff}>
+                                </lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item padding="horizontal-small">
+                                <label class="slds-form-element__label">
+                                    {labels.automatedJobsDisableEmails}
+                                </label>
+                                <lightning-helptext class="slds-var-m-left_xx-small" content={labels.automatedJobsDisableEmailsHelp}></lightning-helptext>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <hr />
+                        <h3 class="automatedJobs--subtitle slds-var-m-bottom_small">{labels.automatedJobsManage}</h3>
+                        <lightning-layout>
+                            <lightning-layout-item class="slds-var-m-right_xx-large slds-p-top_large">
+                                <lightning-layout>
+                                    <lightning-layout-item>
+                                        <lightning-input data-name=""
+                                                        data-id="lightningInput-enableRecordDeletion"
+                                                        data-field="Enable_Retention_Period__c"
+                                                        type="toggle"
+                                                        variant="label-hidden"
+                                                        disabled={isDisabled}
+                                                        checked={accountingSettings.Enable_Retention_Period__c}
+                                                        message-toggle-active={labels.commonOn}
+                                                        message-toggle-inactive={labels.commonOff}>
+                        
+                                        </lightning-input>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item padding="horizontal-small">
+                                        <label class="slds-form-element__label">{labels.automatedJobsEnableRecordDeletion}</label>
+                                        <lightning-helptext class="slds-var-m-left_xx-small"
+                                                            content={labels.automatedJobsEnableRecordDeletionHelp}>
+                                        </lightning-helptext>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </lightning-layout-item>
+                            <lightning-layout-item class="slds-var-m-left_xx-large slds-var-m-right_xx-large">
+                                <lightning-input
+                                    type="number"
+                                    min="1"
+                                    max="365"
+                                    message-when-range-overflow={labels.keepResultsError}
+                                    message-when-range-underflow={labels.keepResultsError}
+                                    message-when-value-missing={labels.keepResultsError}
+                                    label={labels.automatedJobsKeepResults}
+                                    placeholder="30"
+                                    required
+                                    value={accountingSettings.Automated_Job_Results_Retention_Days__c}
+                                    field-level-help={labels.automatedJobsKeepResultsHelp}
+                                    disabled={isDisabled}
+                                    data-id="lightningInput-keepResults"
+                                    data-field="Automated_Job_Results_Retention_Days__c"
+                                ></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item class="slds-var-m-left_xx-large">
+                                <lightning-combobox
+                                    if:true={configs.data}
+                                    label={labels.automatedJobsDeletion}
+                                    field-level-help={labels.automatedJobsDeletionHelp}
+                                    options={deletionStartTimes}
+                                    value={configs.data.jobs.ajrRetentionJob.nextFire}
+                                    disabled={isDisabled}
+                                    data-id="lightningCombobox-deletionRunTime"
+                                ></lightning-combobox>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </lightning-card>
+        </lightning-layout-item>
+    </lightning-layout>
+    <c-modal-popup
+        open-modal={isModalOpen}
+        popup-title={labels.automatedJobsDeletionTitle}
+        popup-body={labels.automatedJobsDeletionText}
+        action-button-text={labels.commonOk}
+        cancel-button-text={labels.commonCancel}
+        onmodalcancelclick={handleCloseModal}
+        onmodalactionclick={handleRemoveJob}
+    ></c-modal-popup>
+
+    <div class={selectScheduledPostTypeModalClasses}>
+        <c-modal-popup-base
+                title={labels.automatedJobsSelectSchdPostTitle}
+                data-id="selectScheduledPostTypeModal"
+                set-overflow
+                onclose={closeScheduledPostTypeModal}>
+            <c-automated-jobs-schd-post
+                    inventory-valuation-method={inventoryValuationMethod}
+                    current-state={scheduledPostTypeState}
+                    configs={configs}
+                    times-to-exclude={timesToExclude}
+                    onrowselection={handleSchdTypeRowSelection}
+                    onschedulejobtimeupdate={handleScheduleJobTimeUpdate}
+                    onprocessjob={handleProcessJob}
+                    onshowconfirmation={handleShowConfirmation}
+                    onclose={closeScheduledPostTypeModal}>
+            </c-automated-jobs-schd-post>
+        </c-modal-popup-base>
+    </div>
+
+    <c-modal-popup-base
+            title={labels.commonAreYouSure}
+            data-id="areYouSureModal"
+            onclose={closeAreYouSureModal}>
+        <div class="slds-border_top"></div>
+
+        <div class="slds-is-relative slds-p-around_small areYouSure-body">
+            <div>{labels.INF_FOLLOWING_RECORDS_POSTED_SEQUENTIALLY_NOW}</div>
+            <div class="areYouSure-body-list">{selectedSchdTypesToString}</div>
+            <div>{labels.INF_JOB_RESULT_CREATED}</div>
+        </div>
+        <footer class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+            <lightning-button
+              variant="neutral"
+              label={labels.commonCancel}
+              onclick={closeAreYouSureModal}>
+            </lightning-button>
+            <lightning-button
+              variant="brand"
+              label={labels.commonOk}
+              onclick={handleProcessJob}
+              class="slds-m-left_small">
+            </lightning-button>
+        </footer>
+    </c-modal-popup-base>
+</template>

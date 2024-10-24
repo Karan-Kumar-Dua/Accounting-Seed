@@ -1,0 +1,9 @@
+<template>
+    <header class="accountingHome--header slds-var-p-around_medium" onmouseleave={mouseleaveHandler}>
+        <img src={logo} alt="Accounting Seed" class="accountingHome--logo">
+        <div class="accountingHome--nav">
+            <c-navigation-menu if:true={loaded} menu-items={menuItem}></c-navigation-menu>
+        </div>
+        <c-release></c-release>
+    </header>
+</template>

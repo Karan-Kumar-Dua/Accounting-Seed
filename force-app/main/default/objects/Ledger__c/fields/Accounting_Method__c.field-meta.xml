@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Accounting_Method__c</fullName>
+    <inlineHelpText>This field defaults to “Accrual”. Select “Cash” if you want to use the cash method of accounting, “Accrual” if you want to track and report on an accrual basis, or “Accrual and Cash” if you want to track and report on both an accrual and cash basis.</inlineHelpText>
+    <label>Accounting Method</label>
+    <required>true</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Accrual</fullName>
+                <default>true</default>
+                <label>Accrual</label>
+            </value>
+            <value>
+                <fullName>Cash</fullName>
+                <default>false</default>
+                <label>Cash</label>
+            </value>
+            <value>
+                <fullName>Accrual and Cash</fullName>
+                <default>false</default>
+                <label>Accrual and Cash</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

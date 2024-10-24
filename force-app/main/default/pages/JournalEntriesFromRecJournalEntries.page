@@ -1,0 +1,56 @@
+<apex:page id="JournalEntriesFromRecJournalEntries" title="{!$Label.AcctSeed__COMMON_CREATE_JOURNAL_ENTRIES + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" standardController="Recurring_Journal_Entry__c" recordSetVar="records" extensions="JournalEntryFromRecurringJournalEntry,EnvironmentUtils" sideBar="false" lightningStylesheets="true">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/common.css')}" />
+    <script type="text/javascript">
+        AcctSeed.ASModule.defaultLocale = "{!JSENCODE(DefaultLocale)}";
+        AcctSeed.ASModule.defaultCurrency = "{!JSENCODE(DefaultCurrency)}";
+        AcctSeed.ASModule.isMultiCurrencyEnabled = "{!JSENCODE(IF(isMultiCurrencyEnabled, 'true', 'false'))}";
+        function setFocusOnLoad() {}
+    </script>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-currency.js')}" loadOnReady="true"/>
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/je-from-recurring-je.js')}" loadOnReady="true"/>
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Recurring_Journal_Entry__c.labelPlural}" subtitle="{!$ObjectType.Journal_Entry__c.labelPlural}" />
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__COMMON_CREATE + ' ' + $ObjectType.Journal_Entry__c.labelPlural}">
+            <apex:pageMessages escape="false"/>
+            <apex:pageMessage rendered="{!isDmlLimitError}" severity="error" strength="3" summary="{!dmlLimitError}"/>
+            <apex:pageBlockButtons id="buttons">
+                <apex:actionStatus id="saveStatus"
+                                   onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')"
+                                   onstop="AcctSeed.ASModule.pageLoad()"/>
+                <apex:commandButton id="saveButton"
+                                    action="{!createJE}"
+                                    value="{!$Label.AcctSeed__COMMON_CREATE}"
+                                    status="saveStatus"
+                                    reRender="theForm"
+                                    rendered="{!!isError && !isSuccess && !isDmlLimitError}"/>
+                <apex:commandButton id="savePostButton"
+                                    action="{!createJEAndPost}"
+                                    value="{!$Label.AcctSeed__COMMON_CREATE_AND_POST}"
+                                    status="saveStatus"
+                                    reRender="theForm"
+                                    rendered="{!!isError && !isSuccess && !isDmlLimitError}" />
+                <apex:commandButton id="cancelButton" action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection rendered="{!!isError && !isSuccess && !isDmlLimitError}" columns="1">
+
+                <apex:pageBlockTable value="{!jEList}" var="jew" width="100%">
+                    <apex:column headerValue="{!$ObjectType.Journal_Entry__c.fields.Name.label}">
+                        <apex:inputField value="{!jew.obj['Name']}"/>
+                    </apex:column>
+                    <apex:column headerValue="{!$ObjectType.Journal_Entry__c.fields.Journal_Date__c.label}">
+                        <apex:inputField value="{!jew.obj['Journal_Date__c']}" required="true"/>
+                    </apex:column>
+                    <apex:column headerValue="{!$ObjectType.Recurring_Journal_Entry_Line__c.fields.Debit__c.label}">
+                        <apex:outputText id="totalDebit" value="{!jew.rObj['Total_Debits__c']}" html-data-currency="{!jew.currencyIsoCode}"/>
+                    </apex:column>
+                    <apex:column headerValue="{!$ObjectType.Recurring_Journal_Entry_Line__c.fields.Credit__c.label}">
+                        <apex:outputText id="totalCredit" value="{!jew.rObj['Total_Credits__c']}" html-data-currency="{!jew.currencyIsoCode}"/>
+                    </apex:column>
+
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

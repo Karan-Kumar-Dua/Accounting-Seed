@@ -1,0 +1,71 @@
+<template>
+
+    <div class="slds-is-relative">
+        <template if:true={showSpinner}>
+            <lightning-spinner variant="brand" alternative-text={labels.commonSaving} size="medium"></lightning-spinner>
+        </template>
+
+        <template if:true={error}>
+            <c-inline-error-message class="inline-error-msg" errors={error}></c-inline-error-message>
+        </template>
+
+        <template if:true={showModal}>
+            <header>
+                <div class="slds-box slds-theme_error slds-theme_alert-texture warning-box">
+                    {labels.WRN_ARE_YOU_SURE_LOADING}
+                </div>
+            </header>
+
+            <span class="slds-float_right slds-var-m-right_large slds-var-m-top_small">
+                <a href={helpURL} target="_blank" class="slds-var-m-left_small help-link">
+                    {labels.commonHelp}
+                </a>
+            </span>
+
+            <div class="slds-var-m-top_x-large slds-var-m-left_large slds-var-m-right_large">
+                <span class="header-text" data-jest="period-name">{labels.INF_PLEASE_CONFIRM_FOR_PERIOD} {recordName}:</span>
+
+                <ul class="slds-var-m-left_large">
+                    <li class="regular-text">
+                        {labels.DELARCInfo11}&nbsp;<strong>{labels.DELARCInfo12}</strong>{labels.DELARCInfo13}
+                    </li>
+                    <li class="regular-text">
+                        {labels.DELARCInfo2}
+                    </li>
+                </ul>
+
+                <span class="header-text">{labels.DELARCInfo3}</span>
+
+                <ul class="slds-var-m-left_large">
+                    <li class="regular-text">
+                        {labels.DELARCInfo4}
+                    </li>
+                    <li class="regular-text">
+                        {labels.DELARCInfo5}
+                    </li>
+                </ul>
+            </div>
+
+            <div class="slds-var-m-bottom_large slds-var-m-left_large slds-var-m-top_large warning-action-box">{labels.DELARCInfo6}</div>
+        </template>
+
+        <footer class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+            <div class="slds-float_right">
+                <lightning-button
+                    data-id="CancelButton"
+                    variant="neutral"
+                    label={labels.commonCancel}
+                    onclick={closeQuickAction}>
+                </lightning-button>
+                <template if:true={showModal}>
+                    <lightning-button
+                        variant="brand"
+                        label={labels.commonConfirm}
+                        class="slds-m-left_small"
+                        onclick={deleteSourceDocuments}>
+                    </lightning-button>
+                </template>
+            </div>
+        </footer>
+    </div>
+</template>

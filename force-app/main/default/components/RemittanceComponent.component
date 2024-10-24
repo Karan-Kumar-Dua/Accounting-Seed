@@ -1,0 +1,55 @@
+<apex:component controller="RemittanceComponent">
+    <apex:attribute name="Remittances" description="{!$Label.INF_REMITTANCE_WRAPPERS}" 
+        assignTo="{!cRemittances}" type="RemittanceWrapper[]" />
+    <apex:attribute name="Offset" description="" 
+        assignTo="{!cOffset}" type="Integer" default="0"/>
+    <apex:attribute name="Limit" description="" 
+        assignTo="{!cLimit}" type="Integer" default="10000"/>
+    <apex:attribute name="ShowHeader" description="" type="Boolean" default="true"/>
+
+    <table style="font-size:9pt;" width="100%">
+            <tr style="display:{!IF(!ShowHeader,'none','')}">
+                <td>{!$Label.AcctSeed__COMMON_OUR} {!$Label.AcctSeed__COMMON_REFERENCE}</td>
+                <td>{!$Label.AcctSeed__COMMON_DATE}</td>
+                <td>{!$Label.AcctSeed__COMMON_TYPE}</td>
+                <td>{!$Label.AcctSeed__COMMON_YOUR} {!$Label.AcctSeed__COMMON_REFERENCE}</td>
+                <td style="text-align:right">{!$Label.AcctSeed__COMMON_AMOUNT}</td>
+                <td style="text-align:right">{!$Label.AcctSeed__DISCOUNT}</td>
+                <td style="text-align:right">{!$Label.AcctSeed__COMMON_NET_AMOUNT}</td>
+            </tr>
+        <apex:repeat value="{!cRemittances}" var="item">
+            <tr>
+                <td>
+                    <apex:outputText value="{!item.accountPayable.Name}"
+                                     rendered="{!ISBLANK(item.accountPayable.Proprietary_Payable_Number__c)}"/>
+                    <apex:outputText value="{!LEFT(item.accountPayable.Proprietary_Payable_Number__c, 15)}"
+                                     rendered="{!!ISBLANK(item.accountPayable.Proprietary_Payable_Number__c)}" />
+                </td>
+                <td>
+                    <apex:outputField value="{!item.accountPayable.Date__c}" />
+                </td>
+                <td>
+                    <apex:outputText value="{!item.accountPayable.Type__c}" />
+                </td>
+                <td style="white-space: nowrap;">
+                    <apex:outputText value="{!LEFT(item.accountPayable.Payee_Reference__c,30)}" />
+                </td>
+                <td style="text-align:right">
+                    <apex:outputText value="{0, number, ###,###,###,##0.00}">
+                        <apex:param value="{!item.fullAmount}" />                               
+                    </apex:outputText>                       
+                </td>
+                <td style="text-align:right">
+                    <apex:outputText value="{0, number, ###,###,###,##0.00}">
+                        <apex:param value="{!item.discount}"/>
+                    </apex:outputText>                           
+                </td>
+                <td style="text-align:right">
+                    <apex:outputText value="{0, number, ###,###,###,##0.00}">
+                        <apex:param value="{!item.netAmount}" />
+                    </apex:outputText>
+                </td>
+            </tr>
+        </apex:repeat>
+    </table>
+</apex:component>

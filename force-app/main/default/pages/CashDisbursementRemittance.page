@@ -1,0 +1,36 @@
+<apex:page standardController="Cash_Disbursement__c" title="{!Cash_Disbursement__c.Name & ' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" extensions="RemittanceController" sidebar="false" showHeader="false" applyHtmlTag="false"  standardStylesheets="false" renderAs="pdf">
+    <html>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+            <style>             
+            @page { 
+                size: auto;   /* auto is the initial value */
+                
+                /* this affects the top and right margin in the printer settings */ 
+                margin-top: 4mm; 
+                margin-right: 10mm;
+            } 
+            body {
+                font-family: Arial Unicode MS;
+                margin:0px
+            }
+            </style>
+        </head>
+        <body>
+            <!-- Show as Print Checks -->
+            <!-- <c:PrintCashDisbursementsComponent cashDisbursements="{!cashDisbursements}" /> -->
+            
+            <!-- Show as Remittances -->
+            <apex:pageMessages /><!-- escape="false" is not applicable here -->
+            <c:CashDisbursementBatchRemittanceComponent cashDisbursements="{!cashDisbursements}"
+                showSection2="false"
+                showSection3="false"
+                showPage="true"
+                isCheck="false"
+                limitRemittances="10000"
+                perPageRemittances="40"
+
+            />
+        </body>
+    </html>
+</apex:page>

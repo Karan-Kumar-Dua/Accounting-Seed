@@ -1,0 +1,29 @@
+.multiPicklist{
+    max-height: 100px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+.multiPicklist::-webkit-scrollbar {
+    display: none;
+}
+.dirtyCss{
+    background-color: rgba(250,255,189,1);
+}
+.floatRight{
+    text-align: end;
+}
+.displayGrid{
+    display: grid;
+}
+.displayFlex{
+    display: flex;
+}
+.fullWidth{
+    width: inherit;
+}
+.inputField{
+    display: contents;
+}
+.cellClass:not(:hover) .cell-button_container {
+    --slds-c-icon-color-foreground: #dddbda;
+}

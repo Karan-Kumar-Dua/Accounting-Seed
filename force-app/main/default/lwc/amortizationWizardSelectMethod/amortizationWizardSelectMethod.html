@@ -1,0 +1,23 @@
+<template>
+    <div class="amortization-method--container">
+        <div class="amortization-method--container_label">
+            {selectMethodTitle}
+        </div>
+        <template if:false={isMethodOptions}>
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning slds-m-bottom_x-small">
+                <lightning-icon icon-name="utility:warning" size="small" variant="inverse"></lightning-icon>
+                <h2 class="slds-p-left_x-small warn-max-records">
+                    {labels.INF_NO_ACTIVE_AMORTIZATION_METHOD}
+                </h2>
+            </div>
+        </template>
+        <template if:true={isMethodOptions}>
+            <lightning-radio-group
+                    onchange={handleMethodChange}
+                    options={methodOptions}
+                    value={selectedMethod}
+                    class="amortization-method--container_group"
+            ></lightning-radio-group>
+        </template>
+    </div>
+</template>

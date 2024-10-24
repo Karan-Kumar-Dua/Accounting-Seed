@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Default_Form_1099_Box__c</fullName>
+    <description>This field should be populated with the Default 1099 Form Type Label field and the Default 1099 Box Form Category Label. The format should be &lt;FORM_TYPE_LABEL&gt; - &lt;FORM_CATEGORY_LABEL&gt;</description>
+    <externalId>false</externalId>
+    <inlineHelpText>The default 1099 Form and 1099 Box category to associate with this payee’s cash disbursement payments. Each year review your defaults, and check for any new 1099 Form options to reflect changes by the IRS. Change by selecting Update 1099 Info button.</inlineHelpText>
+    <label>Default Form 1099 Box</label>
+    <length>255</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

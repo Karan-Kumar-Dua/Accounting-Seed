@@ -1,0 +1,37 @@
+.warning-box {
+    text-align : center;
+    color: #FFFFFF;
+    background-color: #C23934;
+    font-size: 20px;
+}
+
+.warning-action-box {
+    color: #C23934;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.header-text {
+    color: #080707;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.regular-text {
+    color: #080707;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.help-link {
+    color: #0070D2;
+    font-size: 12px;
+}
+
+ul:not(.browser-default) li {
+    list-style-type: disc;
+}
+
+li{
+    margin: 10px 0;
+}

@@ -1,0 +1,160 @@
+<template>
+    <lightning-tabset variant="scoped" active-tab-value={activeTabValue}>
+        <lightning-tab label={labels.accountingHomeExpenses} value={labels.COMMON_EXPENSES} onactive={handleTabActive}>
+            <template if:false={dataLoaded}>
+                <lightning-spinner alternative-text={labels.commonLoadingText} size="medium"></lightning-spinner>
+            </template>
+            <template if:true={dataLoaded}>
+                <template if:true={error}>
+                    <c-error-panel friendly-message={labels.ERR_EXPENSE_LINE_UPDATE_FAILED} errors={error}></c-error-panel>
+                </template>
+                <template if:true={showTable}>
+                    <c-expense-line-custom-datatable
+                            key-field="id"
+                            hide-checkbox-column
+                            resize-column-disabled
+                            data={expenseLinesData}
+                            columns={expenseLinesColumns}
+                            draft-values={expenseLinesDraftValues}
+                            errors={expenseLinesErrors}
+                            onrowaction={handleRowAction}
+                            oncancel={handleCancel}
+                            oncustomcellchange={handleCellChange}
+                            onsave={handleMassUpdate}
+                            edit-mode={editMode}
+                            is-loading={tableLoadingState}>
+                    </c-expense-line-custom-datatable>
+                </template>
+                <template if:false={showTable}>
+                    <div class="slds-box slds-theme_alert-texture slds-theme–info no-lines-message">
+                        {labels.ERR_NO_EXPENSE_LINE_MILEAGE_LINE_EXIST}
+                    </div>
+                </template>
+                <template if:true={fullScreenMode}>
+                    <div class="slds-clearfix slds-m-top_medium slds-m-right_medium slds-m-left_medium">
+                        <div class="slds-float_left">
+                            <lightning-button type="button"
+                                              label={labels.commonBack}
+                                              onclick={navigateToExpenseReport}>
+
+                            </lightning-button>
+                        </div>
+                        <div if:true={editMode} class="slds-float_right">
+                            <lightning-button type="submit"
+                                              variant="brand"
+                                              name="addExpenseLine"
+                                              label={labels.commonAddLine} onclick={handleAddNewLine}>
+
+                            </lightning-button>
+                        </div>
+                    </div>
+                </template>
+            </template>
+        </lightning-tab>
+        <lightning-tab label={labels.INF_MILEAGE} value={labels.COMMON_MILEAGE} onactive={handleTabActive}>
+            <template if:false={dataLoaded}>
+                <lightning-spinner alternative-text={labels.commonLoadingText} size="medium"></lightning-spinner>
+            </template>
+            <template if:true={dataLoaded}>
+                <template if:true={error}>
+                    <c-error-panel friendly-message={labels.ERR_EXPENSE_LINE_UPDATE_FAILED} errors={error}></c-error-panel>
+                </template>
+                <template if:true={showTable}>
+                    <c-expense-line-custom-datatable
+                            key-field="id"
+                            hide-checkbox-column
+                            resize-column-disabled
+                            data={mileageLinesData}
+                            columns={mileageLinesColumns}
+                            draft-values={mileageLinesDraftValues}
+                            errors={mileageLinesErrors}
+                            onrowaction={handleRowAction}
+                            oncancel={handleCancel}
+                            oncustomcellchange={handleCellChange}
+                            onsave={handleMassUpdate}
+                            edit-mode={editMode}
+                            is-loading={tableLoadingState}>
+                    </c-expense-line-custom-datatable>
+                </template>
+                <template if:false={showTable}>
+                    <div class="slds-box slds-theme_alert-texture slds-theme–info no-lines-message">
+                        {labels.ERR_NO_EXPENSE_LINE_MILEAGE_LINE_EXIST}
+                    </div>
+                </template>
+                <template if:true={fullScreenMode}>
+                    <div class="slds-clearfix slds-m-top_medium slds-m-right_medium slds-m-left_medium">
+                        <div class="slds-float_left">
+                            <lightning-button type="button"
+                                              label={labels.commonBack}
+                                              onclick={navigateToExpenseReport}>
+
+                            </lightning-button>
+                        </div>
+                        <div if:true={editMode} class="slds-float_right">
+                            <lightning-button type="submit"
+                                              variant="brand"
+                                              name="addMileageLine"
+                                              label={labels.commonAddLine} onclick={handleAddNewLine}>
+
+                            </lightning-button>
+                        </div>
+                    </div>
+                </template>
+            </template>
+        </lightning-tab>
+    </lightning-tabset>
+
+    <template if:true={showNewLineDialog}>
+        <c-expense-report-line-edit-form onerlformdialogclose={handleCloseDialog}
+                                         expense-report-data={expenseReportData}
+                                         is-mileage={isMileage}>
+        </c-expense-report-line-edit-form>
+    </template>
+    <template if:true={showEditLineDialog}>
+        <c-expense-report-line-edit-form onerlformdialogclose={handleCloseDialog}
+                                         expense-report-data={expenseReportData}
+                                         edit-mode
+                                         expense-line-data={selectedRow}
+                                         is-mileage={isMileage}>
+        </c-expense-report-line-edit-form>
+    </template>
+
+    <template if:true={showDeleteLineDialog}>
+        <div style="height: 24rem;">
+            <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header slds-theme_error slds-theme_alert-texture">
+                        <h2 class="slds-text-heading_medium" id="prompt-heading-id">{labels.INF_DELETE_EXPENSE_LINE}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">
+                        <p>{labels.WRN_DELETE_EXPENSE_LINE}: {selectedRow.name} ?</p>
+                    </div>
+                    <footer class="slds-modal__footer slds-theme_default">
+                        <lightning-button class="slds-m-around_xxx-small" type="button" label={labels.commonCancel} onclick={handleCloseDialog}></lightning-button>
+                        <lightning-button class="slds-m-around_xxx-small" type="button" variant="destructive" label={labels.commonDelete} onclick={handleLineDeletion}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={showWarning}>
+        <div style="height: 24rem;">
+            <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header slds-theme_warning slds-theme_alert-texture">
+                        <h2 class="slds-text-heading_medium">{labels.WRN_YOU_HAVE_UNSAVED_CHANGES}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <p>{labels.commonSaveChangesOrRemoveChanges}</p>
+                    </div>
+                    <footer class="slds-modal__footer slds-theme_default">
+                        <lightning-button class="slds-m-around_xxx-small" type="button" label={labels.commonOk} onclick={handleCloseDialog}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+</template>

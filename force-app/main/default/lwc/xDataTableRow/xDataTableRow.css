@@ -1,0 +1,18 @@
+:host {
+    display: table-row;
+}
+.bgYellow{
+    background-color: rgba(250,255,189,1);
+}
+.red-icon{
+    --lwc-colorTextIconDefault: red;
+}
+.zeroWidth{
+    width: 0px;
+}
+.position{
+    vertical-align: top;
+}
+.minWidth{
+    width: 5%;
+}

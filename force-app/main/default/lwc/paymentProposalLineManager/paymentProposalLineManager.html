@@ -1,0 +1,37 @@
+<!-- X Line Manager -->
+<template>
+    <lightning-spinner alternative-text={labels.commonLoading} variant="brand" class={spinnerClass} data-id="datatable-spinner"></lightning-spinner>
+
+    <c-x-data-table record-id={recordId}
+                    columns={columns}
+                    drawer={drawer}
+                    required-columns={requiredColumns}
+                    row-number-column={rowNumberColumn}
+                    show-save={showSave}
+                    show-delete={showDelete}
+                    show-c-s-v={showCSV}
+                    name-field={nameField}
+                    object-info={objectInfo}
+                    child-object-info={childObjectInfo}
+                    record-errors={recordErrors}
+                    field-to-sort={fieldToSort}
+                    child-reference={childReference}
+                    table-data={data}
+                    total-records-count={totalRecordsCount}
+                    icon-name="custom:custom42"
+                    intial-row-count={intialRowCount}
+                    add-row-count={addRowCount}
+                    onxaction={handleAction}
+                    data-id="datatable-paymentproposallinemanager"
+                    default-sorting={defaultSorting}
+                    global-error={globalError}
+                    row-change-template={rowChangeTemplate}
+                    has-row-change-template={hasRowChangeTemplate}
+                    subquery-sobject-name={subquerySObjectName}
+                    sub-grid-columns={subGridColumns}
+                    subquery-relationship-name={subqueryRelationshipName}
+                    subgrid-parent-api-name={subgridParentApiName}
+                    onaddrow={handleAddRow}
+                    onrowchange={handleRowChange}>
+    </c-x-data-table>
+</template>

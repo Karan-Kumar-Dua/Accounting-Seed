@@ -1,0 +1,21 @@
+:host {
+    display: table-row;
+}
+c-x-data-table-row:hover{
+    background-color: #F3F3F3;
+}
+.layoutItemWidth{
+    max-width: 100%;
+    width: 100%;
+    text-align: -webkit-center;
+}
+.layoutItemInnerDiv{
+    display: inline-table;
+    max-width: 100%;
+    width: calc(80%);
+    border: 2px solid lightgray;
+}
+.width90{
+    max-width: 100%;
+    width: 90%;
+}

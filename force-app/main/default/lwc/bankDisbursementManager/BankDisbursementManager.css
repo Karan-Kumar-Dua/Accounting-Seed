@@ -1,0 +1,11 @@
+.cardBorder{
+    display: block;
+    z-index: 0;
+    border: 1px solid rgb(208 208 208);
+}
+.cardBody{
+    max-height: 40%;
+}
+.cardBody::-webkit-scrollbar{
+    display: none;
+}

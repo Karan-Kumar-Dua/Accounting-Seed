@@ -1,0 +1,9 @@
+<template>
+    <lightning-modal-header label={modalData.header}></lightning-modal-header>
+    <lightning-modal-body>{modalData.body}</lightning-modal-body>
+    <lightning-modal-footer>
+        <lightning-button label={modalData.cancelLabel} onclick={handleNo} variant="nutral" class="slds-p-right_medium" data-id="modal-cancel"></lightning-button>
+        <lightning-button label={modalData.actionLabel} onclick={handleYes} variant="brand" data-id="modal-action"></lightning-button>
+    </lightning-modal-footer>
+    <c-event-passer></c-event-passer>
+</template>

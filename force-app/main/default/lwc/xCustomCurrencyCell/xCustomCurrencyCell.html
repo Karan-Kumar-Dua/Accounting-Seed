@@ -1,0 +1,48 @@
+<template>
+    <template if:false={editMode}>
+        <c-formatted-currency
+            currency-value={value}
+            currency-iso-code={currencyCode}
+            is-multi-currency-organization={isMultiCurrencyEnabled}
+            value-style={valueStyle}
+            value-parentheses={valueParentheses}
+            hide-iso-code={valueHideIsoCode}
+            title={title}>
+        </c-formatted-currency>
+    </template>
+    <template if:true={editMode}>
+        <template if:true={disabled}>
+            <template if:true={editRecord}>
+                <c-formatted-currency
+                    currency-value={value}
+                    currency-iso-code={currencyCode}
+                    is-multi-currency-organization={isMultiCurrencyEnabled}
+                    value-style={valueStyle}
+                    value-parentheses={valueParentheses}
+                    hide-iso-code={valueHideIsoCode}>
+                </c-formatted-currency>
+            </template>
+            <template if:false={editRecord}>
+                <lightning-input type="number" value={value} variant="label-hidden" disabled step="any"></lightning-input>
+            </template>
+        </template>
+        <template if:false={disabled}>
+            <lightning-layout>
+                <lightning-layout-item style="width: 100%;">
+                    <lightning-input
+                        style="white-space: normal;"
+                        type="number" 
+                        value={value} 
+                        data-id="input"
+                        variant="label-hidden"
+                        step={step}
+                        onblur={handleBlur}
+                        onchange={handleChange}
+                        onfocus={handleFocus}
+                        required={required}>
+                    </lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+        </template>
+    </template>
+</template>

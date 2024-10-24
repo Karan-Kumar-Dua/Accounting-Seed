@@ -1,0 +1,23 @@
+<template>
+    <template if:true={disabled}>
+        <lightning-input type="text" label={label} value={selectedName} variant={disabledInputVariant} disabled></lightning-input>
+    </template>
+    <template if:false={disabled}>
+        <div></div>
+        <c-lookup-a label={label}
+                  search-object={searchObject}
+                  search-display-field={searchDisplayField}
+                  search-group={searchGroup}
+                  search-limit={searchLimit}
+                  search-filter={searchFilter}
+                  hide-selection-icon={hideSelectionIcon}
+                  init-value={initValue}
+                  selection={selection}
+                  errors={errors}
+                  onblur={handleBlur}
+                  onopen={handleOpen}
+                  onselectionchange={handleChange}
+                  placeholder={placeholder}>
+        </c-lookup-a>
+    </template>
+</template>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Billing_Format__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <inlineHelpText>Used to configure formatting and display of fields in Billing PDF. Overrides the default Billing format defined on the “PDF Formats” page.</inlineHelpText>
+    <label>Billing Format</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>Billing_Format__c.Type__c</field>
+            <operation>equals</operation>
+            <value>Billing</value>
+        </filterItems>
+        <infoMessage>The Type must equal &quot;Billing&quot;</infoMessage>
+        <isOptional>true</isOptional>
+    </lookupFilter>
+    <referenceTo>Billing_Format__c</referenceTo>
+    <relationshipLabel>Accounts (Billing Format)</relationshipLabel>
+    <relationshipName>Accounts2</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Lookup</type>
+</CustomField>

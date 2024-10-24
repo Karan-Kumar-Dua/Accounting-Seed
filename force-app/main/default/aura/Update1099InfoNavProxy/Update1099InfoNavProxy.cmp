@@ -1,0 +1,4 @@
+<aura:component implements="lightning:isUrlAddressable">
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+    <c:x1099InfoCashDisbursements recordIds="{!v.pageReference.state.AcctSeed__recordIds}"></c:x1099InfoCashDisbursements>
+</aura:component>

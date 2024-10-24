@@ -1,0 +1,118 @@
+<template>
+    <template if:true={isSpinner}>
+        <lightning-spinner variant="brand" size="small"></lightning-spinner>
+    </template>
+    <template if:true={url}>
+        <div class="slds-truncate slds-p-around_xx-small" title={value.label}>
+        <c-formatted-cmp-label label={value.label} variant={value.variant}>
+            <lightning-formatted-url label={value.fieldName} value={value.link} target="_blank"></lightning-formatted-url>
+        </c-formatted-cmp-label>
+        </div>
+    </template>
+    <template if:true={date}>
+        <div class="slds-truncate slds-p-around_xx-small" title={value.fieldName}>
+            <c-custom-date-cell
+                value={value.fieldName}>
+            </c-custom-date-cell>
+        </div>
+    </template>
+    <template if:true={currency}>
+        <div class="slds-truncate slds-p-around_xx-small">
+            <c-custom-currency-cell
+                value={value.fieldName}
+                is-multi-currency-enabled={value.isMultiCurrencyEnabled}
+                currency-code={value.currencyCode}
+                value-style={value.style}
+                value-parentheses={value.parentheses}>
+            </c-custom-currency-cell>
+        </div>
+    </template>
+    <template if:true={sobject}>
+        <div class="slds-p-around_xx-small slds-cell-wrap">
+        <c-custom-form-field-template custom-value={value.fieldName}
+                                      field-api-name={value.fieldApiName}
+                                      record-api-name={value.recordApiName}
+                                      record-id={value.recordId}
+                                      field-path={value.fieldPath}
+                                      variant={value.variant}
+                                      edit-mode={editModeInner}
+                                      is-editable={value.isEditable}
+                                      required={value.required}
+                                      onloadcell={handleLoadCell}>
+        </c-custom-form-field-template>
+        </div>
+
+    </template>
+    <template if:true={lookupPreview}>
+        <div class="slds-truncate slds-p-around_xx-small">
+        <c-custom-lookup-preview field-api-name={value.fieldApiName}
+                                  record-api-name={value.innerRecordApiName}
+                                  record-id={value.recordId}
+                                  field-path={value.fieldPath}
+                                  variant={value.variant}>
+        </c-custom-lookup-preview>
+        </div>
+    </template>
+    <template if:true={customLookup}>
+        <div class={bumperClasses}>
+            <c-formatted-cmp-label label={value.label} variant={value.variant}>
+                <template if:true={value.fieldLevelHelp}>
+                    <c-help-text 
+                        slot="help-text"
+                        object-api-name={value.recordApiName} 
+                        field-api-name={value.fieldApiName}>
+                    </c-help-text>
+                </template>
+                <c-custom-lookup-cell
+                    value={value.fieldName}
+                    search-object={value.fieldApiName}
+                    search-filter={value.searchFilter}
+                    oncellchange={handleChange}
+                    custom-table="true">
+                </c-custom-lookup-cell>
+            </c-formatted-cmp-label>
+        </div>
+    </template>
+    <template if:true={text}>
+        <div class="slds-truncate slds-p-around_xx-small">
+        <lightning-input type="text"
+                         label={value.label}
+                         value={value.fieldName}
+                         variant={value.variant}
+                         readonly>
+        </lightning-input>
+        </div>
+    </template>
+    <template if:true={picklist}>
+        <div class="slds-p-around_xx-small">
+        <lightning-combobox label={value.label}
+                            variant={value.variant}
+                            value={value.fieldName}
+                            title={picklistTitle}
+                            options={value.options}
+                            onchange={handleChange}>
+        </lightning-combobox>
+        </div>
+    </template>
+    <template if:true={checkbox}>
+        <div class="slds-m-left_medium slds-truncate slds-p-around_xx-small">
+            <label style="font-size: 99%; color: gray;">{value.label}</label>
+            <lightning-helptext class="inlineFlex" content={value.fieldLevelHelp}></lightning-helptext>
+            <lightning-input type="checkbox" 
+            checked={value.fieldName}
+            disabled={value.state} 
+            onchange={handleChange}></lightning-input>
+        </div>
+    </template>
+    <template if:true={button}>
+        <div class="slds-p-around_xx-small">
+            <button class="slds-button" onclick={handleButton} disabled={value.state}>{value.fieldName}</button>
+        </div>
+    </template>
+    <template if:true={combined}>
+        <c-custom-detail-cell
+            value={value.fieldName}
+            value-style={value.style}>
+        </c-custom-detail-cell>
+    </template>
+</template>

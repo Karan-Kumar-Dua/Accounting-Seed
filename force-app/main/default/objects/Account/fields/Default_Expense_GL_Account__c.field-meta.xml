@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Default_Expense_GL_Account__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <inlineHelpText>Default Expense GL Account used for this Vendor when creating Payable records.</inlineHelpText>
+    <label>Default Expense GL Account</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>GL_Account__c.Type__c</field>
+            <operation>notEqual</operation>
+            <value>Cash Flow</value>
+        </filterItems>
+        <isOptional>true</isOptional>
+    </lookupFilter>
+    <referenceTo>GL_Account__c</referenceTo>
+    <relationshipLabel>Accounts</relationshipLabel>
+    <relationshipName>Accounts</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Lookup</type>
+</CustomField>

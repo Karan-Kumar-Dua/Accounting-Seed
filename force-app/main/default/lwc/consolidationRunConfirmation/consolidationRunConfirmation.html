@@ -1,0 +1,73 @@
+<template>
+    <div class="slds-border_top"></div>
+    <template if:true={error}>
+        <c-inline-error-message class="inline-error-msg" errors={error}></c-inline-error-message>
+    </template>
+
+    <div class="slds-is-relative slds-p-around_small slds-m-left_large">
+        <template if:true={hasSpinner}>
+            <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+        </template>
+
+        <template if:true={runConsolidationRoutineAccessAllowed}>
+            <lightning-layout horizontal-align="spread">
+                <lightning-layout-item size="4" padding="horizontal-small">
+                    <template if:true={ledgerHierarchyName}>
+                        <div class="slds-var-m-bottom_small">
+                            {ledgerLabel}: <b>{ledgerHierarchyName}</b>
+                        </div>
+                    </template>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout horizontal-align="spread">
+                <lightning-layout-item size="4" padding="horizontal-small">
+                    <div class="accounting-period-container">
+                        <c-lookup
+                                data-jest="accountingPeriod"
+                                data-id="accountingPeriod"
+                                label={labels.commonAccountingPeriod}
+                                search-object={accountingPeriod.objectApiName}
+                                search-filter={accountingPeriodFilter}
+                                onselectionchange={setAccountingPeriod}
+                                init-value={lastPeriodClosedId}
+                                required
+                                class="slds-is-fixed slds-p-right_x-large slds-size_4-of-12">
+                        </c-lookup>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+        </template>
+
+        <template if:true={showRunConsolidationRoutineAccessDeniedMsg}>
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" data-jest-name="warning">
+                <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+                <h2 class="slds-p-left_x-small warn-max-records">
+                    {labels.WRN_ASSIGN_PERMISSION_RUN_CONSOLIDATION_ROUTINE}
+                </h2>
+            </div>
+        </template>
+    </div>
+
+    <footer class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+        <div class="slds-float_right">
+            <lightning-button
+                    data-jest="cancel-btn"
+                    variant="neutral"
+                    name="Cancel"
+                    label={labels.commonCancel}
+                    onclick={handleCancel}>
+            </lightning-button>
+            <template if:true={runConsolidationRoutineAccessAllowed}>
+                <lightning-button
+                        class="slds-m-left_small"
+                        data-jest="run-button"
+                        variant="brand"
+                        type="submit"
+                        name="Run"
+                        label={labels.commonRun}
+                        onclick={handleRun}>
+                </lightning-button>
+            </template>
+        </div>
+    </footer>
+</template>

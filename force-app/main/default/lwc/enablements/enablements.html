@@ -1,0 +1,345 @@
+<template>
+    <div class="slds-var-m-bottom_medium">
+        <c-page-header title={labels.enablementsSubtitle} breadcrumbs={breadcrumbs} knowledge-base={knowledgeBase}
+            icon-name="standard:custom"></c-page-header>
+    </div>
+    <lightning-card if:false={userCanView}>
+        <c-insufficient-privileges></c-insufficient-privileges>
+    </lightning-card>
+    <lightning-card if:true={userCanView}>
+        <div slot="title" class="enablements--header">
+            <span class="slds-text-heading_small">
+                <strong>{labels.enablementsTitle}</strong>
+            </span>
+            <lightning-button-icon class="slds-var-m-left_medium" if:false={isEditable} icon-name="utility:edit"
+                onclick={handleEdit} disabled={userCannotEdit}
+                data-id="lightningButtonIcon-edit"></lightning-button-icon>
+            <lightning-button class="slds-var-m-left_medium" if:true={isEditable} label={labels.commonCancel}
+                variant="neutral" onclick={handleCancel} disabled={userCannotEdit}
+                data-id="lightningButton-cancel"></lightning-button>
+            <lightning-button class="slds-var-m-left_medium" if:true={isEditable} label={labels.commonSave}
+                variant="brand" onclick={handleSave} disabled={userCannotEdit}
+                data-id="lightningButton-save"></lightning-button>
+        </div>
+
+        <div class="slds-var-p-around_medium" if:true={isLoaded}>
+
+            <section if:true={isMultiCurrencyEnabled}>
+                <h2 class="enablements--heading slds-var-m-bottom_small">
+                    <strong>{labels.enablementsMultiCurrency}</strong>
+                </h2>
+                <lightning-layout>
+                    <lightning-layout-item>
+                        <lightning-input data-name="" data-id="lightningInput-multiCurrency" type="toggle"
+                            variant="label-hidden" disabled=true message-toggle-active={labels.commonOn}
+                            message-toggle-inactive={labels.commonOff} data-field="Enable_Multi_Currency__c"
+                            checked={accountingSettings.Enable_Multi_Currency__c}>
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item if:true={accountingSettingsInfo.fields.Enable_Multi_Currency__c}
+                        padding="horizontal-small">
+                        <label
+                            class="slds-form-element__label">{accountingSettingsInfo.fields.Enable_Multi_Currency__c.label}</label>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <hr />
+            </section>
+            <h2 class="enablements--heading slds-var-m-bottom_small">
+                <strong>{labels.enablementsAgingHistory}</strong>
+            </h2>
+            <lightning-layout>
+                <lightning-layout-item>
+                    <lightning-input data-name="" data-id="lightningInput-accountsReceivable" type="toggle"
+                        variant="label-hidden" disabled={isDisabled} message-toggle-active={labels.commonOn}
+                        message-toggle-inactive={labels.commonOff} data-field="Enable_Billing_Period_Sensitive_Aging__c"
+                        checked={accountingSettings.Enable_Billing_Period_Sensitive_Aging__c}>
+                    </lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item if:true={accountingSettingsInfo.fields.Enable_Billing_Period_Sensitive_Aging__c}
+                    padding="horizontal-small">
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Enable_Billing_Period_Sensitive_Aging__c.label}</label>
+                    <lightning-helptext if:true={accountingSettingsInfo} class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Enable_Billing_Period_Sensitive_Aging__c.inlineHelpText}></lightning-helptext>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout>
+                <lightning-layout-item>
+                    <lightning-input data-name="" data-id="lightningInput-accountsPayable" type="toggle"
+                        variant="label-hidden" disabled={isDisabled} message-toggle-active={labels.commonOn}
+                        message-toggle-inactive={labels.commonOff} data-field="Enable_AP_Period_Sensitive_Aging__c"
+                        checked={accountingSettings.Enable_AP_Period_Sensitive_Aging__c}>
+                    </lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item if:true={accountingSettingsInfo.fields.Enable_AP_Period_Sensitive_Aging__c}
+                    padding="horizontal-small">
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Enable_AP_Period_Sensitive_Aging__c.label}</label>
+                    <lightning-helptext if:true={accountingSettingsInfo} class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Enable_AP_Period_Sensitive_Aging__c.inlineHelpText}></lightning-helptext>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout if:true={isERPEnabled}>
+                <lightning-layout-item>
+                    <lightning-input data-name="" data-id="lightningInput-accountsPayable" type="toggle"
+                        variant="label-hidden" disabled={isDisabled} message-toggle-active={labels.commonOn}
+                        message-toggle-inactive={labels.commonOff} data-field="Enable_Inventory_Period_History__c"
+                        checked={accountingSettings.Enable_Inventory_Period_History__c}>
+                    </lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item if:true={accountingSettingsInfo} padding="horizontal-small">
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Enable_Inventory_Period_History__c.label}
+                    </label>
+                    <lightning-helptext if:true={accountingSettingsInfo} class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Enable_Inventory_Period_History__c.inlineHelpText}></lightning-helptext>
+                </lightning-layout-item>
+            </lightning-layout>
+            <hr />
+            <h2 class="enablements--heading slds-var-m-bottom_small">
+                <strong>{labels.AMORT_SETTINGS}</strong>
+            </h2>
+            <lightning-layout>
+                <lightning-layout-item if:true={accountingSettings}>
+                    <lightning-input type="toggle" variant="label-hidden"
+                        name="toggleButton" disabled={isDisabled} data-field="Amortize_Default_Revenue_Prepaid_Expense__c"
+                        message-toggle-active={labels.commonOn} message-toggle-inactive={labels.commonOff}
+                        checked={accountingSettings.Amortize_Default_Revenue_Prepaid_Expense__c}>
+                    </lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item if:true={accountingSettingsInfo} padding="horizontal-small">
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Amortize_Default_Revenue_Prepaid_Expense__c.label}
+                    </label>
+                    <lightning-helptext if:true={accountingSettingsInfo} class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Amortize_Default_Revenue_Prepaid_Expense__c.inlineHelpText}></lightning-helptext>
+                </lightning-layout-item>
+            </lightning-layout>
+            <hr />
+            <h2 class="enablements--heading slds-var-m-bottom_small">
+                <strong>{labels.commonBankReconciliation}</strong>
+            </h2>
+            <lightning-layout>
+                <lightning-layout-item if:true={accountingSettings}>
+                    <lightning-input type="toggle" variant="label-hidden"
+                                     name="toggleButton" disabled={isDisabled} data-field="Disable_Auto_Clear_job__c"
+                                     message-toggle-active={labels.commonOn} message-toggle-inactive={labels.commonOff}
+                                     checked={accountingSettings.Disable_Auto_Clear_job__c}>
+                    </lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item if:true={accountingSettingsInfo} padding="horizontal-small">
+                    <label
+                            class="slds-form-element__label">{accountingSettingsInfo.fields.Disable_Auto_Clear_job__c.label}
+                    </label>
+                    <lightning-helptext if:true={accountingSettingsInfo} class="slds-var-m-left_xx-small"
+                                        content={accountingSettingsInfo.fields.Disable_Auto_Clear_job__c.inlineHelpText}></lightning-helptext>
+                </lightning-layout-item>
+            </lightning-layout>
+            <hr />
+            <h2 class="enablements--heading slds-var-m-bottom_small">
+                <strong>{labels.enablementsDefaultBillingDate}</strong>
+            </h2>
+            <lightning-layout>
+                <lightning-layout-item>
+                    <lightning-input data-name="" data-id="lightningInput-defaultBillingDate" type="toggle"
+                        variant="label-hidden" disabled={isDisabled} message-toggle-active={labels.commonOn}
+                        message-toggle-inactive={labels.commonOff} data-field="Set_Billing_Date_To_Current_Date__c"
+                        checked={accountingSettings.Set_Billing_Date_To_Current_Date__c}>
+                    </lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item if:true={accountingSettingsInfo.fields.Set_Billing_Date_To_Current_Date__c}
+                    padding="horizontal-small">
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Set_Billing_Date_To_Current_Date__c.label}</label>
+                    <lightning-helptext if:true={accountingSettingsInfo} class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Set_Billing_Date_To_Current_Date__c.inlineHelpText}></lightning-helptext>
+                </lightning-layout-item>
+            </lightning-layout>
+            <hr />
+            <h2 class="enablements--heading slds-var-m-bottom_small">
+                <strong>{labels.enablementsCreditMemoDefault}</strong>
+            </h2>
+            <label class="slds-form-element__label">{labels.enablementsCreditMemoLabel}</label>
+            <lightning-helptext if:true={accountingSettingsInfo.fields.Credit_Memo_Default__c}
+                class="slds-var-m-left_xx-small"
+                content={accountingSettingsInfo.fields.Credit_Memo_Default__c.inlineHelpText}></lightning-helptext>
+            <lightning-radio-group name="creditMemoDefault" if:true={creditMemoDefaults.data}
+                options={creditMemoDefaults.data.values} variant="label-hidden" type="radio" disabled={isDisabled}
+                data-id="lightningRadioGroup-creditMemoDefault" data-field="Credit_Memo_Default__c"
+                value={accountingSettings.Credit_Memo_Default__c}></lightning-radio-group>
+            <hr />
+            <h2 class="enablements--heading slds-var-m-bottom_small">
+                <strong>{labels.enablementsCashDisbursementSource}</strong>
+            </h2>
+            <label class="slds-form-element__label">{labels.enablementsCashDisbursementSourceLabel}</label>
+            <lightning-helptext if:true={accountingSettingsInfo.fields.Cash_Disbursement_Source__c.inlineHelpText} class="slds-var-m-left_xx-small"
+                    content={accountingSettingsInfo.fields.Cash_Disbursement_Source__c.inlineHelpText}>
+            </lightning-helptext>
+            <lightning-radio-group name="cashDisbursementSource" if:true={cashDisbursementSource.data}
+                options={cashDisbursementSource.data.values} variant="label-hidden" type="radio" disabled={isDisabled}
+                data-id="lightningRadioGroup-cashDisbursementSource" data-field="Cash_Disbursement_Source__c"
+                value={accountingSettings.Cash_Disbursement_Source__c}>
+            </lightning-radio-group>
+            <hr/>
+            <h2 class="enablements--heading slds-var-m-bottom_small">
+                <strong>{labels.enablementsProductCosting}</strong>
+            </h2>
+            <lightning-layout>
+                <lightning-layout-item>
+                    <lightning-input data-name="" data-id="lightningInput-productCosting" type="toggle"
+                        variant="label-hidden" disabled=true message-toggle-active={labels.commonOn}
+                        message-toggle-inactive={labels.commonOff} data-field="Enable_Product_Costing__c"
+                        checked={accountingSettings.Enable_Product_Costing__c}>
+                    </lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="horizontal-small"
+                    if:true={accountingSettingsInfo.fields.Enable_Product_Costing__c}>
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Enable_Product_Costing__c.label}</label>
+                    <lightning-helptext if:true={accountingSettingsInfo.fields.Enable_Product_Costing__c}
+                        class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Enable_Product_Costing__c.inlineHelpText}></lightning-helptext>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout>
+                <lightning-layout-item if:true={accountingSettingsInfo.fields.Inventory_Valuation_Method__c}>
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Inventory_Valuation_Method__c.label}</label>
+                    <lightning-helptext if:true={accountingSettingsInfo} class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Inventory_Valuation_Method__c.inlineHelpText}></lightning-helptext>
+                    <div if:true={accountingSettings}>
+                        {accountingSettings.Inventory_Valuation_Method__c}
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+            <hr />
+            <h2 class="enablements--heading slds-var-m-bottom_small">
+                <strong>{labels.enablementsTimeCard}</strong>
+            </h2>
+            <lightning-layout>
+                <lightning-layout-item>
+                    <lightning-input data-name="" data-id="lightningInput-timeCard" type="toggle" variant="label-hidden"
+                        disabled={isDisabled} message-toggle-active={labels.commonOn}
+                        message-toggle-inactive={labels.commonOff}
+                        data-field="Display_Billable_Flag_in_Time_Card_Entry__c"
+                        checked={accountingSettings.Display_Billable_Flag_in_Time_Card_Entry__c}>
+                    </lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item padding="horizontal-small"
+                    if:true={accountingSettingsInfo.fields.Display_Billable_Flag_in_Time_Card_Entry__c}>
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Display_Billable_Flag_in_Time_Card_Entry__c.label}</label>
+                    <lightning-helptext if:true={accountingSettingsInfo} class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Display_Billable_Flag_in_Time_Card_Entry__c.inlineHelpText}></lightning-helptext>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout if:true={accountingSettingsInfo}>
+                <lightning-layout-item if:true={accountingSettingsInfo.fields.Label_for_Time_Card_Variable_1__c}>
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Label_for_Time_Card_Variable_1__c.label}</label>
+                    <lightning-helptext if:true={accountingSettingsInfo} class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Label_for_Time_Card_Variable_1__c.inlineHelpText}></lightning-helptext>
+                    <div if:true={isDisabled}>{accountingSettings.Label_for_Time_Card_Variable_1__c}</div>
+                    <lightning-input if:false={isDisabled} variant="label-hidden"
+                        data-id="lightningInput-timeCardVariable1" data-field="Label_for_Time_Card_Variable_1__c"
+                        value={accountingSettings.Label_for_Time_Card_Variable_1__c}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item if:true={accountingSettingsInfo.fields.Label_for_Time_Card_Variable_2__c}
+                    padding="horizontal-large">
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Label_for_Time_Card_Variable_2__c.label}</label>
+                    <lightning-helptext if:true={accountingSettingsInfo} class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Label_for_Time_Card_Variable_2__c.inlineHelpText}></lightning-helptext>
+                    <div if:true={isDisabled}>{accountingSettings.Label_for_Time_Card_Variable_2__c}</div>
+                    <lightning-input if:false={isDisabled} variant="label-hidden"
+                        data-id="lightningInput-timeCardVariable2" data-field="Label_for_Time_Card_Variable_2__c"
+                        value={accountingSettings.Label_for_Time_Card_Variable_2__c}></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+            <hr />
+            <h2 class="enablements--heading slds-var-m-bottom_small">
+                <strong>{labels.enablementsCashFlow}</strong>
+            </h2>
+            <lightning-layout>
+                <lightning-layout-item>
+                    <lightning-input data-name="" data-id="lightningInput-cashFlowStatement" type="toggle"
+                        variant="label-hidden" disabled={isCashFlowDisabled} message-toggle-active={labels.commonOn}
+                        message-toggle-inactive={labels.commonOff} data-field="Enable_Cash_Flow_Statement__c"
+                        checked={accountingSettings.Enable_Cash_Flow_Statement__c}
+                        onchange={handleCashFlowStatementChange}>
+                    </lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item if:true={accountingSettingsInfo.fields.Enable_Cash_Flow_Statement__c}
+                    padding="horizontal-small">
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Enable_Cash_Flow_Statement__c.label}</label>
+                    <lightning-helptext if:true={accountingSettingsInfo} class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Enable_Cash_Flow_Statement__c.inlineHelpText}></lightning-helptext>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout if:true={accountingSettingsInfo}>
+                <lightning-layout-item if:true={accountingSettingsInfo.fields.Default_Cash_Disbursement_Category__c}>
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Default_Cash_Disbursement_Category__c.label}</label>
+                    <lightning-helptext if:true={accountingSettingsInfo} class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Default_Cash_Disbursement_Category__c.inlineHelpText}></lightning-helptext>
+                    <template if:true={isDisabled}>
+                        <c-record-popover if:true={accountingSettings}
+                            record-id={accountingSettings.Default_Cash_Disbursement_Category__c}
+                            object-api-name={glAccountApiName} fields={glAccountFields}
+                            data-id="popover-defaultCashDisbursement"></c-record-popover>
+                    </template>
+                    <c-lookup if:false={isDisabled} search-object={glAccountApiName} search-filter={glAccountFilter}
+                        data-id="lookup-defaultCashDisbursement" data-lookup="Default_Cash_Disbursement_Category__c"
+                        init-value={accountingSettings.Default_Cash_Disbursement_Category__c}>
+                    </c-lookup>
+                </lightning-layout-item>
+                <lightning-layout-item if:true={accountingSettingsInfo.fields.Default_Cash_Receipt_Category__c}
+                    padding="horizontal-large">
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Default_Cash_Receipt_Category__c.label}</label>
+                    <lightning-helptext class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Default_Cash_Receipt_Category__c.inlineHelpText}></lightning-helptext>
+                    <template if:true={isDisabled}>
+                        <c-record-popover if:true={accountingSettings}
+                            record-id={accountingSettings.Default_Cash_Receipt_Category__c}
+                            object-api-name={glAccountApiName} fields={glAccountFields}
+                            data-id="popover-defaultCashReceipt"></c-record-popover>
+                    </template>
+                    <c-lookup if:false={isDisabled} search-object={glAccountApiName} search-filter={glAccountFilter}
+                        data-id="lookup-defaultCashReceipt" data-lookup="Default_Cash_Receipt_Category__c"
+                        init-value={accountingSettings.Default_Cash_Receipt_Category__c}>
+                    </c-lookup>
+                </lightning-layout-item>
+                <lightning-layout-item if:true={accountingSettingsInfo.fields.Default_Journal_Entry_Line_Category__c}
+                    padding="horizontal-large">
+                    <label
+                        class="slds-form-element__label">{accountingSettingsInfo.fields.Default_Journal_Entry_Line_Category__c.label}</label>
+                    <lightning-helptext if:true={accountingSettingsInfo} class="slds-var-m-left_xx-small"
+                        content={accountingSettingsInfo.fields.Default_Journal_Entry_Line_Category__c.inlineHelpText}></lightning-helptext>
+                    <template if:true={isDisabled}>
+                        <c-record-popover if:true={accountingSettings}
+                            record-id={accountingSettings.Default_Journal_Entry_Line_Category__c}
+                            object-api-name={glAccountApiName} fields={glAccountFields}
+                            data-id="popover-defaultJournalEntry"></c-record-popover>
+                    </template>
+                    <c-lookup if:false={isDisabled} search-object={glAccountApiName} search-filter={glAccountFilter}
+                        data-id="lookup-defaultJournalEntry" data-lookup="Default_Journal_Entry_Line_Category__c"
+                        init-value={accountingSettings.Default_Journal_Entry_Line_Category__c}>
+                    </c-lookup>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+    </lightning-card>
+    <c-modal-popup-base title={labels.commonConfirm} is-open={isModalOpen} data-id="modalPopupBase" onclose={handleCloseModal}>
+        <div class="slds-var-p-around_medium">
+            <lightning-formatted-rich-text value={labels.enablementsModal}></lightning-formatted-rich-text>
+        </div>
+        <footer class="slds-modal__footer">
+            <lightning-button label={labels.commonCancel} class="slds-var-m-right_small" variant="neutral"
+                data-id="lightningButton-closeModal" onclick={handleCloseModal}></lightning-button>
+            <lightning-button label={labels.commonOk} variant="brand" data-id="lightningButton-submitModal"
+                onclick={handleSubmitModal}></lightning-button>
+        </footer>
+    </c-modal-popup-base>
+</template>

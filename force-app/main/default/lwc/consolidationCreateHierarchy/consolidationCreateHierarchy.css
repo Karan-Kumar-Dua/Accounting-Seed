@@ -1,0 +1,6 @@
+.ledger-lookup {
+    z-index: 9999;
+}
+.ledger-container.ledger-container__error {
+    height: 90px;
+}

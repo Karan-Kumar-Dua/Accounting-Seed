@@ -1,0 +1,16 @@
+<!-- Bdc Import File Wizard Select File -->
+<template>
+    <template if:true={isSpinner}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+    </template>
+    <div if:true={importFileDto.isValid} class="slds-box slds-text-align_left slds-theme_success">
+        {importFileDto.message}
+    </div>
+    <c-inline-error-message generic-error={error.title} errors={error.msg}></c-inline-error-message>
+    <lightning-file-upload
+            label={labels.commonSelectFile}
+            name="fileUploader"
+            accept={acceptedFormats}
+            onuploadfinished={handleUploadFinished}>
+    </lightning-file-upload>
+</template>

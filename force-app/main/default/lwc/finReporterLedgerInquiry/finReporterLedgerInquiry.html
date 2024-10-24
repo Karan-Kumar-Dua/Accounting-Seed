@@ -1,0 +1,15 @@
+<template>
+  <div class="slds-box box-shadow">
+    <h2 data-jest="title" class="slds-page-header__title slds-p-top_medium">{fullLabel}</h2>
+    <c-fin-reporter-criteria-ledger-inquiry onledgerinquiryresult={handleLedgerInquiryResult} defaultglaccountid={defaultglaccountid} defaultledgerid={defaultledgerid}
+    default-acct-period={defaultAcctPeriod} defaultglav1={defaultglav1}  defaultglav2={defaultglav2} defaultglav3={defaultglav3} defaultglav4={defaultglav4}>
+  </c-fin-reporter-criteria-ledger-inquiry>
+  </div>
+  <div class="slds-box slds-m-top_medium box-shadow">
+    <h2 class="slds-page-header__title slds-p-top_medium">{labels.INF_REPORT_STATISTICS}</h2>
+    <c-fin-reporter-ledger-inquiry-statistics></c-fin-reporter-ledger-inquiry-statistics>
+  </div>
+  <div class="slds-box slds-m-top_medium box-shadow">
+    <c-fin-reporter-ledger-inquiry-table></c-fin-reporter-ledger-inquiry-table>
+  </div>
+</template>

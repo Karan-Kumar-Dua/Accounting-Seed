@@ -1,0 +1,94 @@
+<template>
+
+    <c-modal-popup-base
+            title={dialogTitle}
+            data-id="runConsolidationModal"
+            onclose={closeRunModal}>
+        <c-consolidation-run-confirmation
+                last-period-closed={lastPeriodClosed}
+                oncancel={closeRunModal}
+                onregisterdataretriever={handleRegisterDataRetriever}
+                onsuccess={handleRunSuccess}
+        ></c-consolidation-run-confirmation>
+    </c-modal-popup-base>
+
+    <template if:false={loaded}>
+        <lightning-spinner
+                variant="brand"
+                alternative-text={labels.commonLoading}
+                size="medium">
+        </lightning-spinner>
+    </template>
+    <template if:true={error}>
+        <c-inline-error-message class="inline-error-msg" errors={error}></c-inline-error-message>
+    </template>
+
+    <div class="slds-box slds-p-around_small">
+        <template if:true={showConfigWarning}>
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning" data-jest-name="warning">
+                <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+                <h2 class="slds-p-left_x-small warn-max-records">
+                    {labels.WRN_CONFIGURATION_REQUIRED}&nbsp;
+                    <lightning-formatted-url
+                      value="https://support.accountingseed.com/hc/en-us/articles/4406923413651"
+                      tooltip={labels.INF_CONSOLIDATION_CONFIGURATION}
+                      label={labels.INF_CONSOLIDATION_CONFIGURATION}
+                      target="_blank" >
+                    </lightning-formatted-url>
+                    &nbsp;{labels.INF_KB_ARTICLE_COMPLETE_SETUP}
+                </h2>
+            </div>
+        </template>
+        <template if:true={lastPeriodClosed}>
+            <lightning-record-view-form record-id={lastPeriodClosed.Id} object-api-name={accountingPeriodObjectApiName}>
+                <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+                    <div class="slds-col slds-size_2-of-12">
+                        <label class="slds-form-element__label slds-text-title_bold">{labels.commonLastPeriodClosed}</label>
+                        <lightning-output-field field-name={accountingPeriod.name_field} variant="label-hidden"></lightning-output-field>
+                    </div>
+                    <div class="slds-col slds-size_2-of-12">
+                        <label class="slds-form-element__label slds-text-title_bold">{labels.INF_DATE_OR_TIME_CLOSED}</label>
+                        <lightning-output-field field-name={accountingPeriod.last_modified_date} variant="label-hidden"></lightning-output-field>
+                    </div>
+                </div>
+            </lightning-record-view-form>
+        </template>
+
+        <div class="slds-m-top_medium slds-m-bottom_medium">
+            <lightning-button
+                    label={labels.commonExpandAll}
+                    title={labels.commonExpandAll}
+                    icon-name="utility:arrowdown"
+                    class="slds-m-left_x-small"
+                    onclick={expandAll}>
+            </lightning-button>
+            <lightning-button
+                    label={labels.commonCollapseAll}
+                    title={labels.commonCollapseAll}
+                    icon-name="utility:arrowup"
+                    class="slds-m-left_x-small"
+                    onclick={collapseAll}>
+            </lightning-button>
+            <lightning-button-icon
+                    title={labels.commonRefreshText}
+                    icon-name="utility:refresh"
+                    class="slds-m-left_x-small"
+                    onclick={refresh}>
+            </lightning-button-icon>
+        </div>
+        <div class="slds-m-bottom_medium">
+            <lightning-tree-grid
+                    data={data}
+                    columns={columns}
+                    key-field="name"
+                    hide-checkbox-column
+                    onrowaction={handleRowAction}>
+            </lightning-tree-grid>
+            <template if:true={showNoContentPage}>
+                <c-illustration-no-content>
+                    <div class="slds-text-heading_medium">{labels.INF_NO_HIERARCHIES_TO_DISPLAY}</div>
+                </c-illustration-no-content>
+            </template>
+        </div>
+    </div>
+</template>

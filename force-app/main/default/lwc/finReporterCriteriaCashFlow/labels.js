@@ -1,0 +1,5 @@
+import INF_CASH_FLOW_NOT_ENABLED from '@salesforce/label/c.INF_CASH_FLOW_NOT_ENABLED';
+
+export default {
+    INF_CASH_FLOW_NOT_ENABLED: INF_CASH_FLOW_NOT_ENABLED,
+}

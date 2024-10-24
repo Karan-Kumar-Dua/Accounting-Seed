@@ -1,0 +1,22 @@
+<template>
+    <template if:true={showUploadFile}>
+        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+            <header class="slds-modal__header">
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate heading" data-id="modal-heading">
+                    {modalHeader}
+                    <c-csv-knowledge-base-help help-u-r-l={helpURL}></c-csv-knowledge-base-help>
+                </h2>
+            </header>
+            <div class="slds-p-top_x-small">{supportedFileText}</div>
+            <lightning-input type="file" accept={acceptedFormats} onchange={uploadFileHandler}></lightning-input>
+            <div data-id="modal-uploadfile">{uploadedFileName}</div>
+            <div data-id="modal-modalError" class="slds-text-color_destructive">{error}</div>
+        </div>
+        <footer class="slds-float_right slds-p-around_small">
+            <lightning-button label={cancelLabel} class="slds-m-left_small cancelButton" variant="neutral" onclick={handleCloseButton} data-id="modal-cancel">
+            </lightning-button>
+            <lightning-button label={actionLabel} class="slds-m-left_small" variant="brand" onclick={handleActionButton} data-id="modal-save" disabled={hasFieldsDefinition}>
+            </lightning-button>
+        </footer>
+    </template>
+</template>

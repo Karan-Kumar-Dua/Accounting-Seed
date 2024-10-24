@@ -1,0 +1,12 @@
+<aura:component description="AddressValidatorContainer" implements="force:appHostable,force:hasRecordId,force:hasSObjectName,force:lightningQuickActionWithoutHeader">
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="sObjectName" type="String" />
+
+    <c:addressValidator
+            recordId="{!v.recordId}"
+            sObjectName="{!v.sObjectName}"
+            isHideBackdrop="true"
+            isAutoOpen="true"
+            onclosequickaction="{!c.closeQuickAction}"
+    ></c:addressValidator>
+</aura:component>

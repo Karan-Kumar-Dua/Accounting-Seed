@@ -1,0 +1,46 @@
+.border-dark {
+    border-color: #000000;
+}
+
+.text-color_weak {
+    color: #4d4d4b;
+}
+
+.header-font {
+    font-weight:bold;
+    font-size:18px;
+}
+
+.input-font-size {
+    font-weight:bold;
+    font-size:16px;
+}
+
+.company-font-size {
+    font-weight:bold;
+    font-size:14px;
+}
+
+.drop-list-font-size {
+    font-weight:bold;
+    font-size:12px;
+}
+
+.base-button {
+    --sds-c-button-text-color: #0070d2;
+    --sds-c-button-text-color-active: #0070d2;
+    --sds-c-button-text-color-hover: #0070d2;
+}
+
+.image-preview-container {
+    max-width: 200px;
+    max-height: 55px;
+}
+
+.image-preview-container img {
+    max-height: inherit;
+}
+
+.notes {
+    font-size: 13px; /* should match report table result row font-size */
+}

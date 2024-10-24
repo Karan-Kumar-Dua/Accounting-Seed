@@ -1,0 +1,153 @@
+<template>
+    <div class="term-info--container">
+        <template if:true={isAmountGreater}>
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning slds-m-bottom_x-small" data-jest="amountError">
+                <lightning-icon icon-name="utility:warning" size="small" variant="inverse"></lightning-icon>
+                <h2 class="slds-p-left_x-small warn-max-records">
+                    {amountGreaterWarningMsg}
+                </h2>
+            </div>
+        </template>
+        <div class="term-info--container_label">
+            {labels.INF_TERM_INFORMATION}
+        </div>
+        <template if:true={error}>
+            <c-inline-error-message class="inline-error-msg" errors={error}></c-inline-error-message>
+        </template>
+        <lightning-layout>
+            <lightning-layout-item size="6" padding="horizontal-small">
+                <lightning-input
+                        if:false={isFixedAsset}
+                        type="number"
+                        step=".01"
+                        label="Amount"
+                        data-jest="amount"
+                        field-level-help={helpTexts.amount}
+                        required
+                        data-field={amortizationEntry.amount}
+                        value={amountValue}
+                        onchange={handleAmountChange}
+                ></lightning-input>
+                <lightning-input
+                        if:true={isFixedAsset}
+                        type="number"
+                        step=".01"
+                        label={labels.commonAmount}
+                        data-jest="amount"
+                        field-level-help={helpTexts.amount}
+                        required
+                        data-field={amortizationEntry.amount}
+                        value={amountValue}
+                        max={total}
+                        message-when-range-overflow={helpTexts.amount}
+                        onchange={handleAmountChange}
+                ></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item if:true={isShowAmortizeDeferredToggle} size="1" padding="horizontal-small">
+                <lightning-input
+                        class="slds-p-top_large"
+                        type="toggle"
+                        variant="label-hidden"
+                        name="toggleButton"
+                        data-field="toggleButton"
+                        message-toggle-active={labels.commonOn}
+                        message-toggle-inactive={labels.commonOff}
+                        checked={toggleValue}
+                        onchange={handleToggle}>
+                </lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item if:true={isShowAmortizeDeferredToggle} size="6" padding="horizontal-small" class="slds-p-top_large">
+                <label class="slds-form-element__label slds-p-left_xx-small">
+                    {labels.AMORTIZE_DEFERRED_REVENUE_EXPENSE}
+                </label>
+                <lightning-helptext class="slds-m-left_xxx-small" content={helptext}>
+                </lightning-helptext>
+            </lightning-layout-item>
+        </lightning-layout>
+
+        <lightning-layout>
+            <lightning-layout-item
+                    size="6"
+                    padding="horizontal-small"
+                    if:false={isStraightLineDailyChosen}>
+                <lightning-input
+                        type="number"
+                        class="period-number"
+                        label={labels.commonNumberAccountingPeriods}
+                        field-level-help={helpTexts.period}
+                        required
+                        max="60"
+                        data-field="accountingPeriodsNumber"
+                        value={periodNumberValue}
+                        onchange={handleSetNumberPeriod}
+                        message-when-value-missing={labels.accountingPeriodCantEmpty}
+                ></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item
+                    size="6"
+                    padding="horizontal-small"
+                    if:true={isShowAccrualCashInLine}>
+                <lightning-combobox
+                        if:true={acctMethodData}
+                        label={acctMethodData.accrualCashFieldLabel}
+                        value={accrualCashValue}
+                        data-field="accrualCash"
+                        disabled={isDisableAccrualCash}
+                        options={acctMethodData.acctMethodOptions}>
+                </lightning-combobox>
+            </lightning-layout-item>
+            <lightning-layout-item size="3" padding="horizontal-small">
+                <lightning-input
+                        type="date"
+                        class="start-date"
+                        label={labels.automatedJobsStartDate}
+                        date-style="short"
+                        field-level-help={helpTexts.startDate}
+                        required
+                        data-field="startDate"
+                        value={startDateValue}
+                        onchange={handleSetStartDate}
+                ></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item size="3" padding="horizontal-small">
+                <lightning-input
+                        if:true={isStraightLineDailyChosen}
+                        type="date"
+                        class="end-date"
+                        label={labels.commonEndDate}
+                        date-style="short"
+                        field-level-help={helpTexts.endDate}
+                        data-field="endDate"
+                        min={minEndDate}
+                        message-when-range-underflow={minEndDateMessage}
+                        value={endDateValue}
+                        onchange={handleSetEndDate}
+                ></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+
+        <lightning-layout if:true={isShowAccrualCashInSeparateLine}>
+            <lightning-layout-item size="6" padding="horizontal-small">
+                <lightning-combobox
+                        if:true={acctMethodData}
+                        label={acctMethodData.accrualCashFieldLabel}
+                        value={accrualCashValue}
+                        data-field="accrualCash"
+                        disabled={isDisableAccrualCash}
+                        options={acctMethodData.acctMethodOptions}>
+                </lightning-combobox>
+            </lightning-layout-item>
+        </lightning-layout>
+
+        <lightning-layout>
+            <lightning-layout-item size="12" padding="horizontal-small">
+                <lightning-textarea
+                        label={labels.commonDescription}
+                        max-length="255"
+                        data-field={amortizationEntry.description}
+                        value={descriptionValue}
+                ></lightning-textarea>
+            </lightning-layout-item>
+        </lightning-layout>
+    </div>
+</template>

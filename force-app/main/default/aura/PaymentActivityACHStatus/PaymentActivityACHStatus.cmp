@@ -1,0 +1,76 @@
+<aura:component description="PaymentActivityACHStatus" controller="PaymentActivityACHStatus" implements="force:lightningQuickAction">
+    <aura:attribute name="countRec" type="integer" default="0"/>
+    <aura:attribute name="isError" type="boolean" default="false"/>
+    <aura:attribute name="isSuccess" type="boolean" default="false"/>
+    <aura:attribute name="isAboveLimit" type="boolean" default="false"/>
+    <aura:attribute name="isActionStart" type="boolean" default="false"/>
+    <aura:attribute name="noRecordsFound" type="boolean" default="false"/>
+    <aura:attribute name="errors" type="String[]" default="false"/>
+
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+
+
+    <article class="slds-card">
+
+        <div class="slds-p-around_medium">
+            <div class="slds-page-header">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                <span class="slds-icon_container slds-icon-standard-opportunity" title="{!$Label.c.INF_PAYMENT_ACTIVITY_STATUS}">
+                    <lightning:icon iconName="standard:assigned_resource" size="large"/>
+                </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="{!$Label.c.INF_PAYMENT_ACTIVITY_STATUS}">{!$Label.c.INF_PAYMENT_ACTIVITY_STATUS}</h1>
+                        <p class="slds-text-body_small slds-line-height_reset">{!$Label.c.CHECK_PAYMENT_STATUS}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <aura:if isTrue="{!v.isSuccess}">
+            <div class="slds-p-around_medium">
+                <ui:message title="" severity="confirm" closable="false">
+                    {!$Label.c.INF_STATUS_PAYMENT_ACH_JOB_PROGRESS}
+            </ui:message>
+            </div>
+        </aura:if>
+
+        <aura:if isTrue="{!v.isError}">
+            <div class="slds-p-around_medium">
+                <ui:message title="" severity="error" closable="false">
+                    <aura:iteration items="{!v.errors}" var="item">
+                        <aura:unescapedHtml value="{!item}" />
+                    </aura:iteration>
+                </ui:message>
+            </div>
+        </aura:if>
+
+        <aura:if isTrue="{!v.isAboveLimit}">
+            <div class="slds-p-around_medium">
+                <ui:message title="{!$Label.c.COMMON_LIMIT_EXCEEDED}" severity="info" closable="false">
+                    {!$Label.c.INF_PAYMENT_ACTIVITY_RECORDS_LIMIT}
+            </ui:message>
+            </div>
+        </aura:if>
+
+        <aura:if isTrue="{!v.noRecordsFound}">
+            <div class="slds-p-around_medium">
+                <ui:message title="" severity="info" closable="false">
+                    {!$Label.c.INF_NO_PAYMENT_ACTIVITY_RECORDS_UPDATE}
+                </ui:message>
+            </div>
+        </aura:if>
+
+        <aura:if isTrue="{!and(!v.noRecordsFound, !v.isError)}">
+            <div class="slds-p-around_medium">{!$Label.c.COMMON_NO_OF_PENDING_RECORDS}: <ui:outputNumber class="" value="{!v.countRec}"/></div>
+        </aura:if>
+
+        <div class="slds-p-around_medium slds-align--absolute-center">
+            <lightning:buttonGroup >
+                <lightning:button onclick="{!c.start}" label="{!$Label.c.INF_STATUS_ACH_PAYMENTS}" variant="brand" disabled="{!v.noRecordsFound || v.isError || v.isActionStart}"/>
+                <lightning:button onclick="{!c.back}" label="{!$Label.c.COMMON_BACK}"/>
+            </lightning:buttonGroup>
+        </div>
+    </article>
+</aura:component>

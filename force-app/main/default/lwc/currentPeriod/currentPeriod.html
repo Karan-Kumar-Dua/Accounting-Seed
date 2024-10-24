@@ -1,0 +1,10 @@
+<template>
+    <div class="currentPeriod">
+        <div class="currentPeriod--title">{labels.INF_CURRENT_PERIOD}</div>
+        <div class="currentPeriod--period" data-id="div-currentPeriod">
+            <template if:true={hasCurrentPeriod}>
+                {currentPeriod.data}
+            </template>
+        </div>
+    </div>
+</template>

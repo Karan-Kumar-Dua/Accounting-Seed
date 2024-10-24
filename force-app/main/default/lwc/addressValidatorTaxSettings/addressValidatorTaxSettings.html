@@ -1,0 +1,21 @@
+<template>
+    <section>
+        <div class="slds-is-relative">
+            <template if:true={showSpinner}>
+                <lightning-spinner
+                        variant="brand"
+                        alternative-text={labels.commonSaving}
+                        size="medium">
+                </lightning-spinner>
+            </template>
+            <template if:false={showSpinner}>
+                <c-address-validator
+                        record-id={addressId}
+                        s-object-name={addressObjectApiName}
+                        license-linked-id={recordId}
+                        onclosequickaction={closeQuickAction}
+                ></c-address-validator>
+            </template>
+        </div>
+    </section>
+</template>

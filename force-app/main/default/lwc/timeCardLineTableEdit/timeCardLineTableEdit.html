@@ -1,0 +1,107 @@
+<template>
+
+    <template if:false={dataLoaded}>
+        <lightning-spinner alternative-text={labels.commonLoadingText} size="medium"></lightning-spinner>
+    </template>
+    <template if:true={dataLoaded}>
+        <template if:true={error}>
+            <c-error-panel friendly-message={labels.ERR_TIME_CARD_LINES_UPDATE_NOT_COMPLETED} errors={error}></c-error-panel>
+        </template>
+        <template if:true={showTable}>
+            <c-time-card-line-custom-datatable
+                    key-field="id"
+                    hide-checkbox-column
+                    resize-column-disabled
+                    day-totals={timeCardData.dayHours}
+                    table-total={timeCardData.totalHours}
+                    data={data}
+                    columns={columns}
+                    draft-values={draftValues}
+                    errors={errors}
+                    edit-mode={editMode}
+                    onrowaction={handleRowAction}
+                    oncancel={handleCancel}
+                    oncustomcellchange={handleCellChange}
+                    onsave={handleMassUpdate}
+                    is-loading={tableLoadingState}>
+            </c-time-card-line-custom-datatable>
+        </template>
+        <template if:false={showTable}>
+            <template if:true={isPosted}>
+                <div class="slds-notify_container slds-is-relative">
+                    <div class="slds-notify slds-notify_toast slds-theme_error" role="status">
+                        <div class="slds-notify__content">
+                            <h2 class="slds-text-heading_small ">{labels.ERR_CANNOT_EDIT_POSTED_TIME_CARD}</h2>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template if:false={isPosted}>
+                <div class="slds-box slds-theme_alert-texture slds-theme–info no-lines-message">
+                    {labels.ERR_NO_TIME_CARD_LINES_EXIST_CLICK_ADD_NEW}
+                </div>
+            </template>
+        </template>
+
+        <template if:true={fullScreenMode}>
+            <div class="slds-clearfix slds-m-top_medium slds-m-right_medium slds-m-left_medium">
+                <div class="slds-float_left">
+                    <lightning-button type="button" label={labels.commonBack} onclick={navigateToTimeCard}></lightning-button>
+                </div>
+                <div if:true={showAddLineButton} class="slds-float_right">
+                    <lightning-button type="submit" variant="brand" label={labels.commonAddLine} onclick={handleAddNewLine}></lightning-button>
+                </div>
+            </div>
+        </template>
+
+    </template>
+
+    <template if:true={showNewLineDialog}>
+        <c-time-card-line-edit ontclneweditformdialogclose={handleCloseDialog} time-card-data={timeCardData} >
+        </c-time-card-line-edit>
+    </template>
+    <template if:true={showEditLineDialog}>
+        <c-time-card-line-edit ontclneweditformdialogclose={handleCloseDialog} time-card-data={timeCardData} is-edit-mode="true" line={selectedRow}>
+        </c-time-card-line-edit>
+    </template>
+
+    <template if:true={showDeleteLineDialog}>
+        <div style="height: 24rem;">
+            <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header slds-theme_error slds-theme_alert-texture">
+                        <h2 class="slds-text-heading_medium" id="prompt-heading-id">{labels.INF_DELETE_TIME_CARD_LINE}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">
+                        <p>{labels.INF_ARE_YOU_SURE_DELETE_TIME_CARD_LINE} {selectedRow.timeCardLine.Name} ?</p>
+                    </div>
+                    <footer class="slds-modal__footer slds-theme_default">
+                        <lightning-button class="slds-m-around_xxx-small" type="button" label={labels.commonCancel} onclick={handleCloseDialog}></lightning-button>
+                        <lightning-button class="slds-m-around_xxx-small" type="button" variant="destructive" label={labels.commonDelete} onclick={handleLineDeletion}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={showWarning}>
+        <div style="height: 24rem;">
+            <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header slds-theme_warning slds-theme_alert-texture">
+                        <h2 class="slds-text-heading_medium">{labels.commonYouHaveUnsavedChanges}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <p>{labels.commonSaveChangesOrRemoveChanges}</p>
+                    </div>
+                    <footer class="slds-modal__footer slds-theme_default">
+                        <lightning-button class="slds-m-around_xxx-small" type="button" label={labels.commonOk} onclick={handleCloseDialog}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+</template>

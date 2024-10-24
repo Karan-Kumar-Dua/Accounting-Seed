@@ -1,0 +1,11 @@
+<template>
+    <div class="label">
+        <template if:true={column.isRequired}>
+            <abbr title={labels.commonRequired} class="slds-required" data-id="modal-required">*</abbr>
+        </template>
+        {column.label}
+    </div>
+    <div class="lookup">
+        <c-x-lookup row={row} sobject-name={objectName} sobject-field-name={column.apiName} init-value={fieldValue} search-object={searchObject} onselectionchange={handleSelectionChange} data-id="modal-reference"></c-x-lookup>
+    </div>
+</template>

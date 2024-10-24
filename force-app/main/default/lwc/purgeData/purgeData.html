@@ -1,0 +1,182 @@
+<template>
+    <div class="slds-var-m-bottom_medium">
+        <c-page-header
+            title={labels.commonUtilities}
+            breadcrumbs={breadcrumbs}
+            icon-name="standard:custom"
+            knowledge-base={knowledgeBase}
+        ></c-page-header>
+    </div>
+    <lightning-card if:false={userCanView}>
+        <c-insufficient-privileges></c-insufficient-privileges>
+    </lightning-card>
+    <lightning-card if:true={userCanView} title={labels.purgeDataSectionHeader}>
+        <div class="slds-var-p-around_medium">
+            <div class="purgeData--section">
+                <h2 class="purgeData--header slds-var-m-bottom_small">
+                    <strong>{labels.purgeDataAP}</strong>
+                </h2>
+                <div class="slds-form">
+                    <c-lookup
+                        search-object={accountingPeriodApiName}
+                        search-display-field="Name"
+                        label={labels.commonAccountingPeriod}
+                        data-id="lookup-apAgingHistory"
+                        disabled={userCannotEdit}
+                        required
+                    ></c-lookup>
+                    <div class="slds-var-m-top_small">
+                        <lightning-button
+                            variant="brand"
+                            label={labels.purgeDataButtonText}
+                            data-id="lightningButton-purgeAPAgingHistory"
+                            onclick={handlePurgeAPAgingHistory}
+                            disabled={userCannotEdit}
+                        ></lightning-button>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div class="purgeData--section">
+                <h2 class="purgeData--header slds-var-m-bottom_small">
+                    <strong>{labels.purgeDataBilling}</strong>
+                </h2>
+                <div class="slds-form">
+                    <c-lookup
+                        search-object={accountingPeriodApiName}
+                        search-display-field="Name"
+                        label={labels.commonAccountingPeriod}
+                        data-id="lookup-billingAgingHistory"
+                        disabled={userCannotEdit}
+                        required
+                    ></c-lookup>
+                    <div class="slds-var-m-top_small">
+                        <lightning-button
+                            variant="brand"
+                            label={labels.purgeDataButtonText}
+                            data-id="lightningButton-purgeBillingAgingHistory"
+                            onclick={handlePurgeBillingAgingHistory}
+                            disabled={userCannotEdit}
+                        ></lightning-button>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div class="purgeData--section">
+                <h2 class="purgeData--header slds-var-m-bottom_small">
+                    <strong>{labels.purgeDataFinancialReport}</strong>
+                </h2>
+                <div class="slds-form">
+                    <label>{labels.commonAccountingPeriod}</label>
+                    <div><strong>{labels.commonAll}</strong></div>
+                    <div class="slds-var-m-top_small">
+                        <lightning-button
+                            variant="brand"
+                            label={labels.purgeDataButtonText}
+                            data-id="lightningButton-purgeFinancialReportResults"
+                            onclick={handlePurgeFinancialReportResults}
+                            disabled={userCannotEdit}
+                        ></lightning-button>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div class="purgeData--section">
+                <h2 class="purgeData--header slds-var-m-bottom_small">
+                    <strong>{labels.purgeDataZeroBalance}</strong>
+                </h2>
+                <div class="slds-form">
+                    <label>{labels.commonAccountingPeriod}</label>
+                    <div><strong>{labels.commonAll}</strong></div>
+                    <div class="slds-var-m-top_small">
+                        <lightning-button
+                            variant="brand"
+                            label={labels.purgeDataButtonText}
+                            data-id="lightningButton-purgeZeroBalanceFinancialCubes"
+                            onclick={handlePurgeZeroBalanceFinancialCubes}
+                            disabled={userCannotEdit}
+                        ></lightning-button>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div class="purgeData--section">
+                <h2 class="purgeData--header slds-var-m-bottom_small">
+                    <strong>{labels.purgeDataAutomatedJobs}</strong>
+                </h2>
+                <div class="slds-form">
+                    <lightning-input
+                        type="date"
+                        date-style="short"
+                        label={labels.purgeDataBeforeDate}
+                        data-id="lightningInput-beforeDate"
+                        value={today}
+                        required
+                        message-when-value-missing={labels.errorValueMissing}
+                        disabled={userCannotEdit}
+                    ></lightning-input>
+                    <div class="slds-var-m-top_small">
+                        <lightning-button
+                            variant="brand"
+                            label={labels.purgeDataButtonText}
+                            data-id="lightningButton-purgeAutomatedJobResults"
+                            onclick={handlePurgeAutomatedJobResults}
+                            disabled={userCannotEdit}
+                        ></lightning-button>
+                    </div>
+                </div>
+            </div>
+
+            <template if:true={ldvEnabled}>
+                <hr />
+                <div class="purgeData--section">
+                    <h2 class="purgeData--header slds-var-m-bottom_small">
+                        <strong>{labels.RESET_LDO_SOURCE_DOCUMENT_INTERIM_POSTING_STATUS}</strong>
+                        <lightning-helptext class="slds-p-left_xx-small" content={labels.RESET_LDO_SOURCE_DOCUMENT_INTERIM_POSTING_STATUS_HELPTEXT}></lightning-helptext>
+                    </h2>
+                    <div class="slds-form">
+                        <div class="slds-var-m-top_small">
+                            <lightning-button
+                                    variant="brand"
+                                    label={labels.COMMON_RESET}
+                                    data-id="lightningButton-purgeSourceDocumentsInInterimPostingStatus"
+                                    onclick={handlePurgeSourceDocumentsInInterimPostingStatus}
+                                    disabled={userCannotEdit}
+                            ></lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template if:true={erpEnabled}>
+                <hr />
+                <div class="purgeData--section">
+                    <h2 class="purgeData--header slds-var-m-bottom_small">
+                        <strong>{labels.purgeDataInventoryBalanceHistory}</strong>
+                    </h2>
+                    <div class="slds-form">
+                        <lightning-input
+                            type="date"
+                            date-style="short"
+                            label={labels.purgeDataBeforeDate}
+                            data-id="lightningInput-purgeInventoryBalanceHistory"
+                            value={today}
+                            required
+                            message-when-value-missing={labels.errorValueMissing}
+                            disabled={userCannotEdit}
+                        ></lightning-input>
+                        <div class="slds-var-m-top_small">
+                            <lightning-button
+                                variant="brand"
+                                label={labels.purgeDataButtonText}
+                                data-id="lightningButton-purgeInventoryBalanceHistory"
+                                onclick={handlePurgeInventoryBalanceHistory}
+                                disabled={userCannotEdit}
+                            ></lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

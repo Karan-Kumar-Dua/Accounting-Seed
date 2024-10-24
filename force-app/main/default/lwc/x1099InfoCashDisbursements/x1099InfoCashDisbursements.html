@@ -1,0 +1,25 @@
+<template>
+    <c-x1099-info-form 
+        record-count={recordCount}
+        onsave={handleSave}
+        oncancel={handleCancel}
+        spinner-active={showSpinner}
+        ltng-out={ltngOut}>
+        <p slot="instructions">
+            {labels.INF_1099_SELECT_BOX_CATEGORY_PAYMENT_REPORTED}&nbsp; 
+            <lightning-formatted-url 
+                value="https://support.accountingseed.com/hc/en-us/articles/360055658094" 
+                tooltip={labels.knowledgeBase}
+                label={labels.knowledgeBase}
+                target="_blank" >
+            </lightning-formatted-url>.
+        </p>
+        <div slot="form" class="form">
+            <c-x1099-dependent-picklists 
+                form-type-value={selectedFormType}
+                form-box-value={selectedFormBox}
+                onchange={handleFormChange}>
+            </c-x1099-dependent-picklists>
+        </div>
+    </c-x1099-info-form>
+</template>

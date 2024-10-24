@@ -1,0 +1,10 @@
+<aura:component description="AmortizationWizardContainer" implements="force:appHostable,force:hasRecordId,force:hasSObjectName,force:lightningQuickActionWithoutHeader">
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="sObjectName" type="String" />
+
+    <c:amortizationWizard
+            recordId="{!v.recordId}"
+            sObjectName="{!v.sObjectName}"
+            onclosequickaction="{!c.closeQuickAction}"
+    ></c:amortizationWizard>
+</aura:component>

@@ -1,0 +1,345 @@
+<apex:page id="pg" standardStylesheets="false" controller="LedgerInquiryInXlsFormatController"
+           contenttype="application/vnd.ms-excel#Ledger_Inquiry_{!dateTimeStamp}.xls">
+
+    {!xmlHeader}
+    <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+              xmlns:o="urn:schemas-microsoft-com:office:office"
+              xmlns:x="urn:schemas-microsoft-com:office:excel"
+              xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+              xmlns:html="http://www.w3.org/TR/REC-html40">
+
+        <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+            <WindowHeight>12285</WindowHeight>
+            <WindowWidth>28800</WindowWidth>
+            <WindowTopX>32767</WindowTopX>
+            <WindowTopY>32767</WindowTopY>
+            <ProtectStructure>False</ProtectStructure>
+            <ProtectWindows>False</ProtectWindows>
+        </ExcelWorkbook>
+        <Styles>
+            <Style ss:ID="Default" ss:Name="Normal">
+                <Alignment ss:Vertical="Bottom"/>
+                <Borders/>
+                <Font ss:FontName="Microsoft Sans Serif" x:Family="Swiss" ss:Size="10" ss:Color="#888887"/>
+                <Interior/>
+                <NumberFormat/>
+                <Protection/>
+            </Style>
+            <Style ss:ID="s68">
+                <Font ss:FontName="Microsoft Sans Serif" x:CharSet="204" x:Family="Swiss" ss:Color="#888887"/>
+            </Style>
+            <Style ss:ID="s70">
+                <Font ss:FontName="Microsoft Sans Serif" x:CharSet="204" x:Family="Swiss" ss:Color="#888887" ss:Bold="1"/>
+            </Style>
+            <Style ss:ID="s72">
+                <Font ss:FontName="Microsoft Sans Serif" x:CharSet="204" x:Family="Swiss" ss:Color="#888887" ss:Bold="1"/>
+                <Interior ss:Color="#BDD7EE" ss:Pattern="Solid"/>
+            </Style>
+            <Style ss:ID="s77">
+                <Font ss:FontName="Microsoft Sans Serif" x:CharSet="204" x:Family="Swiss" ss:Bold="1"/>
+                <Interior ss:Color="#BDD7EE" ss:Pattern="Solid"/>
+            </Style>
+            <Style ss:ID="s78">
+                <Alignment ss:Vertical="Bottom"/>
+                <Font ss:FontName="Microsoft Sans Serif" x:CharSet="204" x:Family="Swiss" ss:Bold="1"/>
+                <Interior ss:Color="#BDD7EE" ss:Pattern="Solid"/>
+            </Style>
+            <Style ss:ID="s90">
+                <Font ss:FontName="Microsoft Sans Serif" x:CharSet="204" x:Family="Swiss" ss:Color="#888887"/>
+                <NumberFormat ss:Format="m/d/yy;@"/>
+            </Style>
+            <Style ss:ID="s93">
+                <Borders>
+                    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#161616"/>
+                </Borders>
+                <Font ss:FontName="Microsoft Sans Serif" x:CharSet="204" x:Family="Swiss" ss:Color="#888887"/>
+            </Style>
+            <Style ss:ID="s94">
+                <Borders>
+                    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#161616"/>
+                </Borders>
+            </Style>
+            <Style ss:ID="s96">
+                <Font ss:FontName="Microsoft Sans Serif" x:CharSet="204" x:Family="Swiss" ss:Color="#888887"/>
+                <NumberFormat ss:Format="Standard"/>
+            </Style>
+        </Styles>
+        <Worksheet ss:Name="Ledger_Inquiry">
+            <Table ss:ExpandedColumnCount="15" x:FullColumns="1" x:FullRows="1">
+                <Column ss:Width="125.625"/>
+                <Column ss:AutoFitWidth="0" ss:Width="71.625"/>
+                <Column ss:AutoFitWidth="0" ss:Width="157.125"/>
+                <Column ss:AutoFitWidth="0" ss:Width="66.375"/>
+                <Column ss:AutoFitWidth="0" ss:Width="65.625"/>
+                <Column ss:AutoFitWidth="0" ss:Width="64.875"/>
+                <Column ss:AutoFitWidth="0" ss:Width="83.25"/>
+                <Column ss:AutoFitWidth="0" ss:Width="67.875"/>
+                <Column ss:AutoFitWidth="0" ss:Width="112.125"/>
+                <Column ss:AutoFitWidth="0" ss:Width="88.875"/>
+                <Column ss:AutoFitWidth="0" ss:Width="88.5"/>
+                <Column ss:AutoFitWidth="0" ss:Width="76.5"/>
+                <Column ss:Width="70.5"/>
+                <Column ss:AutoFitWidth="0" ss:Width="86.25"/>
+                <Column ss:AutoFitWidth="0" ss:Width="86.25"/>
+                <Row>
+                    <Cell ss:StyleID="s77"><Data ss:Type="String">Transaction ID</Data></Cell>
+                    <Cell ss:StyleID="s72"><Data ss:Type="String">Date</Data></Cell>
+                    <Cell ss:StyleID="s72"><Data ss:Type="String">GL Account</Data></Cell>
+                    <Cell ss:StyleID="s72"><Data ss:Type="String">Account</Data></Cell>
+                    <Cell ss:StyleID="s72"><Data ss:Type="String">Source</Data></Cell>
+                    <Cell ss:StyleID="s72"><Data ss:Type="String">Accounting Period</Data></Cell>
+                    <Cell ss:StyleID="s72"><Data ss:Type="String">Project</Data></Cell>
+                    <Cell ss:StyleID="s72"><Data ss:Type="String">Project Task</Data></Cell>
+                    <Cell ss:StyleID="s72"><Data ss:Type="String">Product</Data></Cell>
+                    <Cell ss:StyleID="s72">
+                        <Data ss:Type="String">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_1__c.Label}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s72">
+                        <Data ss:Type="String">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_2__c.Label}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s72">
+                        <Data ss:Type="String">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_3__c.Label}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s72">
+                        <Data ss:Type="String">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_4__c.Label}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s78"><Data ss:Type="String">Total Amount</Data></Cell>
+                    <Cell ss:StyleID="s78"><Data ss:Type="String">Running Balance</Data></Cell>
+                </Row>
+                <apex:variable var="balance" value="{!theReport.openingBalance}"/>
+                <apex:repeat value="{!theReport.lines}" var="lineId">
+                    <Row>
+                        <Cell ss:StyleID="s68"><Data ss:Type="String">{!theReport.lines[lineId].id.name}</Data></Cell>
+                        <Cell ss:StyleID="s68"><Data ss:Type="String">{!theReport.lines[lineId].transactionDate}</Data></Cell>
+                        <Cell ss:StyleID="s68"><Data ss:Type="String">{!theReport.lines[lineId].glAccount.name}</Data></Cell>
+                        <Cell ss:StyleID="s68"><Data ss:Type="String">{!theReport.lines[lineId].account.name}</Data></Cell>
+                        <Cell ss:StyleID="s68"><Data ss:Type="String">{!theReport.lines[lineId].source.name}</Data></Cell>
+                        <Cell ss:StyleID="s68"><Data ss:Type="String">{!theReport.lines[lineId].accountingPeriod.name}</Data></Cell>
+                        <Cell ss:StyleID="s68"><Data ss:Type="String">{!theReport.lines[lineId].project.name}</Data></Cell>
+                        <Cell ss:StyleID="s68"><Data ss:Type="String">{!theReport.lines[lineId].projectTask.name}</Data></Cell>
+                        <Cell ss:StyleID="s68"><Data ss:Type="String">{!theReport.lines[lineId].product.name}</Data></Cell>
+                        <Cell ss:StyleID="s68"><Data ss:Type="String">{!theReport.lines[lineId].glav1.name}</Data></Cell>
+                        <Cell ss:StyleID="s68"><Data ss:Type="String">{!theReport.lines[lineId].glav2.name}</Data></Cell>
+                        <Cell ss:StyleID="s68"><Data ss:Type="String">{!theReport.lines[lineId].glav3.name}</Data></Cell>
+                        <Cell ss:StyleID="s68"><Data ss:Type="String">{!theReport.lines[lineId].glav4.name}</Data></Cell>
+                        <Cell ss:StyleID="s96"><Data ss:Type="Number">{!theReport.lines[lineId].amount}</Data></Cell>
+                        <Cell ss:StyleID="s96"><Data ss:Type="Number">{!IF(theReport.hideOpeningBalance,'',balance + theReport.lines[lineId].amount)}</Data></Cell>
+                    </Row>
+                    <apex:variable value="{!balance + theReport.lines[lineId].amount}" var="balance"/>
+                </apex:repeat>
+                <Row>
+                    <Cell ss:StyleID="s68"/>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68"/>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                    <Cell ss:StyleID="s94"/>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68"/>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68"/>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s70">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_REPORT_STATISTICS}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_OPENING_BALANCE}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s96">
+                        <Data ss:Type="Number">{!IF(theReport.hideOpeningBalance,0,theReport.openingBalance)}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_INQUIRY_AMOUNT}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s96">
+                        <Data ss:Type="Number">{!theReport.reportAmount}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_YEAR_TO_DATE_BALANCE}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s96">
+                        <Data ss:Type="Number">{!IF(theReport.hideCurrentBalance,0,theReport.currentBalance)}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_INQUIRY_RESULT_COUNT}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s96">
+                        <Data ss:Type="Number">{!theReport.recordCount}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_CURRENCY}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!theReport.ledgerCurrency}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68"/>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s70">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_CRITERIA_USED}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">Starting Accounting Period</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!wrappedOptions.startingAccountingPeriodName}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_ENDING_ACCOUNTING_PERIOD}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!wrappedOptions.endingAccountingPeriodName}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_LEDGER}</Data>
+                    </Cell>
+                    <Cell>
+                        <Data ss:Type="String">{!wrappedOptions.ledgerName}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_GL_ACCOUNT}</Data>
+                    </Cell>
+                    <Cell>
+                        <Data ss:Type="String">{!wrappedOptions.glAccountName}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_SOURCE}</Data>
+                    </Cell>
+                    <Cell>
+                        <Data ss:Type="String">{!wrappedOptions.sourceList}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_AGGREGATE_BY}</Data>
+                    </Cell>
+                    <Cell>
+                        <Data ss:Type="String">{!wrappedOptions.aggregatedBy}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_1__c.Label}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!wrappedOptions.glav1Name}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_2__c.Label}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!wrappedOptions.glav2Name}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_3__c.Label}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!wrappedOptions.glav3Name}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$ObjectType.Financial_Report_Result__c.fields.GL_Account_Variable_4__c.Label}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!wrappedOptions.glav4Name}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_ACCOUNT}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!wrappedOptions.accountName}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_PRODUCT}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!wrappedOptions.productName}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_PROJECT}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!wrappedOptions.projectName}</Data>
+                    </Cell>
+                </Row>
+                <Row>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!$Label.AcctSeed__COMMON_PROJECT_TASK}</Data>
+                    </Cell>
+                    <Cell ss:StyleID="s68">
+                        <Data ss:Type="String">{!wrappedOptions.projectTaskName}</Data>
+                    </Cell>
+                </Row>
+            </Table>
+            <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+                <PageSetup>
+                </PageSetup>
+                <Print>
+                    <ValidPrinterInfo/>
+                    <PaperSizeIndex>9</PaperSizeIndex>
+                    <HorizontalResolution>600</HorizontalResolution>
+                    <VerticalResolution>600</VerticalResolution>
+                </Print>
+                <Selected/>
+                <Panes>
+                    <Pane>
+                        <Number>3</Number>
+                    </Pane>
+                </Panes>
+                <ProtectObjects>False</ProtectObjects>
+                <ProtectScenarios>False</ProtectScenarios>
+            </WorksheetOptions>
+        </Worksheet>
+    </Workbook>
+</apex:page>

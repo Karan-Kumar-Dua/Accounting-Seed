@@ -1,0 +1,58 @@
+<template>
+
+    <template if:true={isSpinner}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+    </template>
+
+    <c-modal-popup-base
+        data-jest="editModal" 
+        title={labels.INF_BANK_RULE} 
+        size="medium"
+        data-id="createBankRuleModal"
+        onclose={closeModals}>
+        <div class="slds-p-around_medium">
+            <c-bdc-bank-rules-create
+                bank-rule-id={editRecordId}
+                bank-rule-type={ruleType}
+                onsave={handleCreateSuccess}
+                oncancel={closeModals}>
+            </c-bdc-bank-rules-create>
+        </div>
+    </c-modal-popup-base>
+
+    <c-modal-popup-base 
+        data-jest="deleteModal"
+        title={labels.commonAreYouSure}
+        data-id="deleteModal"
+        onclose={closeModals}>
+        <div class="slds-p-around_medium">
+            <c-bdc-bank-rules-delete 
+                record-id={deleteRecordId}
+                oncancel={closeModals}
+                onsuccess={handleDeleteSuccess}
+                onerror={handleDeleteError}>
+            </c-bdc-bank-rules-delete>
+        </div>
+    </c-modal-popup-base>
+
+    <c-inline-error-message generic-error={error.title} errors={error.msg}></c-inline-error-message>
+
+    <lightning-datatable
+        key-field="Id"
+        data={rules}
+        columns={columns}
+        onrowaction={handleRowAction}
+        hide-checkbox-column>
+    </lightning-datatable>
+    <div class="slds-p-around_medium">
+        <lightning-button
+            label={labels.commonCreate}
+            title={labels.INF_CREATE_A_NEW_RULE} 
+            variant="brand"
+            icon-name="utility:add"
+            icon-position="right"
+            onclick={handleCreate}>
+        </lightning-button>
+    </div>
+
+</template>

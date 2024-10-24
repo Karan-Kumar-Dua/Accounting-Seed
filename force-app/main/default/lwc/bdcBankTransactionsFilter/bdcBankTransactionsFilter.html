@@ -1,0 +1,195 @@
+<template>
+    <lightning-layout multiple-rows>
+        <lightning-layout-item size="12" class="slds-p-bottom_small">
+            <div class="filter-label slds-form-element__label slds-col slds-size_3-of-3">
+                <div class="slds-text-color_inverse slds-p-left_medium">{label}</div>
+            </div>
+        </lightning-layout-item>
+    </lightning-layout>
+    <lightning-layout multiple-rows>
+        <lightning-layout-item size="12">
+            <lightning-layout multiple-rows horizontal-align="center">
+                <lightning-layout-item size="5" flexibility="auto">
+                    <label>
+                        <div class="slds-form-element__label">{labels.INF_CUSTOMER_VENDOR}</div>
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="7" flexibility="auto">
+                    <c-custom-lookup-cell
+                        value={customer}
+                        errors={errors}
+                        selected-icon="custom:custom3"
+                        selected-name={customerName}
+                        search-object="Account,Contact,User"
+                        hide-selection-icon=true
+                        oncellchange={handleCustomerChange}
+                        custom-table="true"
+                        data-jest-name="vendorValue">
+                    </c-custom-lookup-cell>
+                </lightning-layout-item>
+                <lightning-layout-item size="5" flexibility="auto" class="slds-p-vertical_x-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.commonDescription}</div>
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="7" flexibility="auto" class="slds-p-vertical_x-small">
+                    <lightning-input
+                        type="text"
+                        variant="label-hidden"
+                        onchange={handleReferenceChange}
+                        value={reference}
+                        data-jest-name="referenceValue">
+                    </lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="5" flexibility="auto">
+                    <label>
+                        <div class="slds-form-element__label">{labels.commonType}</div>
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="7" flexibility="auto">
+                    <lightning-combobox
+                        name="transactionType"
+                        label={labels.INF_TRANSACTION_TYPE}
+                        variant="label-hidden"
+                        value={transactionType}
+                        options={transactionTypeOptions}
+                        onchange={handleTransactionTypeChange}>
+                    </lightning-combobox>
+                </lightning-layout-item>
+                <lightning-layout-item size="5" flexibility="auto" class="slds-p-vertical_x-small">
+                    <label>
+                        <div class="slds-form-element__label">{statusValue}</div>
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="7" flexibility="auto" class="slds-p-vertical_x-small">
+                    <c-custom-pick-list-multi-select
+                        options={transactionStatusOptions}
+                        variant="label-hidden"
+                        selected-pills={defaultTransactionStatusOptions}
+                        onchange={handleTransactionStatusChange}>
+                    </c-custom-pick-list-multi-select>
+                </lightning-layout-item>
+                <lightning-layout-item size="5" flexibility="auto">
+                    <label>
+                        <div class="slds-form-element__label">{labels.commonGLAccount}</div>
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="7" flexibility="auto">
+                    <c-custom-lookup-cell
+                        value={glAccount}
+                        errors={errors}
+                        selected-name={glAccountName}
+                        selected-icon="custom:custom3"
+                        search-object="AcctSeed__GL_Account__c"
+                        hide-selection-icon=true
+                        oncellchange={handleGlAccountChange}
+                        custom-table="true"
+                        data-jest-name="glAccountValue">
+                    </c-custom-lookup-cell>
+                </lightning-layout-item>
+                <lightning-layout-item size="5" flexibility="auto" class="slds-p-vertical_x-small">
+                    <label>
+                        <div class="slds-form-element__label">{labels.INF_DATE_RANGE}</div>
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="7" flexibility="auto" class="slds-p-vertical_x-small">
+                    <lightning-layout>
+                        <lightning-layout-item size="6" flexibility="auto">
+                            <lightning-input
+                                type="date"
+                                date-style="short"
+                                class="dateStart"
+                                variant="label-hidden"
+                                label={labels.INF_DATE_START}
+                                placeholder={labels.commonFrom}
+                                value={dateStart}
+                                onchange={handleDateStartChange}></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto" class="slds-p-left_small">
+                            <lightning-input
+                                type="date"
+                                date-style="short"
+                                class="dateEnd"
+                                variant="label-hidden"
+                                placeholder={labels.commonToDot}
+                                label={labels.INF_DATE_END}
+                                value={dateEnd}
+                                onchange={handleDateEndChange}></lightning-input>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </lightning-layout-item>
+                <lightning-layout-item size="5" flexibility="auto">
+                    <label>
+                        <div class="slds-form-element__label">{labels.commonAmount}</div>
+                    </label>
+                </lightning-layout-item>
+                <lightning-layout-item size="7" flexibility="auto">
+                    <lightning-layout>
+                        <lightning-layout-item size="6" flexibility="auto">
+                            <lightning-input
+                                class="amountStart"
+                                type="number"
+                                value={amountStart}
+                                variant="label-hidden"
+                                step="0.01"
+                                min="1"
+                                onchange={handleAmountStartChange}>
+                            </lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="6" flexibility="auto" class="slds-p-left_small">
+                            <lightning-input
+                                class="amountEnd"
+                                type="number"
+                                value={amountEnd}
+                                variant="label-hidden"
+                                step="0.01"
+                                min="1"
+                                onchange={handleAmountEndChange}>
+                            </lightning-input>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <!--   for future release  -->
+            <template if:true={optionalFilter}>
+                <lightning-layout>
+                    <lightning-layout-item size="6" flexibility="auto" class="slds-p-vertical_x-small">
+                        <label>
+                            <div class="slds-form-element__label">{labels.commonProject}/{labels.commonProjectTask}</div>
+                        </label>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="6" flexibility="auto" class="slds-p-vertical_x-small">
+                        <c-custom-lookup-cell
+                            value={project}
+                            errors={errors}
+                            selected-icon="custom:custom3"
+                            search-object="AcctSeed__Project__c,AcctSeed__Project_Task__c"
+                            hide-selection-icon=true
+                            oncellchange={handleProjectChange}
+                            custom-table="true">
+                        </c-custom-lookup-cell>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout>
+                    <lightning-layout-item size="6" flexibility="auto">
+                        <label>
+                            <div class="slds-form-element__label">{labels.commonProduct}</div>
+                        </label>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="6" flexibility="auto">
+                        <c-custom-lookup-cell
+                            value={product}
+                            errors={errors}
+                            selected-icon="custom:custom3"
+                            search-object="Product2"
+                            hide-selection-icon=true
+                            oncellchange={handleProductChange}
+                            custom-table="true">
+                        </c-custom-lookup-cell>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </template>
+        </lightning-layout-item>
+    </lightning-layout>
+</template>

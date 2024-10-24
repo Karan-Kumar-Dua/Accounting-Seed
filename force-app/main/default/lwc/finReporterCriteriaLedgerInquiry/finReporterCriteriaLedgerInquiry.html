@@ -1,0 +1,185 @@
+<template>
+    <template if:false={isHideSpinner}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+    </template>
+
+    <template if:true={loaded}>
+
+        <template if:true={isError}>
+            <lightning-card title="">
+                <div class="slds-p-around_medium">
+                    <c-inline-error-message errors={error}></c-inline-error-message>
+                </div>
+            </lightning-card>
+        </template>
+
+        <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+            <div class="slds-col slds-size_2-of-12">
+                <c-lookup-a
+                        data-jest="ledger"
+                        label={labels.accountingHomeLedger}
+                        search-object={ledger.objectApiName}
+                        search-filter={ledgerFilter}
+                        init-value={runOptions.ledger}
+                        onselectionchange={setLedger}
+                        required
+                        class="slds-form-element slds-form-element_stacked"
+                        field-level-help={labels.commonTransactionalLedgerForReport}>
+                </c-lookup-a>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <c-lookup-a
+                        data-jest="startingAccountingPeriod"
+                        label={labels.commonStartingAccountPeriod}
+                        search-object={accountingPeriod.objectApiName}
+                        init-value={runOptions.startingAccountingPeriod}
+                        onselectionchange={setStartPeriod}
+                        required
+                        class="slds-form-element slds-form-element_stacked">
+                </c-lookup-a>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <c-lookup-a
+                        data-jest="endingAccountingPeriod"
+                        label={labels.commonEndingAccountPeriod}
+                        search-object={accountingPeriod.objectApiName}
+                        init-value={runOptions.endingAccountingPeriod}
+                        onselectionchange={setEndPeriod}
+                        required
+                        class="slds-form-element slds-form-element_stacked">
+                </c-lookup-a>
+            </div>
+        </div>
+
+        <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+            <div class="slds-col slds-size_2-of-12">
+                <c-lookup-a
+                        data-jest="glAccount"
+                        label={labels.commonGLAccount}
+                        search-object={glAccount.objectApiName}
+                        init-value={runOptions.glAccount}
+                        onselectionchange={setGlAccount}
+                        class="slds-form-element slds-form-element_stacked">
+                </c-lookup-a>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <c-custom-pick-list-multi-select
+                        label={labels.commonSource}
+                        options={sourceOptions}
+                        selected-pills={sourceDefaultOptions}
+                        onchange={handleSourceOptionChange}
+                        class="slds-form-element slds-form-element_stacked"
+                        title={labels.INF_SELECT_TYPE_FILTER_REPORT}>
+                </c-custom-pick-list-multi-select>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-combobox name="aggregatedBy"
+                                    label={labels.commonAggregateBy}
+                                    value={aggregatedByValue}
+                                    options={aggregatedByOptions}
+                                    onchange={handleAggregatedByOptionChange}
+                                    class="slds-form-element slds-form-element_stacked"
+                                    title={labels.INF_AGGREGATE_REPORT_PICKLIST_SELECTION}>
+                </lightning-combobox>
+            </div>
+        </div>
+
+        <lightning-record-edit-form object-api-name={financialReportResult.objectApiName}>
+            <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+                <div class="slds-col slds-size_2-of-12">
+                    <lightning-input-field
+                            data-form="acct-variables"
+                            disabled={disableGLVarInputs}
+                            data-jest="glVariable1"
+                            field-name={financialReportResult.gl_account_variable_1.fieldApiName}
+                            value={runOptions.glVariable1}
+                            onchange={setGLVar1}>
+                    </lightning-input-field>
+                </div>
+                <div class="slds-col slds-size_2-of-12">
+                    <lightning-input-field
+                            data-form="acct-variables"
+                            disabled={disableGLVarInputs}
+                            data-jest="glVariable2"
+                            field-name={financialReportResult.gl_account_variable_2.fieldApiName}
+                            value={runOptions.glVariable2}
+                            onchange={setGLVar2}>
+                    </lightning-input-field>
+                </div>
+                <div class="slds-col slds-size_2-of-12">
+                    <lightning-input-field
+                            data-form="acct-variables"
+                            disabled={disableGLVarInputs}
+                            data-jest="glVariable3"
+                            field-name={financialReportResult.gl_account_variable_3.fieldApiName}
+                            value={runOptions.glVariable3}
+                            onchange={setGLVar3}>
+                    </lightning-input-field>
+                </div>
+                <div class="slds-col slds-size_2-of-12">
+                    <lightning-input-field
+                            data-form="acct-variables"
+                            disabled={disableGLVarInputs}
+                            data-jest="glVariable4"
+                            field-name={financialReportResult.gl_account_variable_4.fieldApiName}
+                            value={runOptions.glVariable4}
+                            onchange={setGLVar4}>
+                    </lightning-input-field>
+                </div>
+            </div>
+        </lightning-record-edit-form>
+
+        <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+            <div class="slds-col slds-size_2-of-12">
+                <c-custom-lookup-cell label={labels.commonProject}
+                                      disabled-input-variant="standard"
+                                      search-object={project.objectApiName}
+                                      oncellchange={setProject}
+                                      class="slds-form-element slds-form-element_stacked">
+
+                </c-custom-lookup-cell>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <c-custom-lookup-cell label={labels.commonProjectTask}
+                                      disabled-input-variant="standard"
+                                      search-object={projectTask.objectApiName}
+                                      search-filter={projectTaskFilter}
+                                      oncellchange={setProjectTask}
+                                      class="slds-form-element slds-form-element_stacked">
+
+                </c-custom-lookup-cell>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <c-custom-lookup-cell label={labels.commonProduct}
+                                      disabled-input-variant="standard"
+                                      search-object="Product2"
+                                      oncellchange={setProduct}
+                                      class="slds-form-element slds-form-element_stacked">
+
+                </c-custom-lookup-cell>
+            </div>
+            <div class="slds-col slds-size_2-of-12">
+                <c-custom-lookup-cell label={labels.commonAccount}
+                                      disabled-input-variant="standard"
+                                      search-object="Account"
+                                      oncellchange={setAccount}
+                                      class="slds-form-element slds-form-element_stacked">
+
+                </c-custom-lookup-cell>
+            </div>
+        </div>
+
+        <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+            <div class="slds-col slds-size_1-of-12">
+                <lightning-button
+                        variant="brand"
+                        label={labels.commonRun}
+                        title={labels.commonRunReport}
+                        disabled={runButtonDisabled}
+                        onclick={handleRun}>
+                </lightning-button>
+            </div>
+        </div>
+    </template>
+
+</template>

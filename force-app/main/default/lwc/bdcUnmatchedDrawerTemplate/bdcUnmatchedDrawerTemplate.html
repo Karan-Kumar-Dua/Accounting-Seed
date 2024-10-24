@@ -1,0 +1,149 @@
+<template>
+    <template if:true={possibleMatch}>
+        <c-horizontal-radio-buttons options={optionsRadio}
+                                    default-value={valueRadio}
+                                    onselectvalue={handleSelectValue}
+                                    group-id={row.Id}>
+        </c-horizontal-radio-buttons>
+        <lightning-button class="slds-float_right" label={drawerButtonLabel} onclick={handleButton}></lightning-button>
+    </template>
+    <template if:true={selectCreateSection}>
+        <lightning-layout horizontal-align="center" multiple-rows class="drawer">
+            <template for:each={columns} for:item="columnSet">
+                <lightning-layout-item key={columnSet.key} size={columnSet.size} flexibility="auto, no-grow" padding="horizontal-small" class="drawer">
+                    <lightning-layout horizontal-align="center" multiple-rows>
+                        <template for:each={columnSet.columns} for:item="column">
+                            <lightning-layout-item key={column.key}
+                                                   size={column.size}
+                                                   flexibility="auto, no-grow"
+                                                   class="slds-border_top drawer">
+                                <c-custom-cell column={column}
+                                               row={row}
+                                               edit-mode={isEditMode}
+                                               onselectvalue={handleComponentChangeValue}>
+                                </c-custom-cell>
+                            </lightning-layout-item>
+                        </template>
+                    </lightning-layout>
+                </lightning-layout-item>
+            </template>
+        </lightning-layout>
+    </template>
+    <template if:true={selectMatchSection}>
+        <div>{labels.commonRecordsFound}:</div>
+        <fieldset>
+            <div class="slds-form-element__control slds-p-around_xx-small">
+                <template for:each={innerRow.possibleMatches} for:item="match">
+                    <span key={match.possibleMatch.obj.Name} class="slds-radio slds-p-around_xx-small">
+                        <input name={radioId}
+                               id={match.possibleMatch.obj.Name}
+                               type="radio"
+                               value={match.possibleMatch.obj.Name}
+                               checked={match.checked}
+                               onchange={handleSelectMatch}/>
+                        <label class="slds-radio__label" for={match.possibleMatch.obj.Name}>
+                            <span class="slds-radio_faux"></span>
+                            <span class="slds-form-element__label slds-p-left_x-small">
+                                <lightning-formatted-url label={match.possibleMatch.obj.Name}
+                                                         value={match.possibleMatch.recordURL}
+                                                         target="_blank">
+                                </lightning-formatted-url>
+                            </span>
+                        </label>
+
+                        <div class="slds-p-left_x-small field-container slds-form-element">
+                            <template if:false={match.isJEObject}>
+                                <label class="form-element-label slds-form-element__label">{labels.commonDate}:</label>
+                                <div style="display: inherit;">
+                                    <c-custom-form-field-template
+                                            field-api-name={match.dateFieldName}
+                                            record-api-name={match.possibleMatch.sobjType}
+                                            record-id={match.possibleMatch.obj.Id}
+                                            variant="label-hidden"></c-custom-form-field-template>
+                                </div>
+                            </template>
+                            <template if:true={match.isJEObject}>
+                                <label class="form-element-label slds-form-element__label">{labels.commonDate}:</label>
+                                <div style="display: inherit;">
+                                    <c-custom-form-field-template
+                                            field-api-name={match.dateFieldName}
+                                            record-api-name={match.journalEntrySobjectType}
+                                            record-id={match.journalEntryId}
+                                            variant="label-hidden"></c-custom-form-field-template>
+                                </div>
+                            </template>
+                        </div>
+
+                        <div class="slds-p-left_x-small field-container slds-form-element">
+                            <label class="form-element-label slds-form-element__label">{labels.commonAmount}:</label>
+                            <div style="display: inherit;">
+                                  <c-custom-form-field-template
+                                          field-api-name={cr.amount}
+                                          record-api-name={match.possibleMatch.sobjType}
+                                          record-id={match.possibleMatch.obj.Id}
+                                          variant="label-hidden"></c-custom-form-field-template>
+                            </div>
+                        </div>
+
+                        <div class="slds-p-left_x-small field-container slds-form-element">
+                            <label class="form-element-label slds-form-element__label">{labels.commonDescription}:</label>
+                            <div class="description-output-container" style="display: inherit;">
+                                <c-custom-form-field-template
+                                        field-api-name={match.descriptionFieldName}
+                                        record-api-name={match.possibleMatch.sobjType}
+                                        record-id={match.possibleMatch.obj.Id}
+                                        variant="label-hidden"></c-custom-form-field-template>
+                            </div>
+                        </div>
+
+                        <template if:true={match.isCDObject}>
+                            <div class="slds-p-left_x-small field-container slds-form-element">
+                                <label class="form-element-label slds-form-element__label">{labels.commonCheckNo}:</label>
+                                <div style="display: inherit;">
+                                    <c-custom-form-field-template
+                                        field-api-name={match.checkNumberFieldName}
+                                        record-api-name={match.possibleMatch.sobjType}
+                                        record-id={match.possibleMatch.obj.Id}
+                                        variant="label-hidden"></c-custom-form-field-template>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template if:true={match.isRefundCRObject}>
+                            <div class="slds-p-left_x-small field-container slds-form-element">
+                                <label class="form-element-label slds-form-element__label">{labels.commonCheckNo}:</label>
+                                <div style="display: inherit;">
+                                    <c-custom-form-field-template
+                                        field-api-name={match.checkNumberFieldName}
+                                        record-api-name={match.possibleMatch.sobjType}
+                                        record-id={match.possibleMatch.obj.Id}
+                                        variant="label-hidden"></c-custom-form-field-template>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template if:false={match.isBDObject}>
+                                <div class="slds-p-left_x-small field-container slds-form-element">
+                                    <template if:false={match.isJEObject}>
+                                        <label class="form-element-label slds-form-element__label">{labels.commonAccount}/{labels.commonPayee}:</label>
+                                    </template>
+                                    <template if:true={match.isJEObject}>
+                                        <label class="form-element-label slds-form-element__label">{labels.commonAccount}/{labels.commonContact}/{labels.commonEmployee}:</label>
+                                    </template>
+                                   
+                                    <div style="display: inherit;">
+                                        <c-custom-form-field-template
+                                            field-api-name={match.payeeFieldName}
+                                            record-api-name={match.possibleMatch.sobjType}
+                                            record-id={match.possibleMatch.obj.Id}
+                                            variant="label-hidden"></c-custom-form-field-template>
+                                    </div>
+                                </div>
+                        </template>
+
+                    </span>
+                </template>
+            </div>
+        </fieldset>
+    </template>
+</template>

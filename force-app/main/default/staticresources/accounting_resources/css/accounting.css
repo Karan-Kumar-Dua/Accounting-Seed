@@ -1,0 +1,38 @@
+@font-face {
+    font-family: 'IBM Plex Sans';
+    src: url('../fonts/ibmPlexSans/IBMPlexSans-Light.otf');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'IBM Plex Sans';
+    src: url('../fonts/ibmPlexSans/IBMPlexSans-Regular.otf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'IBM Plex Sans';
+    src: url('../fonts/ibmPlexSans/IBMPlexSans-Medium.otf');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'IBM Plex Sans';
+    src: url('../fonts/ibmPlexSans/IBMPlexSans-Bold.otf');
+    font-weight: bold;
+    font-style: normal;
+}
+
+.buddyBackground {
+    background: url('../images/buddy.png') bottom left no-repeat;
+    height: 100%;
+    width: 100%;
+}
+
+.kbTexture {
+    background: url('../images/kbTexture.png') no-repeat;
+    background-size: contain;
+}

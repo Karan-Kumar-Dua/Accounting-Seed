@@ -1,0 +1,27 @@
+:host {
+    background: white;
+    display: block;
+    height: inherit;
+}
+
+.accountingHome--cards {
+    margin-top: 60px;
+    display: flex;
+    justify-content: center;
+}
+
+.accountingHome--cards-small {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.accountingHome--university {
+    display: block;
+    margin-right: 70px;
+}
+
+.accountingHome--period {
+    display: block;
+    margin-bottom: 8px;
+}

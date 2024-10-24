@@ -1,0 +1,4 @@
+import ERR_NO_ACTION_BINDING_FOUND from '@salesforce/label/c.ERR_NO_ACTION_BINDING_FOUND';
+export default {
+    ERR_NO_ACTION_BINDING_FOUND : ERR_NO_ACTION_BINDING_FOUND
+}

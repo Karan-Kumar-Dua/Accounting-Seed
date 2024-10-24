@@ -1,0 +1,117 @@
+<template>
+    <div class="slds-border_top"></div>
+    
+    <c-inline-error-message errors={error}></c-inline-error-message>
+
+    <div class="slds-is-relative slds-p-around_small">
+        <template if:true={showSpinner}>
+            <lightning-spinner
+                variant="brand"
+                alternative-text={labels.commonSaving}
+                size="medium">
+            </lightning-spinner>
+        </template>
+        <lightning-layout horizontal-align="spread">
+            <lightning-layout-item size="6" padding="horizontal-small">
+                <c-lookup-a
+                    label={ledgerLabel}
+                    search-object={ledger.objectApiName}
+                    search-filter={ledgerSearchFilter}
+                    field-level-help={ledgerHelp}
+                    onselectionchange={handleChange}
+                    retrieve-fields={ledgerRetrieveFields}
+                    required
+                    data-id="ledger"
+                    data-field="ledgerId"
+                    data-jest="ledger-input"
+                    class="slds-p-right_x-large slds-size_6-of-12">
+                </c-lookup-a>
+            </lightning-layout-item>
+            <lightning-layout-item size="6" padding="horizontal-small">
+                <label class="slds-form-element__label" for="hierarchy-type-field-id">{typeLabel}</label>
+                <div class="slds-form-element__control">
+                    <input tabindex="-1" data-jest="type-input" type="text" id="hierarchy-type-field-id" readonly="" class="slds-input" value={ledgerType} />
+                </div>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout horizontal-align="spread">
+            <lightning-layout-item size="6" padding="horizontal-small">
+                <c-lookup-a
+                        if:true={initValues.isLoaded}
+                        label={specificationsByDevNames.Current_Year_Earnings_GL_Account.label}
+                        search-object={glAccount.objectApiName}
+                        field-level-help={specificationsByDevNames.Current_Year_Earnings_GL_Account.helpText}
+                        onselectionchange={handleChange}
+                        init-value={initValues.Current_Year_Earnings_GL_Account}
+                        required={specificationsByDevNames.Current_Year_Earnings_GL_Account.isRequired}
+                        data-id="glAccount-Current_Year_Earnings_GL_Account"
+                        data-field="Current_Year_Earnings_GL_Account"
+                        data-jest="glAccount-input-Current_Year_Earnings_GL_Account"
+                        class="slds-p-right_x-large slds-size_6-of-12">
+                </c-lookup-a>
+            </lightning-layout-item>
+            <lightning-layout-item size="6" padding="horizontal-small">
+                <c-lookup-a
+                        if:true={initValues.isLoaded}
+                        label={specificationsByDevNames.Retained_Earnings_GL_Account.label}
+                        search-object={glAccount.objectApiName}
+                        field-level-help={specificationsByDevNames.Retained_Earnings_GL_Account.helpText}
+                        onselectionchange={handleChange}
+                        init-value={initValues.Retained_Earnings_GL_Account}
+                        required={specificationsByDevNames.Retained_Earnings_GL_Account.isRequired}
+                        data-id="glAccount-Retained_Earnings_GL_Account"
+                        data-field="Retained_Earnings_GL_Account"
+                        data-jest="glAccount-input-Retained_Earnings_GL_Account"
+                        class="slds-p-right_x-large slds-size_6-of-12">
+                </c-lookup-a>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout horizontal-align="spread" if:true={isMultiCurrencyEnabled}>
+            <lightning-layout-item size="6" padding="horizontal-small">
+                <c-lookup-a
+                        if:true={initValues.isLoaded}
+                        label={specificationsByDevNames.CTA_GL_Account.label}
+                        search-object={glAccount.objectApiName}
+                        field-level-help={specificationsByDevNames.CTA_GL_Account.helpText}
+                        onselectionchange={handleChange}
+                        init-value={initValues.CTA_GL_Account}
+                        required={specificationsByDevNames.CTA_GL_Account.isRequired}
+                        data-id="glAccount-CTA_GL_Account"
+                        data-field="CTA_GL_Account"
+                        data-jest="glAccount-input-CTA_GL_Account"
+                        class="slds-p-right_x-large slds-size_6-of-12">
+                </c-lookup-a>
+            </lightning-layout-item>
+        </lightning-layout>
+        <template if:true={showNotes}>
+            <div class="slds-p-left_small slds-p-right_small">
+                <lightning-textarea
+                  label={notesLabel}
+                  max-length="255"
+                  onchange={notesChange}
+                  data-jest="notes-input">
+                </lightning-textarea>
+            </div>
+        </template>
+    </div>
+    <footer class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+        <div class="slds-float_right">
+            <lightning-button
+                variant="neutral"
+                label={labels.commonCancel}
+                disabled={showSpinner}
+                onclick={cancel}
+                data-jest="cancel-btn">
+            </lightning-button>
+            <lightning-button
+                variant="brand"
+                label={labels.commonSave}
+                disabled={showSpinner}
+                onclick={save}
+                class="slds-m-left_small"
+                data-jest="save-btn">
+            </lightning-button>
+        </div>
+    </footer>
+
+</template>

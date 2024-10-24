@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Last_Statement_Sent__c</fullName>
+    <inlineHelpText>Indicates when a statement was emailed either from the Account detail&apos;s Create Statement button or Account List View&apos;s Create Outstanding Statements button.</inlineHelpText>
+    <label>Last Statement Sent</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Date</type>
+</CustomField>

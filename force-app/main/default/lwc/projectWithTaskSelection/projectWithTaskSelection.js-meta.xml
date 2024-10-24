@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>53.0</apiVersion>
+    <description>Project With Task Selection</description>
+    <isExposed>true</isExposed>
+    <masterLabel>Project With Task Selection</masterLabel>
+</LightningComponentBundle>

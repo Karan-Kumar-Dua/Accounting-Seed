@@ -1,0 +1,7 @@
+<template>
+    <template for:each={columns} for:item="column">
+        <td key={column.label} >
+            <c-csv-import-preview-table-cell record={record} column={column} row-data={rowData} field-definitions={fieldDefinitions}></c-csv-import-preview-table-cell>
+        </td>
+    </template>
+</template>

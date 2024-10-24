@@ -1,0 +1,84 @@
+<apex:page sidebar="false" showHeader="false" controller="PlaidLinkHandler" lightningStyleSheets="true" id="pg">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}" />
+    <apex:form id="frm">
+
+        <body>
+            <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+            <script>
+                let BDCChannel = "{!$MessageChannel.BDCChannel__c}";
+
+                async function createPlaid() {
+                    const linkToken = '{!linkToken}';
+
+                    const handler = Plaid.create({
+                        token: linkToken,
+
+                        onSuccess: (public_token, metadata) => {
+                            const financialId = '{!JSINHTMLENCODE(financialInstitutionIdentityId)}';
+                            if(financialId){
+                                publishMC('The institution was successfully updated.', 'Success:', 'showToastMsg');
+                                 //navgate back to bank direct page of bank setting tab
+                                sforce.one.navigateToURL('/lightning/n/AcctSeed__Bank_Direct_Connect2');
+                                return;
+                            }
+                            successEventCallback(public_token, metadata);
+                        },
+
+                        onLoad: () => {
+                            handler.open();
+                            console.log("LOADING");
+                        },
+
+                        onEvent: (eventName, metadata) => {
+                            console.log("Event:", eventName);
+                            console.log("Metadata:", metadata);
+                        },
+
+                        onExit: (error, metadata) => {
+                            console.log('error in exit--', error);
+                            //navgate back to bank direct page of bank setting tab
+                            sforce.one.navigateToURL('/lightning/n/AcctSeed__Bank_Direct_Connect2');
+                            // publish message to inform LWC that there is some error while linking FI
+                            if (error !== null) {
+                                let errors = JSON.stringify(error);
+                                publishMC(JSON.stringify(error), 'Error:', 'showToastMsg');
+                                return;
+                            }
+                            publishMC('', '', undefined);
+                        },
+                    }) // plaid handler function close here
+
+                } // function close here
+
+                /*
+                  * this method will run when FI is successfully linked
+                */
+                function successEventCallback(public_token, metadata) {
+                    //navgate back to bank direct page of bank setting tab
+                    sforce.one.navigateToURL('/lightning/n/AcctSeed__Bank_Direct_Connect2');
+                    // publish message to inform LWC that FI successfully link plz load page 
+                    publishMC('The institution was successfully linked.', 'Success:', 'exchangeToken', true, metadata);
+                }
+
+                /*
+                  * this method is used to publish the message to bankSetting page LWC
+                */
+                function publishMC(msg, type, methodName, callType = false, metadata) {
+                    const message = {
+                        payLoad: {
+                            message: msg,
+                            lwcMethodName: methodName,
+                            type: type,
+                            asyncCalls: callType,
+                            metadata: metadata
+                        }
+                    };
+                    sforce.one.publish(BDCChannel, message);
+                }
+
+                // function calls on load of page
+                createPlaid();
+            </script>
+        </body>
+    </apex:form>
+</apex:page>

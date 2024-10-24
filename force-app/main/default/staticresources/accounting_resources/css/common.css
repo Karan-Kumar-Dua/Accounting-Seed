@@ -1,0 +1,101 @@
+.statusHeader {
+    width: 80px;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.tableCell {
+    height: 37px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.mid-width {
+    min-width: 100px;
+}
+
+.large-width {
+    min-width: 160px;
+}
+
+.matchingRecord {
+    background-color: #c7ffe1;
+    border-bottom: 2px solid white;
+}
+
+.selectedRow {
+    background-color: #93FFE2;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.customLabelWidth {
+    width: 5% !important;
+}
+
+.customDataWidth {
+    width: 20% !important;
+}
+
+.helpOrbCommon {
+    background-image: url(/img/help/helpOrbs.gif);
+    background-position: 0 0;
+    width: 20px;
+    height: 15px;
+}
+
+.padding-left {
+    padding-left: 20px !important;
+}
+
+div.tooltip {
+    width: 20px;
+    float: right;
+    display:inline;
+}
+
+div.tooltip span {
+    display: none;
+    font-weight:normal;
+    text-align:left;
+    padding: 3px 5px;
+    margin-left: 8px;
+    width: 250px;
+}
+
+div.tooltip:hover span {
+    display: inline;
+    position: absolute;
+    border: 1px solid #cccccc;
+    background: #FFC;
+    color: #000000;
+    z-index:10000;
+}
+
+.pbButton {
+    text-align: left !important;
+}
+.pbButtonb {
+    padding-left: 13px !important;
+    text-align: left !important;
+}
+.pbTitle {
+    width: 30% !important;
+    display: table-cell !important;
+}
+
+body textarea {
+    height: 30px;
+}
+
+.negativeAmount {
+    color: red !important;
+}
+
+[data-class="generate-manager-as-of-holder"] tr {
+    display: block;
+}

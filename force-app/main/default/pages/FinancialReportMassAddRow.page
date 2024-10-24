@@ -1,0 +1,70 @@
+<apex:page standardController="Financial_Report_Row__c" title="{!$Label.AcctSeed__COMMON_MASS_ADD_ROWS + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" tabStyle="Financial_Report_Row__c" sidebar="false" extensions="FinancialReportMassAddRowExt" recordSetVar="rows">
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/mass-add-row.js')}"/>
+    <apex:sectionHeader title="{!$Label.AcctSeed__INF_FINANCIAL_STATEMENT + ' ' + reportDefinition.Name}" subtitle="{!$Label.AcctSeed__COMMON_MASS_ADD_ROWS}" />
+    <apex:outputPanel id="messages">
+        <apex:pageMessages escape="false"/>
+    </apex:outputPanel>
+    <apex:form id="mass-add-row-form">
+        <apex:actionStatus id="searchStatus" onstart="AcctSeed.ASModule.showSearchProcessingStatus('{!$Label.AcctSeed__COMMON_PROCESSING}');" />
+        <apex:actionFunction name="searchGLAccounts" action="{!queryGLAccounts}" status="searchStatus" rerender="mass-add-row-form, messages" oncomplete="AcctSeed.ASModule.showHideSubTypeOptions();"/>
+        <apex:outputPanel layout="block" rendered="{!reportIsInvalid}" style="margin:auto; width:10%">
+            <apex:commandButton value="{!$Label.AcctSeed__COMMON_BACK}" action="{!cancel}"/>
+        </apex:outputPanel>
+        <apex:pageBlock mode="{!mode}" title="{!$Label.AcctSeed__ACCOUNTING_HOME_REPORT_SETTINGS}" rendered="{!!reportIsInvalid}">
+            <apex:pageBlockSection columns="2">
+                <apex:inputText label="{!$Label.AcctSeed__COMMON_BEGINNING_ROW_NUMBER}" value="{!beginningRowNumber}" />
+                <apex:inputField value="{!proxyRow.GL_Account_Variable_1__c}" />
+                <apex:inputText label="{!$Label.AcctSeed__COMMON_INCREMENT_ROW_NUMBER}" value="{!incrementRowNumber}" />
+                <apex:inputField value="{!proxyRow.GL_Account_Variable_2__c}" />
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_GROUP_BY_SUBTYPE_1}" for="subtype1"/>
+                    <apex:inputCheckbox value="{!groupBySubType1}" onchange="searchGLAccounts();" id="subtype1"/>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!proxyRow.GL_Account_Variable_3__c}" />
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_GROUP_BY_SUBTYPE_2}" for="subtype2"/>
+                    <apex:inputCheckbox value="{!groupBySubType2}" onchange="searchGLAccounts();" id="subtype2"/>
+                </apex:pageBlockSectionItem>
+                <apex:inputField value="{!proxyRow.GL_Account_Variable_4__c}" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:pageBlock mode="edit" title="{!$Label.AcctSeed__COMMON_SELECT_ROWS}" rendered="{!!reportIsInvalid}">
+            <apex:pageBlockButtons >
+                <apex:actionStatus id="saveStatus" onstart="AcctSeed.ASModule.disableButtonsAll('{!$Label.AcctSeed__COMMON_PROCESSING}');" />
+                <apex:commandButton value="{!$Label.AcctSeed__COMMON_CREATE_ROWS}" status="saveStatus" action="{!createRows}" rerender="mass-add-row-form, messages" oncomplete="AcctSeed.ASModule.showHideSubTypeOptions();"/>
+                <apex:commandButton value="{!$Label.AcctSeed__COMMON_CANCEL}" action="{!cancel}" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="2" title="{!$Label.AcctSeed__COMMON_FILTERS}">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_REPORT_TYPE}" for="selectReportType"/>
+                    <apex:selectList value="{!selectedReportType}" multiselect="false" size="1" onchange="searchGLAccounts();" id="selectReportType">
+                        <apex:selectOptions value="{!reportTypes}" />
+                    </apex:selectList>
+                </apex:pageBlockSectionItem>
+                <apex:inputCheckBox label="{!$Label.AcctSeed__COMMON_ONLY_ACTIVE_GL_ACCOUNTS}" value="{!activeFilter}">
+                    <apex:actionSupport event="onchange" action="{!queryGLAccounts}" oncomplete="AcctSeed.ASModule.uncheckSelectAll();" rerender="gl-account-table" />
+                </apex:inputCheckBox>
+                <apex:pageBlockSectionItem ></apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem ></apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection id="gl-account-table" columns="1" title="Results ({!resultSize})">
+                <apex:pageBlockTable value="{!glAccountWraps}" var="glAccountId">
+                    <apex:column >
+                        <apex:facet name="header">
+                            <apex:inputCheckbox styleClass="gl-selection-select" onchange="AcctSeed.ASModule.checkAll(this);"/>
+                        </apex:facet>
+                        <apex:inputCheckbox styleClass="gl-selection" value="{!glAccountWraps[glAccountId].selected}" />
+                    </apex:column>
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_GL_ACCOUNT_NAME}" value="{!glAccountWraps[glAccountId].glAccount.Name}" />
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_ACTIVE}" value="{!glAccountWraps[glAccountId].glAccount.Active__c}" />
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_TYPE}" value="{!glAccountWraps[glAccountId].glAccount.Type__c}" />
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_SUB_TYPE_1}" value="{!glAccountWraps[glAccountId].glAccount.Sub_Type_1__c}" />
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_SUB_TYPE_2}" value="{!glAccountWraps[glAccountId].glAccount.Sub_Type_2__c}" />
+                    <apex:column headerValue="{!$Label.AcctSeed__COMMON_BANK}" value="{!glAccountWraps[glAccountId].glAccount.Bank__c}" />
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

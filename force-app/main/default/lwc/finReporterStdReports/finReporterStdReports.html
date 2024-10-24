@@ -1,0 +1,74 @@
+<template>
+    <div class="slds-p-left_medium slds-p-bottom_medium">
+        <lightning-button-menu
+                label={selectStandardReportWithCharacter}
+                variant="container"
+                class="my-button-menu"
+                alternative-text={labels.INF_SELECT_STANDARD_REPORT}
+                onselect={handleReportTypeSelection}>
+            <template for:each={reportTypes} for:item="type">
+                <lightning-menu-item
+                    key={type.value}
+                    value={type.value}
+                    label={type.label}>
+                </lightning-menu-item>
+            </template>
+        </lightning-button-menu>
+    </div>
+    <div class="slds-p-top_medium slds-p-bottom_medium slds-is-relative">
+        <template if:true={showProfitLoss}>
+            <div class="slds-box box-shadow">
+                <h2 data-jest="title" class="slds-page-header__title slds-p-top_medium">{selectedReportType.fullLabel}</h2>
+                <c-fin-reporter-criteria-profit-loss></c-fin-reporter-criteria-profit-loss>
+            </div>
+            <div class="slds-box slds-m-top_xx-large box-shadow">
+                <c-fin-reporter-table report-name="profitLoss"></c-fin-reporter-table>
+            </div>
+        </template>
+
+        <template if:true={showProfitLossVsBudget}>
+            <div class="slds-box box-shadow">
+                <h2 data-jest="title" class="slds-page-header__title slds-p-top_medium">{selectedReportType.fullLabel}</h2>
+                <c-fin-reporter-criteria-profit-loss-vs-budget ></c-fin-reporter-criteria-profit-loss-vs-budget>
+            </div>
+            <div class="slds-box slds-m-top_xx-large box-shadow">
+                <c-fin-reporter-table report-name="profitLossVsBudget"></c-fin-reporter-table>
+            </div>
+        </template>
+
+        <template if:true={showBalanceSheet}>
+            <div class="slds-box box-shadow">
+                <h2 data-jest="title" class="slds-page-header__title slds-p-top_medium">{selectedReportType.fullLabel}</h2>
+                <c-fin-reporter-criteria-balance-sheet></c-fin-reporter-criteria-balance-sheet>
+            </div>
+            <div class="slds-box slds-m-top_xx-large box-shadow">
+                <c-fin-reporter-table report-name="balanceSheet"></c-fin-reporter-table>
+            </div>
+        </template>
+
+        <template if:true={showTrialBalance}>
+            <div class="slds-box box-shadow">
+                <h2 data-jest="title" class="slds-page-header__title slds-p-top_medium">{selectedReportType.fullLabel}</h2>
+                <c-fin-reporter-criteria-trial-balance></c-fin-reporter-criteria-trial-balance>
+            </div>
+            <div class="slds-box slds-m-top_xx-large box-shadow">
+                <c-fin-reporter-table report-name="trialBalance"></c-fin-reporter-table>
+            </div>
+        </template>
+
+        <template if:true={showCashFlow}>
+            <div class="slds-box box-shadow">
+                <h2 data-jest="title" class="slds-page-header__title slds-p-top_medium">{selectedReportType.fullLabel}</h2>
+                <c-fin-reporter-criteria-cash-flow></c-fin-reporter-criteria-cash-flow>
+            </div>
+            <div class="slds-box slds-m-top_xx-large box-shadow">
+                <c-fin-reporter-table report-name="cashFlow"></c-fin-reporter-table>
+            </div>
+        </template>
+
+        <template if:true={showLedgerInquiry}>
+            <c-fin-reporter-ledger-inquiry full-label={selectedReportType.fullLabel} defaultglaccountid={glAccountId} defaultledgerid={ledgerId}
+            defaultglav1={defaultglav1}  defaultglav2={defaultglav2} defaultglav3={defaultglav3} defaultglav4={defaultglav4} default-acct-period={defaultAcctPeriod}></c-fin-reporter-ledger-inquiry>
+        </template>
+    </div>
+</template>

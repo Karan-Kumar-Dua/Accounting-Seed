@@ -1,0 +1,41 @@
+<apex:page id="thePage" title="{!$Label.AcctSeed__INF_BILLING_PDFS +' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" standardController="Billing__c" extensions="BillingsPDFManager,EnvironmentUtils"
+           recordSetVar="billings" showHeader="true" sidebar="true">
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/accounting-common.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/common.css')}" />
+
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$ObjectType.Billing__c.labelPlural}" subtitle="{!$Label.AcctSeed__INF_BILLING_PDFS}" />
+        <apex:pageBlock id="thePageBlock" title="{!$Label.AcctSeed__INF_MASS_SAVE_AND_EMAIL_PDFS}">
+            <apex:pageMessages escape="false" />
+            <apex:pageBlockButtons id="buttons">
+                <apex:actionStatus id="saveStatus"
+                                   onstart="AcctSeed.ASModule.disableButtons('{!$Label.AcctSeed__COMMON_PROCESSING}')"
+                                   onstop="AcctSeed.ASModule.pageLoad()" />
+                <apex:commandButton id="saveButton" value="{!$Label.AcctSeed__COMMON_SAVE_PDFS}" action="{!savePDFs}"
+                                    status="saveStatus" reRender="theForm" rendered="{!!isNoSelectedBills}" />
+                <apex:commandButton id="emailButton" value="{!$Label.AcctSeed__COMMON_EMAIL_PDFS}" action="{!emailPDFs}"
+                                    status="saveStatus" reRender="theForm" rendered="{!!isNoSelectedBills}" disabled="{!isAllMiss}"/>
+                <apex:commandButton id="cancelButton" action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockTable columns="5" value="{!bills}" var="b" rendered="{!!isNoSelectedBills}">
+                <apex:column headerValue="{!$ObjectType.Billing__c.fields.Name.Label}">
+                    <apex:outputLink value="/{!b.Id}">{!b.Name}</apex:outputLink>
+                </apex:column>
+                <apex:column headerValue="{!$ObjectType.Billing__c.fields.Status__c.Label}">
+                    <apex:outputField value="{!b.Status__c}" />
+                </apex:column>
+                <apex:column headerValue="{!$ObjectType.Billing__c.fields.PDF_Email_Status__c.Label}">
+                    <apex:outputField value="{!b.PDF_Email_Status__c}" />
+                </apex:column>
+                <apex:column headerValue="{!$ObjectType.Billing__c.fields.Billing_Contact__c.Label}">
+                    <apex:outputField value="{!b.Billing_Contact__c}" />
+                </apex:column>
+                <apex:column headerValue="{!$ObjectType.Billing__c.fields.Billing_Contact__c.Label} {!$ObjectType.Contact.fields.Email.Label}">
+                    <apex:outputField value="{!b.Billing_Contact__r.Email}" />
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

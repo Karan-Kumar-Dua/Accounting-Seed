@@ -1,0 +1,46 @@
+<template>
+    <div class="slds-theme_default">
+        <template if:true={openModal}>
+            <div class="demo-only">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container" style="max-width: 70% !important;width: inherit;">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse closeButton" title={labels.commonClose} onclick={cancelMethod} data-id="modal-button">
+                                <lightning-icon icon-name="utility:close" size="medium" data-id="modal-icon"></lightning-icon>
+                                <span class="slds-assistive-text" data-id="modal-span">{commonClose}</span>
+                            </button>
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate heading" data-id="modal-heading">
+                                {createTemplate}
+                                <c-csv-knowledge-base-help help-u-r-l={createTemplateHelpURL}></c-csv-knowledge-base-help>
+                            </h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <lightning-spinner alternative-text={labels.commonLoading} variant="brand" class={spinnerClass} data-id="modal-spinner"></lightning-spinner>
+                            <lightning-layout multiple-rows="true" class="slds-grid">
+                                <lightning-layout-item size="12" padding="around-small">
+                                    <lightning-record-edit-form object-api-name="AcctSeed__Import_Template__c" onsuccess={handleSuccess} onload={handleLoad}>
+                                        <div class="slds-m-around_medium">
+                                            <div class="slds-grid slds-wrap">
+                                                <template for:each={templateFields} for:item="col">
+                                                    <div class="slds-col slds-size_1-of-2 slds-p-around_x-small" key={col}>
+                                                        <lightning-input-field field-name={col}></lightning-input-field>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <div class="slds-m-top_medium slds-float_right">
+                                                <lightning-button class="slds-m-top_small" label={cancelText} onclick={cancelEntry}></lightning-button>
+                                                <lightning-button class="slds-m-left_small" variant="brand" type="submit" name="save" label={saveAndMap} onclick={handleSaveAndMap}></lightning-button>
+                                            </div>
+                                        </div>
+                                    </lightning-record-edit-form>
+
+                                </lightning-layout-item>
+                            </lightning-layout>
+                        </div>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open" data-id="modal-backdrop"></div>
+            </div>
+        </template>
+    </div>
+</template>

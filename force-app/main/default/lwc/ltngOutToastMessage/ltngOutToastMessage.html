@@ -1,0 +1,60 @@
+<template>
+    <template if:true={isSuccess}>
+        <div data-jest="success-section" class="toastSuccess" style="position:absolute;top:1rem;left:1rem;right:1rem">
+            <div class="slds-notify_container slds-is-relative">
+                <div class="slds-notify slds-notify_toast slds-theme_success" role="status">
+                    <span class="slds-assistive-text">{severity}</span>
+                    <span class="slds-icon_container slds-icon-utility-success slds-m-right_small slds-no-flex slds-align-top" title={labels.commonSuccess}>
+                        <lightning-icon icon-name="utility:success" variant="inverse"></lightning-icon>
+                    </span>
+                    <div class="slds-notify__content">
+                        <h2 data-jest="title-section" class="slds-text-heading_small ">{title}</h2>
+                        <template for:each={messages} for:item="message">
+                            <p data-jest="message-section" key={message}>{messages}</p>
+                        </template>  
+                    </div> 
+                    <template if:true={dismissable}>
+                        <div class="slds-notify__close">
+                            <lightning-button-icon 
+                                icon-name="utility:close" 
+                                alternative-text={labels.commonClose} 
+                                variant="border-inverse" 
+                                title={labels.commonClose}
+                                onclick={handleClose}>
+                            </lightning-button-icon>
+                        </div>
+                    </template>                  
+                </div>
+            </div>
+        </div>
+    </template>
+    <template if:true={isError}>
+        <div data-jest="error-section" class="toastError" style="position:absolute;top:1rem;left:1rem;right:1rem">
+            <div class="slds-notify_container slds-is-relative">
+                <div class="slds-notify slds-notify_toast slds-theme_error" role="status">
+                    <span class="slds-assistive-text">{severity}</span>
+                    <span class="slds-icon_container slds-icon-utility-error slds-m-right_small slds-no-flex slds-align-top" title={labels.commonErrorText}>
+                        <lightning-icon icon-name="utility:error" variant="inverse"></lightning-icon>
+                    </span>
+                    <div class="slds-notify__content">
+                        <h2 data-jest="title-section" class="slds-text-heading_small ">{title}</h2>
+                        <template for:each={messages} for:item="message">
+                            <p data-jest="message-section" key={message}>{message}</p>
+                        </template>                       
+                    </div>
+                    <template if:true={dismissable}>
+                        <div class="slds-notify__close">
+                            <lightning-button-icon 
+                                icon-name="utility:close" 
+                                alternative-text={labels.commonClose} 
+                                variant="border-inverse" 
+                                title={labels.commonClose}
+                                onclick={handleClose}>
+                            </lightning-button-icon>
+                        </div>
+                    </template>                    
+                </div>
+            </div>
+        </div>
+    </template>
+</template>

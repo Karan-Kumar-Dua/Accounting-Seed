@@ -1,0 +1,107 @@
+<template>
+    <lightning-card class="slds-box cardBorder">
+        <c-x-spinner size="medium" spinner-text={labels.INF_FILE_PREVIEW_SPINNER_TEXT}
+                     if:true={isLoading}></c-x-spinner>
+        <template if:false={hideHeaderSection}>
+            <div class="slds-grid slds-grid_vertical-align-center">
+                <div>
+                    <template if:true={showHeader}>
+                        <div class="slds-grid slds-grid_vertical-align-center">
+                            <div>
+                                <lightning-icon icon-name="standard:document_preview" alternative-text="Event"
+                                                title="Event"></lightning-icon>
+                            </div>
+                            <div class="slds-p-horizontal_x-small">
+                                <h3 class="header-text">
+                                    {headerText} ({totalCount})
+                                </h3>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="slds-col" if:true={hasRelatedFiles}>
+                    <div class="slds-grid slds-grid_align-end">
+                        <div class="file-numbers slds-col">
+                            <div class="arrowContainer">
+                                <a class="arrow" data-number="-1" onclick={handleShowNextOrPrevious}>❮</a>
+                            </div>
+                            <template for:each={fileNumberings} for:item="file" for:index="index">
+																<span class="dot" key={file.number} data-index={index}
+                                                                      data-active-dot={index}
+                                                                      title={file.title}
+                                                                      onclick={handleNumberClick}
+                                                                      style={file.defaultFileStyle}>{file.number}</span>
+                            </template>
+                            <div class="arrowContainer" style="justify-content: left;">
+                                <a class="arrow" data-number="1" onclick={handleShowNextOrPrevious}>❯</a>
+                            </div>
+                        </div>
+                        <div class="fileTitle slds-col" if:true={showDefaultButton}>
+                            <template if:true={currentFile.isDefaultFile}>
+                                <div class="DefaultFileText-Container">
+                                    <lightning-icon icon-name="standard:task2" alternative-text="Approved"
+                                                    title="Approved"></lightning-icon>
+                                    <p class="DefaultFileText">
+                                        <lightning-formatted-text
+                                                value={labels.INF_FILE_PREVIEW_DEFAULT_LABEL}></lightning-formatted-text>
+                                    </p>
+                                </div>
+                            </template>
+                            <template if:false={currentFile.isDefaultFile}>
+                                <button class="slds-button slds-button_brand" data-ext-id={currentFile.extId}
+                                        onclick={handleClick} style="height: 36px;">
+                                    {labels.INF_FILE_PREVIEW_BUTTON_LABEL}
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <div class="fade" if:true={hasRelatedFiles}>
+            <div class="slideshow-container">
+                <c-x-spinner size="medium" alternative-text={labels.INF_FILE_PREVIEW_ALTERNATIVE_TEXT}
+                             spinner-text={labels.INF_FILE_PREVIEW_IMAGE_SPINNER_TEXT}
+                             if:true={isLoadingImage}></c-x-spinner>
+
+                <div class="fileBody mySlides fade">
+                    <template if:false={currentFile.isPreviewAvailable}>
+                        <div class="slds-align_absolute-center">{labels.INF_FILE_PREVIEW_NOT_AVAILABLE}</div>
+                    </template>
+                    <template if:true={currentFile.isPreviewAvailable}>
+                        <template if:true={currentFile.renderAsPdf}>
+                            <template if:false={isLoading}>
+                                <template if:true={currentFile.isPreviewAvailable}>
+                                    <iframe src={currentFile.previewUrl} width="100%" height="400px"
+                                        onload={onImageLoad}></iframe>
+                                </template>
+                            </template>
+                        </template>
+                        <template if:false={currentFile.renderAsPdf}>
+                            <div id="zoomControls" class="zoomControls">
+                                <lightning-button-icon icon-name="utility:zoomin"
+                                    alternative-text={labels.INF_FILE_PREVIEW_ZOOM_IN_LABEL}
+                                    title={labels.INF_FILE_PREVIEW_ZOOM_IN_LABEL}
+                                    onclick={handleZoom}></lightning-button-icon>
+                                <lightning-button-icon icon-name="utility:zoomout"
+                                    alternative-text={labels.INF_FILE_PREVIEW_ZOOM_OUT_LABEL}
+                                    title={labels.INF_FILE_PREVIEW_ZOOM_OUT_LABEL}
+                                    onclick={handleZoomOut}></lightning-button-icon>
+                            </div>
+                            <div class="ImageContainer">
+                                <image src={currentFile.previewUrl} key={currentIndex} onload={onImageLoad}></image>
+                            </div>
+                        </template>
+                    </template>
+                </div>
+                <template if:true={displayFileName}>
+                    <div class="fileTitle">
+                        {currentFile.fileTitle}
+                    </div>
+                </template>
+            </div>
+        </div>
+    </lightning-card>
+</template>

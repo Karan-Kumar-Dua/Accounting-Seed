@@ -1,0 +1,208 @@
+<template>
+    <div if:false={userPermissionEnabled}>
+        <c-inline-error-message errors={errorMessageInfo}></c-inline-error-message>
+    </div>
+    <div if:true={userPermissionEnabled}>
+        <div slot="title" class="slds-var-p-around_medium slds-border_bottom">
+            <p class="slds-text-heading_medium slds-text-align_center">
+                {title}
+            </p>
+        </div>
+      
+        <div class="slds-var-p-around_large slds-is-relative">
+            
+            <div class="helpLink-container slds-var-p-right_x-large slds-float_right">
+                <lightning-formatted-url
+                    value={knowledgeArticleLink}
+                    label={labels.COMMON_HELP} 
+                    tooltip={labels.KNOWLEDGE_BASE}
+                    target="_blank">
+                </lightning-formatted-url>
+            </div>
+
+            <template if:true={showTheSpinner}>
+                <lightning-spinner
+                        variant="brand"
+                        alternative-text={labels.commonSaving}
+                        size="medium">
+                </lightning-spinner>
+            </template>
+            <c-inline-error-message errors={theErrors}></c-inline-error-message>
+            <div>
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="6" class="slds-var-p-around_x-small">
+                        <abbr title={labels.commonRequired} class="slds-required">*</abbr>
+                        <label class="slds-form-element__label">
+                            {amountTitle}
+                        </label>
+                        <lightning-helptext
+                            class="slds-var-m-left_xx-small"
+                            content={amountHelp}>
+                        </lightning-helptext>
+                        <lightning-input
+                                type="number"
+                                step=".01"
+                                variant="label-hidden"
+                                name="refundAmountInput"
+                                label={amountTitle}
+                                required="true"
+                                value={amountValue}
+                                min="0"
+                                message-when-range-underflow={labels.cashReceiptRefundAmountNegativeError}
+                                onchange={handleRefundAmountChange}
+                                data-id={dataIds.refundAmountInput}>
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="6" class="slds-var-p-around_x-small">
+                        <abbr title={labels.commonRequired} class="slds-required">*</abbr>
+                        <label class="slds-form-element__label">
+                            {dateTitle}
+                        </label>
+                        <lightning-helptext
+                            class="slds-var-m-left_xx-small"
+                            content={dateHelp}>
+                        </lightning-helptext>
+                        <lightning-input
+                                type="date"
+                                variant="label-hidden"
+                                name="refundDateInput"
+                                date-style="short"
+                                label={dateTitle}
+                                required="true"
+                                value={dateValue}
+                                data-id={dataIds.refundDateInput}>
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item if:true={bankAccount} size="6" class="slds-var-p-around_x-small">
+                        <c-lookup-a label={bankAccount.label}
+                            field-level-help={bankAccount.hint}
+                            search-object={bankAccountSearchObject}
+                            search-display-field={bankAccountSearchDisplayField}
+                            init-value={bankAccountValue}
+                            search-filter={bankAccountSearchFilter}
+                            class="slds-form-element slds-form-element_stacked"
+                            required="true"
+                            data-id={dataIds.bankAccount}
+                            onselectionchange={handleBankAccountChange}>
+                        </c-lookup-a>
+                    </lightning-layout-item>
+                    <lightning-layout-item if:true={paymentType} size="6" class="slds-var-p-around_x-small">
+                        <abbr title={labels.commonRequired} class="slds-required">*</abbr>
+                        <label class="slds-form-element__label">
+                            {paymentType.label}
+                        </label>
+                        <lightning-helptext
+                            class="slds-var-m-left_xx-small"
+                            content={paymentType.hint}>
+                        </lightning-helptext>
+                        <lightning-combobox
+                            name="paymentTypeCombobox"
+                            variant="label-hidden"
+                            label={paymentType.label}
+                            value={paymentTypeValue}
+                            options={paymentTypeOptions}
+                            required="true"
+                            data-id={dataIds.paymentTypeCombobox}>
+                        </lightning-combobox>
+                    </lightning-layout-item>
+                    <lightning-layout-item if:true={paymentReference} size="6" class="slds-var-p-around_x-small">
+                        <abbr title={labels.commonRequired} class="slds-required">*</abbr>
+                        <label class="slds-form-element__label">
+                            {paymentReference.label}
+                        </label>
+                        <lightning-helptext
+                            class="slds-var-m-left_xx-small"
+                            content={paymentReference.hint}>
+                        </lightning-helptext>
+                        <lightning-textarea
+                            name="referenceTextArea"
+                            label={paymentReference.label}
+                            value={paymentReferenceValue}
+                            variant="label-hidden"
+                            required="true"
+                            data-id={dataIds.referenceTextArea}>
+                        </lightning-textarea>
+                    </lightning-layout-item>
+                    <lightning-layout-item if:true={isMemo} size="6" class="slds-var-p-around_x-small">
+                        <label class="slds-form-element__label">
+                            {memo.label}
+                        </label>
+                        <lightning-helptext
+                            class="slds-var-m-left_xx-small"
+                            content={memo.hint}>
+                        </lightning-helptext>
+                        <lightning-textarea
+                            name="memoTextArea"
+                            label={memo.label}
+                            value={memoValue}
+                            variant="label-hidden"
+                            data-id={dataIds.memoTextArea}>
+                        </lightning-textarea>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <div if:true={isCashReceiptOrCreditMemo}>
+                    <h2 class="slds-var-p-left_medium slds-var-m-bottom_small slds-var-m-top_medium slds-text-heading_small">
+                        <strong>{labels.CASH_RECEIPT_REFUND_ACCOUNTING_INFO_HEADER}</strong>
+                    </h2>
+                    <div>
+                        <lightning-record-edit-form object-api-name={cashRecieptObjectName} record-id={cashReceiptId} onsubmit={handleAdditionalFormSubmit} onload={handleAdditionalFormLoad}>
+                            <lightning-layout multiple-rows="true">
+                                <template for:each={additionalFields} for:item="field">
+                                    <lightning-layout-item if:true={field.isCommonField} key={field.apiName} size="6" class="slds-var-p-around_x-small">
+                                        <lightning-input-field
+                                            data-id={field.apiName}
+                                            field-name={field.apiName}>
+                                        </lightning-input-field>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item if:true={field.isLookup} key={field.apiName} size="6" class="slds-var-p-around_x-small">
+                                        <label class="slds-form-element__label">
+                                            {field.label}
+                                        </label>
+                                        <lightning-helptext if:true={field.hasInlineHelpText} 
+                                                class="slds-var-m-left_xx-small"
+                                                content={field.inlineHelpText}>
+                                        </lightning-helptext>
+                                        <c-x-lookup 
+                                            row={row} 
+                                            init-value={field.value}
+                                            sobject-name={cashRecieptObjectName} 
+                                            sobject-field-name={field.apiName} 
+                                            search-object={field.typeAttributes.referenceObject} 
+                                            onselectionchange={handleSelectionChange}  
+                                            data-id={field.apiName}  
+                                            pick-selection={field.value}
+                                            required={field.isRequired} >
+                                        </c-x-lookup>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item if:true={field.isMemoField} key={field.apiName} size="6" class="slds-var-p-around_x-small">
+                                        <template if:true={memo}>
+                                            <label class="slds-form-element__label">
+                                                {memo.label}
+                                            </label>
+                                            <lightning-helptext
+                                                class="slds-var-m-left_xx-small"
+                                                content={memo.hint}>
+                                            </lightning-helptext>
+                                            <lightning-textarea
+                                                name="memoTextArea"
+                                                label={memo.label}
+                                                variant="label-hidden"
+                                                data-id={dataIds.memoTextArea}
+                                                onblur={handleMemoChange}>
+                                            </lightning-textarea>
+                                        </template>
+                                    </lightning-layout-item>
+                                </template>
+                            </lightning-layout>
+                            <lightning-button data-id="submit-form" type="submit" class="slds-hide"></lightning-button>
+                        </lightning-record-edit-form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div slot="footer" class="slds-modal__footer slds-var-m-top_small slds-clearfix">
+        <lightning-button variant="neutral" label={labels.COMMON_CANCEL} onclick={handleCancel}></lightning-button>
+        <lightning-button variant="brand" label={labels.COMMON_CONFIRM} onclick={handleConfirm} class="slds-var-m-around_large" disabled={disableConfirmButton}></lightning-button>
+    </div>
+</template>

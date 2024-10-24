@@ -1,0 +1,25 @@
+.cellClass *{
+    pointer-events: none;
+}
+.cellClass:hover *{
+    pointer-events: all;
+}
+.floatCenter{
+    width: 70%;
+}
+.floatRight{
+    text-align: end;
+    width: 30%;
+}
+.actionButton{
+    opacity: 0.3;
+}
+.actionButton:hover{
+    opacity: 1;
+} 
+.yellowBg{
+    background-color: rgba(250,255,189,1);
+}
+.cellClass:not(:hover) .cell-button_container {
+    --slds-c-icon-color-foreground: #dddbda;
+}

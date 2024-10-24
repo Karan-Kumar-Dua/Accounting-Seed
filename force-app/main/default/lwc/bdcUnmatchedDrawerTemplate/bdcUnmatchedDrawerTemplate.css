@@ -1,0 +1,14 @@
+.field-container {
+  display: inline-block;
+  min-width: 70px;
+}
+
+.description-output-container {
+  white-space:normal;
+  max-width:450px;
+}
+
+.form-element-label {
+  vertical-align: bottom;
+  font-size: 14px;;
+}

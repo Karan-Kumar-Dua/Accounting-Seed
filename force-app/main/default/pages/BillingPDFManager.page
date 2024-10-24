@@ -1,0 +1,109 @@
+<apex:page id="thePage" standardController="Billing__c" title="{!Billing__c.Name & ' | '+ $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" contentType="text/html;charset=utf-8" extensions="BillingPDFManager" lightningStylesheets="true">
+
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, 'javascript/jquery.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, '/javascript/jquery.dataTables.min.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, 'javascript/bootstrap-tagsinput.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, 'javascript/accounting-common.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.accounting_resources, 'javascript/common-pdf-manager.js')}" loadOnReady="true"/>
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/bootstrap-tagsinput.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/jquery.dataTables.min.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.accounting_resources, '/css/common.css')}" />
+
+    <script type="text/javascript">
+        AcctSeed.ASModule.setContactRemote = "{!$RemoteAction.BillingPDFManager.setContactRemote}";
+    </script>
+
+    <apex:form id="theForm">
+        <apex:sectionHeader title="{!$Label.AcctSeed__COMMON_BILLING}" subtitle="{!$Label.AcctSeed__INF_BILLING_PDF}" />
+        <apex:pageBlock >
+            <apex:outputPanel id="thePageMessages">
+                <apex:pageMessages escape="false"/>
+            </apex:outputPanel>
+            <apex:outputPanel id="emailErrorPanel" style="display:none">
+                <apex:pageMessage summary="" severity="error" strength="3" />
+            </apex:outputPanel>
+            <apex:pageBlockButtons id="buttons">
+                <apex:commandButton id="saveAttachButton"
+                                    action="{!saveAttach}"
+                                    value="{!$Label.AcctSeed__INF_SAVE_PDF}"
+                                    onClick="AcctSeed.ASModule.setCustomStyleOnBtn('{!$Label.AcctSeed__COMMON_PROCESSING}');"
+                                    disabled="{!!showSavePdf}" />
+                <apex:commandButton id="emailAttachButton"
+                                    action="{!saveAndEmail}"
+                                    value="{!$Label.AcctSeed__COMMON_SEND_EMAIL}"
+                                    onClick="return AcctSeed.ASModule.validateEmails({EMAIL_ERROR_CC_ADDRESSES_ARE_NOT_VALID: '{!HTMLENCODE(JSENCODE($Label.AcctSeed__EMAIL_ERROR_CC_ADDRESSES_ARE_NOT_VALID))}'});"
+                                    disabled="{!!showSendEmail}"/>
+                <apex:commandButton id="cancelButton" action="{!cancel}" value="{!$Label.AcctSeed__COMMON_BACK}" immediate="true" />
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection title="{!$Label.AcctSeed__INF_BILLING_INFORMATION}" columns="2" collapsible="false" rendered="{!showPage}">
+                <apex:outputField id="billingName" value="{!Billing__c.Name}" />
+                <apex:outputField id="billingType" value="{!Billing__c.Type__c}" />
+                <apex:outputField id="customerName" value="{!Billing__c.Customer__r.Name}" />
+                <apex:outputField id="billingTotal" value="{!Billing__c.Total__c}" />
+                <apex:outputField id="postingStatus" value="{!Billing__c.Status__c}" />
+                <apex:outputField id="billingBalanceAmount" value="{!Billing__c.Balance__c}" />
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_BILLING_CONTACT}" for="billingcontactname" />
+                    <apex:outputText id="billingcontactname"
+                                     value="{!Billing__c.Billing_Contact__r.Name} ({!Billing__c.Billing_Contact__r.Email})" />
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="{!$Label.AcctSeed__COMMON_EMAIL_SENDER_RECIPITIENT_INFO}" columns="2" collapsible="false" rendered="{!showPage}">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_FROM_ADDRESS}" for="fromAddress" />
+                    <apex:outputPanel >
+                        <apex:selectList id="fromAddress" value="{!selectedOrgWideEmailAddress}"
+                                         multiSelect="false" size="1" rendered="{!fromAddressPicklistEnabled}">
+                            <apex:selectOptions value="{!orgWideEmailSelectOptions}"/>
+                        </apex:selectList>
+                        <apex:outputText value="{!selectedOrgWideEmailAddress}" rendered="{!!fromAddressPicklistEnabled}"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_CC_ME}" for="ccUser" />
+                    <apex:inputCheckbox id="ccUser" value="{!sendccUser}" />
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_SEND_TO_CONTACT}" />
+                    <apex:actionRegion >
+                        <apex:inputField value="{!billing.Billing_Contact__c}">
+                            <apex:actionSupport event="onchange" action="{!setContact}" reRender="none"
+                                                onComplete="AcctSeed.ASModule.setContact('{!billing.Id}','{!billing.Billing_Contact__c}')"/>
+                        </apex:inputField>
+                        <apex:outputPanel id="errorPanel" style="color:red;display:none" layout="block"/>
+                    </apex:actionRegion>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_CC_ADDRESSES}" for="ccAddresses"/>
+                    <apex:inputText id="ccAddresses" value="{!ccAddresses}" styleClass="form-control" html-data-role="tagsinput"/>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection id="email" title="{!$Label.AcctSeed__COMMON_EMAIL_SUB_BODY_INF}" columns="1" collapsible="true" rendered="{!showPage}">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_SUBJECT}" />
+                    <apex:inputText id="emailSubject" value="{!statementManager.custEmailTempl.emailSubject}" style="width:65%"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$Label.AcctSeed__COMMON_BODY}" />
+                    <apex:inputTextarea id="emailBody" value="{!statementManager.custEmailTempl.emailBody}"
+                                        style="width:65%;line-height:1em;height:7em;"
+                                        richText="{!statementManager.custEmailTempl.isHTML}"/>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection id="attachment" title="{!$Label.AcctSeed__COMMON_EMAIL_ATTATCHMENTS}" columns="1" collapsible="true" rendered="{!showPage}">
+                <apex:commandButton value="{!$Label.AcctSeed__COMMON_ATTACH_FILE}"
+                                    onClick="AcctSeed.ASModule.openCustomFilePicker('{!$Page.EmailFileSelector}?entityId={!billing.Id}&stmMode=billing'); return false;"/>
+                <apex:outputPanel layout="block" style="width:40%;">
+                    <table id="mainTable" ></table>
+                </apex:outputPanel>
+                <apex:inputHidden id="proxyInput" value="{!serializedCustomEmailAttachments}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+    <apex:pageBlock title="{!$Label.AcctSeed__INF_BILLING_PDF_PREVIEW}" rendered="{!showPage}">
+        <div id="loader1" style="font-weight:bold">
+            <img src="/img/loading.gif" style="text-align:center" width="16" height="16" alt="loading gif" />&nbsp;&nbsp;{!$Label.INF_CREATING_BILLING_PDF}...
+        </div>
+        <apex:iframe id="iframe1" src="{!pdfName}?id={!Billing__c.Id}&sortField={!SortField}" />
+    </apex:pageBlock>
+</apex:page>

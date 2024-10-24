@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>54.0</apiVersion>
+    <description>X Line Manager</description>
+    <isExposed>true</isExposed>
+    <masterLabel>Advanced Line Manager</masterLabel>
+    <targets>
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <property label="Child Relationship" name="childReference" type="String" datasource="apex://XChildRelationshipPicklist" placeholder="Child Relationship Name"/>
+            <property label="Column Fieldset" name="columnFieldSet" type="String"
+                description="In the advanced line manager, this field set determines the line fields shown on the main row when the drawer is collapsed."/>
+            <property label="Drawer Fieldset" name="drawerFieldSet" type="String" 
+                description="In the advanced line manager, this field set determines the line fields shown in the drawer."/>
+            <property label="Number Of Initial Rows" name="intialRowCount" type="Integer" 
+                description="This determines the number of empty lines shown for entry when the header record is created."/>
+            <property label="Row Count on Add Row" name="addRowCount" type="Integer" 
+                description="This is the number of empty lines added when the Add Row button is clicked."/>
+            <property label="Line Order" name="reOrderField" type="String"
+                description="Field that determines the line order on the advanced line manager."/>
+            <property label="Default Sorting" name="defaultSorting" type="String" datasource="ASC,DESC"
+                description="Specify ASC for ascending or DESC for descending sort order."/>
+            <property label="Field To Sort" name="fieldToSort" type="String"
+                description="Specify the API Name of the field you would like the lines sorted by in the advanced line manager."/>
+            <property label="Row Template" name="rowTemplate" type="String"/>
+            <property label="Row Change Handler" name="rowChangeTemplate" type="String"/>
+            <property name="showSave" type="Boolean" default="true" label="Show Save Button? (where applicable)"/>
+            <property name="showCSV" type="Boolean" default="true" label="CSV Management"/>
+            <property name="showDelete" type="Boolean" default="true" label="Do you want to Show Delete Button?"/>
+            <property name="enableCaching" type="Boolean" default="false" label="Enable Caching"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

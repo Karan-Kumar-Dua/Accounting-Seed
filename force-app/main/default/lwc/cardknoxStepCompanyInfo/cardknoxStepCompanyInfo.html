@@ -1,0 +1,203 @@
+<template>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-input
+                label={labels.companyName}
+                value={formData.corporateName}
+                required="true"
+                data-field="corporateName"
+                pattern="^.{1,128}$"
+                message-when-pattern-mismatch={labels.errMustBe128CharactersOrLess}
+                class="slds-p-right_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+        <div class="width35">
+            <lightning-input
+                label={labels.dbaName}
+                data-field="dbaName"
+                value={formData.dbaName}
+                pattern="^.{1,64}$"
+                message-when-pattern-mismatch={labels.errMustBe64CharactersOrLess}
+                required="true"
+                class="slds-p-left_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-combobox
+                    data-field="ownershipType"
+                    label={labels.business}
+                    value={formData.ownershipType}
+                    options={options}
+                    required="true"
+                    class="slds-p-right_x-large validate"
+                    onchange={handleDataChange} >
+            </lightning-combobox>
+        </div>
+        <div class="width35">
+            <lightning-input
+                type="date"
+                data-field="businessStartDate"
+                label={labels.startDate}
+                value={formData.businessStartDate}
+                required="true"
+                class="slds-p-left_x-large validate"
+                onchange={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-combobox
+                    data-field="industryTier"
+                    label={labels.industry}
+                    value={formData.industryTier}
+                    options={tiersOptions}
+                    required="true"
+                    class="slds-p-right_x-large validate"
+                    onchange={handleDataChange} >
+            </lightning-combobox>
+        </div>
+        <div class="width35">
+            <lightning-input
+                data-field="productSold"
+                label={labels.productService}
+                value={formData.productSold}
+                pattern="^.{1,64}$"
+                message-when-pattern-mismatch={labels.errMustBe64CharactersOrLess}
+                required="true"
+                class="slds-p-left_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-input
+                type="tel"
+                pattern="^[2-9]{1}\d{2}-\d{3}-\d{4}$"
+                message-when-pattern-mismatch={labels.errPhoneNumberMustBe10Digits}
+                data-field="businessPhone"
+                label={labels.phone}
+                value={formData.businessPhone}
+                required="true"
+                class="slds-p-right_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+        <div class="width35">
+            <lightning-input
+                data-field="taxId"
+                label={labels.taxId}
+                value={formData.taxId}
+                required="true"
+                pattern="^\d{9}$"
+                message-when-pattern-mismatch={labels.errMustBe9Digits}
+                class="slds-p-left_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-input
+                data-field="annualCreditCardSales"
+                label={labels.priorSale}
+                value={formData.annualCreditCardSales}
+                class="slds-p-right_x-large"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+        <div class="width35">
+            <lightning-input
+                data-field="website"
+                label={labels.website}
+                value={formData.website}
+                pattern="^.{1,64}$"
+                message-when-pattern-mismatch={labels.errMustBe64CharactersOrLess}
+                class="slds-p-left_x-large"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-input
+                data-field="businessEmail"
+                required="true"
+                label={labels.email}
+                pattern="^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$"
+                message-when-pattern-mismatch={labels.errInvalidEmailAddress}
+                value={formData.businessEmail}
+                class="slds-p-right_x-large"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+        <div class="width35">
+            <lightning-input
+                data-field="agentName"
+                label={labels.ownerName}
+                value={formData.agentName}
+                class="slds-p-left_x-large"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-input
+                data-field="agentEmail"
+                label={labels.ownerEmail}
+                pattern="^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$"
+                message-when-pattern-mismatch={labels.errInvalidEmailAddress}
+                value={formData.agentEmail}
+                class="slds-p-right_x-large"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+        <div class="width35"></div>
+    </div>
+    <div class="slds-p-top_medium formHeadings">
+        {labels.bankDetails}
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-input
+                data-field="bankName"
+                label={labels.bankName}
+                value={formData.bankName}
+                pattern="^.{1,64}$"
+                message-when-pattern-mismatch={labels.errMustBe64CharactersOrLess}
+                class="slds-p-right_x-large"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+        <div class="width35">
+            <lightning-input
+                data-field="accountNumber"
+                label={labels.accountNumber}
+                value={formData.accountNumber}
+                pattern="^\d{5,17}$"
+                message-when-pattern-mismatch={labels.errMustBeBetween5and17Character}
+                class="slds-p-left_x-large"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-p-top_medium width50">
+        <div class="width70 slds-float_right">
+            <lightning-input
+                data-field="routingNumber"
+                label={labels.routing}
+                value={formData.routingNumber}
+                pattern="^\d{9}$"
+                message-when-pattern-mismatch={labels.errMustBe9Digits}
+                class="slds-p-right_x-large"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+</template>

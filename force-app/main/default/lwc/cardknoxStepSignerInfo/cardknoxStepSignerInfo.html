@@ -1,0 +1,177 @@
+<template>
+    <div class={signerSectionCSS}>
+        {labels.signer} {currentSignerIndex}
+        <template if:false={isSigner1}>
+            <lightning-button-icon icon-name="action:delete" class="slds-m-left_xx-small" onclick={handleDeleteSigner}></lightning-button-icon>
+        </template>
+    </div>
+    <template if:true={isSigner1}>
+        <div class="slds-text-color_weak textItalic width90 textAlignCenter">
+            {labels.note}
+        </div>
+    </template>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-input
+                data-field="firstName"
+                label={labels.firstName}
+                value={signer.firstName}
+                pattern="^[a-zA-Z\\.\\ ]{1,64}$"
+                message-when-pattern-mismatch={labels.errMustBe64CharactersOrLessWithoutNumeric}
+                required="true"
+                class="slds-p-right_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+        <div class="width35">
+            <lightning-input
+                data-field="lastName"
+                label={labels.lastName}
+                value={signer.lastName}
+                pattern="^[a-zA-Z\\.\\ ]{1,64}$"
+                message-when-pattern-mismatch={labels.errMustBe64CharactersOrLessWithoutNumeric}
+                required="true"
+                class="slds-p-left_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-input
+                data-field="ownershipPercentage"
+                type="number"
+                label={labels.ownerPercent}
+                value={signer.ownershipPercentage}
+                pattern="^\d{0-9}$"
+                message-when-pattern-mismatch={labels.errMustSumUpTo100Percent}
+                required="true"
+                class="slds-p-right_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+        <div class="width35">
+            <lightning-input
+                data-field="title"
+                label={labels.title}
+                value={signer.title}
+                pattern="^.{1,50}$"
+                message-when-pattern-mismatch={labels.errMustBe50CharactersOrLess}
+                required="true"
+                class="slds-p-left_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-input
+                data-field="dateOfBirth"
+                type="date"
+                label={labels.dob}
+                value={signer.dateOfBirth}
+                required="true"
+                class="slds-p-right_x-large validate"
+                onblur={handleDOBChange}>
+            </lightning-input>
+        </div>
+        <div class="width35">
+            <div class="slds-form-element">
+                <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon--right">
+                <lightning-input
+                    data-field="ssn"
+                    type={ssnType}
+                    label={labels.ssn}
+                    value={signer.ssn}
+                    pattern="^\d{9}$"
+                    message-when-pattern-mismatch={labels.errInvalidSSNNumberAndMustBe9Digits}
+                    required="true"
+                    class="slds-p-left_x-large validate"
+                    onblur={handleSSNDynamicOperation}
+                    autocomplete="off">
+                </lightning-input>
+                <lightning-button-icon class="slds-button slds-input__icon slds-text-color--default pointerAll" 
+                    variant="bare" icon-name={ssnIcon} style={ssnPaddings} onclick={handleSSNAction}>
+                </lightning-button-icon>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-input
+                data-field="signerStreet"
+                label={labels.baStreet}
+                value={signer.signerStreet}
+                pattern="^.{1,64}$"
+                message-when-pattern-mismatch={labels.errMustBe64CharactersOrLess}
+                required="true"
+                class="slds-p-right_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+        <div class="width35">
+            <lightning-input
+                data-field="signerCity"
+                label={labels.baCity}
+                value={signer.signerCity}
+                pattern="^.{1,32}$"
+                message-when-pattern-mismatch={labels.errMustBe32CharactersOrLess}
+                required="true"
+                class="slds-p-left_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-combobox
+                data-field="signerState"
+                label={labels.baState}
+                value={signer.signerState}
+                required="true"
+                options={states}
+                class="slds-p-right_x-large validate"
+                onchange={handleDataChange}>
+            </lightning-combobox>
+        </div>
+        <div class="width35">
+            <lightning-input
+                data-field="signerZip"
+                label={labels.baZip}
+                value={signer.signerZip}
+                pattern="^\d{5}$"
+                message-when-pattern-mismatch={labels.errMustBe5Digits}
+                required="true"
+                class="slds-p-left_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-top_medium">
+        <div class="width35">
+            <lightning-combobox
+                data-field="signerCountry"
+                label={labels.baCountry}
+                value={signer.signerCountry}
+                required="true"
+                options={countries}
+                class="slds-p-right_x-large validate"
+                onchange={handleDataChange}>
+            </lightning-combobox>
+        </div>
+        <div class="width35">
+            <lightning-input
+                type="tel"
+                pattern="^[2-9]{1}\d{2}-\d{3}-\d{4}$"
+                message-when-pattern-mismatch={labels.errPhoneNumberMustBe10Digits}
+                data-field="ownerCellPhone"
+                label={labels.cellNumber}
+                value={signer.ownerCellPhone}
+                required="true"
+                class="slds-p-left_x-large validate"
+                onblur={handleDataChange}>
+            </lightning-input>
+        </div>
+    </div>
+</template>

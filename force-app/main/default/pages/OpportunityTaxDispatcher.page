@@ -1,0 +1,4 @@
+<apex:page id="OpportunityTaxDispatcher"
+           title="{!$Label.AcctSeed__COMMON_SALES_TAX + ' | ' + $Label.AcctSeed__COMMON_ACCOUNTING_SEED}" standardController="Opportunity" extensions="TaxDispatcherExt" action="{!redirectTo}">
+    
+</apex:page>

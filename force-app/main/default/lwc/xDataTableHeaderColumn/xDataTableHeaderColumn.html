@@ -1,0 +1,10 @@
+<template>
+    <div class="slds-grid slds-clearfix" onmouseenter={handleMouseEnter} onmouseleave={handleMouseLeave}>
+        <div class="slds-truncate slds-text-title_bold" title={column.label} style="width: 80%;text-overflow: ellipsis;" data-id="header-label">
+            {column.label}
+        </div>
+        <div class="floatRight" if:true={showSortButton}>
+            <lightning-button-icon icon-name={iconName} onclick={handleColumnSorting} variant="bare" alternative-text={labels.commonSort} title={labels.commonSort} data-id="header-buttonicon"></lightning-button-icon>
+        </div>
+    </div>
+</template>

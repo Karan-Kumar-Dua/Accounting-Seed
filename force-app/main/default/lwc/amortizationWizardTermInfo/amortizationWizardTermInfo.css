@@ -1,0 +1,13 @@
+.term-info--container {
+    padding: 0 12px;
+}
+.term-info--container .term-info--container_label {
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 27px;
+    color: #3E3E3C;
+}
+.term-info--container .term-info--container_group {
+    padding-top: 16px;
+    padding-left: 4px;
+}

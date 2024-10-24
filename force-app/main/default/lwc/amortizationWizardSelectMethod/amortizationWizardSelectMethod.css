@@ -1,0 +1,13 @@
+.amortization-method--container {
+    padding: 0 12px;
+}
+.amortization-method--container .amortization-method--container_label {
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 27px;
+    color: #3E3E3C;
+}
+.amortization-method--container .amortization-method--container_group {
+    padding-top: 16px;
+    padding-left: 4px;
+}

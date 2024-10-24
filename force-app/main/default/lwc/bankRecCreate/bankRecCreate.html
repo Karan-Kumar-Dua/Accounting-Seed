@@ -1,0 +1,157 @@
+<template>
+    <template if:true={isSpinner}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium"></lightning-spinner>
+    </template>
+
+    <c-custom-lightbox
+      header-text={labels.commonBankReconciliation}
+      open-modal={isLegacyRecord}
+      onlightboxcloseclick={lightboxCloseEvent}>
+        <div class="slds-m-around_medium">
+            <div class="resp-container">
+                {labels.INF_BANK_RECONCILIATION_LIST_VIEW_KOALI_MAKE_NEW}
+            </div>
+        </div>
+    </c-custom-lightbox>
+    <template if:true={showComponent}>
+        <lightning-card class="credit-memo-card">
+            <h3 slot="title">
+                <lightning-icon icon-name="custom:custom16" size="medium" ></lightning-icon> &nbsp;
+                {labels.INF_CREATE_NEXT_BANK_RECONCILIATION}
+            </h3>
+            <p class="slds-p-horizontal_small">
+                {labels.INF_AUTO_POPULATE_FIELDS_BANK_RECONCILIATION} &nbsp;
+                <lightning-formatted-url
+                value="https://support.accountingseed.com/hc/en-us/articles/360060949613"
+                tooltip={labels.knowledgeBase}
+                label={labels.knowledgeBase}
+                target="_blank" >
+            </lightning-formatted-url>.
+            </p>
+            <br/>
+            <div class="slds-p-horizontal_small">
+                <template if:true={customUIValidationError}>
+                    <div class="slds-notify_container slds-is-relative">
+                        <div role="alert" class="slds-notify slds-notify_toast slds-theme_error">
+                            <div class="slds-notify__content">
+                                <h2 class="slds-text-heading_small">{labels.ERR_UPDATE_RECORD_TRY_AGAIN}</h2>
+                                <p>{customUIValidationError}</p>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <lightning-record-edit-form
+                        id="newBRECForm"
+                        object-api-name={bankRecObjectApiName}
+                        density="comfy"
+                        onsuccess={handleSuccess}
+                        onerror={handleError}
+                        onsubmit={handleSave}>
+                    <lightning-messages>
+                    </lightning-messages>
+
+                    <div class="slds-grid slds-wrap slds-gutters_x-large">
+                        <nav class="slds-col slds-size_1-of-2 slds-border_right"><b>{labels.INF_BANK_RECONCILIATION_INFORMATION}</b></nav>
+                        <nav class="slds-col slds-size_1-of-2 ">
+
+                            <b>{labels.INF_ADDITIONAL_INFORMATION}</b>
+
+                        </nav>
+                        <main class="slds-col slds-size_1-of-4 slds-col_padded-large">
+                            <div class="slds-p-around_xx-small">
+                                <lightning-input-field field-name={br.ownerid}>
+                                </lightning-input-field>
+                            </div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-input-field field-name={br.bank_account} value={prevBankAccount} data-jest-name="bank_account_field" disabled>
+                                </lightning-input-field >
+                            </div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-input-field  field-name={br.ledger} value={prevLedger} data-jest-name="ledger_field" disabled>
+                                </lightning-input-field >
+                            </div>
+                            <div class="slds-p-around_xx-small">
+                                <template if:true={multiCurrency}>
+                                    <lightning-input-field  field-name={CURRENCY_ISO_CODE} value={prevCurrency} disabled>
+                                    </lightning-input-field >
+                                </template>
+                            </div>
+
+                        </main>
+
+
+                        <main class="slds-col slds-size_1-of-4 slds-col_padded-large slds-border_right">
+                            <div class="slds-p-around_xx-small">
+                                <lightning-input-field field-name={br.end_date} data-jest-name="end_date_field">
+                                </lightning-input-field>
+                            </div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-input-field field-name={br.beginning_balance} data-jest-name="beg_balance_field" value={beginningBalance} disabled={disableBegBalance} onchange={updateBeginningBalance}>
+                                </lightning-input-field>
+                            </div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-input-field field-name={br.override_beginning_balance} data-jest-name="override_field" onchange={toggleOverride} >
+                                </lightning-input-field>
+                            </div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-input-field field-name={br.ending_balance} data-jest-name="ending_balance_field">
+                                </lightning-input-field>
+                            </div>
+                        </main>
+
+                        <main class="slds-col slds-size_1-of-4 slds-col_padded-large">
+                            <div class="slds-p-around_xx-small">
+                                <lightning-input-field field-name={br.gl_account_variable_1} data-jest-name="GLAV1_field" value={prevGLAV1} disabled class="slds-col_padded-large">
+                                </lightning-input-field>
+                            </div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-input-field field-name={br.gl_account_variable_2} data-jest-name="GLAV2_field"   value={prevGLAV2} disabled>
+                                </lightning-input-field>
+                            </div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-input-field field-name={br.gl_account_variable_3} data-jest-name="GLAV3_field"   value={prevGLAV3} disabled>
+                                </lightning-input-field>
+                            </div>
+                            <div class="slds-p-around_xx-small">
+                                <lightning-input-field field-name={br.gl_account_variable_4} data-jest-name="GLAV4_field"   value={prevGLAV4} disabled>
+                                </lightning-input-field>
+                            </div>
+                        </main>
+
+                        <main class="slds-col slds-size_1-of-4 slds-col_padded-large">
+                            <div class="slds-p-around_xx-small">
+                                <lightning-input-field field-name={br.type1} value={prevType} data-jest-name="type_field" disabled>
+                                </lightning-input-field>
+                            </div>
+                        </main>
+
+                        <footer class="slds-col slds-size_4-of-4 slds-col_padded-large">
+                            <div class="slds-float_right slds-p-around_xx-small">
+                                <lightning-button
+                                class="slds-m-top_small"
+                                variant="neutral"
+                                type="Cancel"
+                                name="Cancel"
+                                label={labels.commonCancel}
+                                onclick={handleCancel}>
+                            </lightning-button>
+                            &nbsp;
+                            <lightning-button
+                                class="slds-m-top_small"
+                                variant="brand"
+                                type="submit"
+                                name="Save"
+                                label={labels.commonSave}>
+                            </lightning-button>
+
+
+                        </div>
+                        </footer>
+
+                    </div>
+
+                </lightning-record-edit-form>
+            </div>
+        </lightning-card>
+    </template>
+</template>

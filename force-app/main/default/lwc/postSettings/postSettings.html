@@ -1,0 +1,245 @@
+<template>
+    <div class="slds-var-m-bottom_medium">
+        <c-page-header
+            title={labels.postSettingsSubtitle}
+            breadcrumbs={breadcrumbs}
+            knowledge-base={knowledgeBase}
+            icon-name="standard:custom"
+        ></c-page-header>
+    </div>
+    <lightning-card if:false={userCanView}>
+        <c-insufficient-privileges></c-insufficient-privileges>
+    </lightning-card>
+    <lightning-card if:true={userCanView}>
+        <div slot="title" class="postSettings--header">
+            <span class="slds-text-heading_small"
+                ><strong>{labels.postSettingsTitle}</strong></span
+            >
+            <lightning-button-icon
+                class="slds-var-m-left_medium"
+                if:false={isEditable}
+                icon-name="utility:edit"
+                onclick={handleEdit}
+                disabled={userCannotEdit}
+                data-id="lightningButtonIcon-edit"
+            ></lightning-button-icon>
+            <lightning-button
+                class="slds-var-m-left_medium"
+                if:true={isEditable}
+                label={labels.commonCancel}
+                variant="neutral"
+                onclick={handleCancel}
+                disabled={userCannotEdit}
+                data-id="lightningButton-cancel"
+            ></lightning-button>
+            <lightning-button
+                class="slds-var-m-left_medium"
+                if:true={isEditable}
+                label={labels.commonSave}
+                variant="brand"
+                onclick={handleSave}
+                disabled={userCannotEdit}
+                data-id="lightningButton-save"
+            ></lightning-button>
+        </div>
+        <div class="slds-var-p-around_medium">
+            <h2 class="postSettings--heading slds-var-m-bottom_small">
+                <strong>{labels.postSettingsAuto}</strong>
+                <div class="slds-var-m-top_xx-small">{labels.postSettingsAutoSubTitle}</div>
+            </h2>
+            <template if:true={accountingSettingsInfo}>
+                <lightning-layout if:true={isLoaded}>
+                    <lightning-layout-item>
+                        <lightning-input
+                          data-name=""
+                          data-id="lightningInput-autoPost-cr"
+                          type="toggle"
+                          variant="label-hidden"
+                          disabled={isDisabled}
+                          message-toggle-active={labels.commonOn}
+                          message-toggle-inactive={labels.commonOff}
+                          onchange={handlePostSettingsChanged}
+                          checked={accountingSettings.Auto_Post_Cash_Receipts__c}
+                          data-field="Auto_Post_Cash_Receipts__c"
+                        >
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item if:true={accountingSettingsInfo.fields.Auto_Post_Cash_Receipts__c} padding="horizontal-small">
+                        <label
+                          class="slds-form-element__label"
+                          if:true={accountingSettingsInfo}
+                        >{accountingSettingsInfo.fields.Auto_Post_Cash_Receipts__c.label}</label
+                        >
+                        <lightning-helptext
+                          if:true={accountingSettingsInfo}
+                          class="slds-var-m-left_xx-small"
+                          content={accountingSettingsInfo.fields.Auto_Post_Cash_Receipts__c.inlineHelpText}
+                        ></lightning-helptext>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout if:true={isLoaded}>
+                    <lightning-layout-item>
+                        <lightning-input
+                                data-name=""
+                                data-id="lightningInput-autoPost-bcr"
+                                type="toggle"
+                                variant="label-hidden"
+                                disabled={isDisabled}
+                                message-toggle-active={labels.commonOn}
+                                message-toggle-inactive={labels.commonOff}
+                                onchange={handlePostSettingsChanged}
+                                checked={accountingSettings.Auto_Post_Billing_Cash_Receipts__c}
+                                data-field="Auto_Post_Billing_Cash_Receipts__c"
+                        >
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item if:true={accountingSettingsInfo.fields.Auto_Post_Billing_Cash_Receipts__c} padding="horizontal-small">
+                        <label
+                                class="slds-form-element__label"
+                                if:true={accountingSettingsInfo}
+                        >{accountingSettingsInfo.fields.Auto_Post_Billing_Cash_Receipts__c.label}</label
+                        >
+                        <lightning-helptext
+                                if:true={accountingSettingsInfo}
+                                class="slds-var-m-left_xx-small"
+                                content={accountingSettingsInfo.fields.Auto_Post_Billing_Cash_Receipts__c.inlineHelpText}
+                        ></lightning-helptext>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout if:true={isLoaded}>
+                    <lightning-layout-item>
+                        <lightning-input
+                                data-name=""
+                                data-id="lightningInput-autoPost-apd"
+                                type="toggle"
+                                variant="label-hidden"
+                                disabled={isDisabled}
+                                message-toggle-active={labels.commonOn}
+                                message-toggle-inactive={labels.commonOff}
+                                onchange={handlePostSettingsChanged}
+                                checked={accountingSettings.Auto_Post_AP_Disbursements__c}
+                                data-field="Auto_Post_AP_Disbursements__c"
+                        >
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item if:true={accountingSettingsInfo.fields.Auto_Post_AP_Disbursements__c} padding="horizontal-small">
+                        <label
+                                class="slds-form-element__label"
+                                if:true={accountingSettingsInfo}
+                        >{accountingSettingsInfo.fields.Auto_Post_AP_Disbursements__c.label}</label
+                        >
+                        <lightning-helptext
+                                if:true={accountingSettingsInfo}
+                                class="slds-var-m-left_xx-small"
+                                content={accountingSettingsInfo.fields.Auto_Post_AP_Disbursements__c.inlineHelpText}
+                        ></lightning-helptext>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout if:true={isLoaded}>
+                    <lightning-layout-item>
+                        <lightning-input
+                                data-name=""
+                                data-id="lightningInput-autoPost"
+                                type="toggle"
+                                variant="label-hidden"
+                                disabled={isDisabled}
+                                message-toggle-active={labels.commonOn}
+                                message-toggle-inactive={labels.commonOff}
+                                onchange={handlePostSettingsChanged}
+                                checked={accountingSettings.Auto_Post_Amortization_Entries__c}
+                                data-field="Auto_Post_Amortization_Entries__c"
+                        >
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item if:true={accountingSettingsInfo.fields.Auto_Post_Amortization_Entries__c} padding="horizontal-small">
+                        <label
+                                class="slds-form-element__label"
+                                if:true={accountingSettingsInfo}
+                        >{accountingSettingsInfo.fields.Auto_Post_Amortization_Entries__c.label}</label
+                        >
+                        <lightning-helptext
+                                if:true={accountingSettingsInfo}
+                                class="slds-var-m-left_xx-small"
+                                content={accountingSettingsInfo.fields.Auto_Post_Amortization_Entries__c.inlineHelpText}
+                        ></lightning-helptext>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <lightning-layout if:true={isShowInventoryMovements}>
+                    <lightning-layout-item>
+                        <lightning-input
+                                data-name=""
+                                data-id="lightningInput-autoPost"
+                                type="toggle"
+                                variant="label-hidden"
+                                disabled={isDisabled}
+                                message-toggle-active={labels.commonOn}
+                                message-toggle-inactive={labels.commonOff}
+                                onchange={handlePostSettingsChanged}
+                                checked={accountingSettings.Auto_Post_Inventory_Movements__c}
+                                data-field="Auto_Post_Inventory_Movements__c"
+                        >
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item if:true={accountingSettingsInfo.fields.Auto_Post_Inventory_Movements__c} padding="horizontal-small">
+                        <label
+                                class="slds-form-element__label"
+                                if:true={accountingSettingsInfo}
+                        >{accountingSettingsInfo.fields.Auto_Post_Inventory_Movements__c.label}</label
+                        >
+                        <lightning-helptext
+                                if:true={accountingSettingsInfo}
+                                class="slds-var-m-left_xx-small"
+                                content={accountingSettingsInfo.fields.Auto_Post_Inventory_Movements__c.inlineHelpText}
+                        ></lightning-helptext>
+                    </lightning-layout-item>
+                </lightning-layout>
+                <hr />
+                <h2 class="postSettings--heading slds-var-m-bottom_small">
+                    <strong>{labels.postSettingsBillable}</strong>
+                </h2>
+                <label
+                  class="slds-form-element__label"
+                  if:true={accountingSettingsInfo.fields.Post_Settings__c}
+                >{accountingSettingsInfo.fields.Post_Settings__c.label}</label
+                >
+                <lightning-helptext
+                  if:true={accountingSettingsInfo.fields.Post_Settings__c}
+                  class="slds-var-m-left_xx-small"
+                  content={accountingSettingsInfo.fields.Post_Settings__c.inlineHelpText}
+                ></lightning-helptext>
+                <div if:true={accountingSettings} data-id="div-postSettings">{accountingSettings.Post_Settings__c}</div>
+            </template>
+        </div>
+    </lightning-card>
+    <c-modal-popup-base
+        title={labels.commonConfirm}
+        is-open={isModalOpen}
+        data-id="modalPopupBase"
+        onclose={handleCloseModal}>
+        <div class="slds-var-p-around_medium">
+            <lightning-formatted-rich-text
+                if:false={autoPost}
+                value={autoPostOffMessage}
+            ></lightning-formatted-rich-text>
+            <lightning-formatted-rich-text
+                if:true={autoPost}
+                value={autoPostOnMessage}
+            ></lightning-formatted-rich-text>
+        </div>
+        <footer class="slds-modal__footer">
+            <lightning-button
+              label={labels.commonCancel}
+              class="slds-var-m-right_small"
+              variant="neutral"
+              data-id="lightningButton-closeModal"
+              onclick={handleCloseModal}
+            ></lightning-button>
+            <lightning-button
+                label={labels.commonOk}
+                variant="brand"
+                data-id="lightningButton-submitModal"
+                onclick={handleSubmitModal}
+            ></lightning-button>
+        </footer>
+    </c-modal-popup-base>
+</template>

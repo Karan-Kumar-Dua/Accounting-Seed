@@ -1,0 +1,4 @@
+<aura:component description="UpdateDefault1099NavProxy" implements="lightning:isUrlAddressable">
+    <aura:handler name="change" value="{!v.pageReference}" action="{!c.reInit}" />
+    <c:updateDefault1099Info recordIds="{!v.pageReference.state.AcctSeed__recordIds}"></c:updateDefault1099Info>    
+</aura:component>

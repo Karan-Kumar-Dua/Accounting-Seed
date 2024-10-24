@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Default_Purchase_Order_Format__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <inlineHelpText>Select your primary purchase order format here. When you create a purchase order and leave this field blank, the default purchase order format will be selected after you press save.</inlineHelpText>
+    <label>Default Purchase Order Format</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>Billing_Format__c.Type__c</field>
+            <operation>equals</operation>
+            <value>Purchase Order</value>
+        </filterItems>
+        <infoMessage>The type on the PDF Format must be Purchase Order</infoMessage>
+        <isOptional>true</isOptional>
+    </lookupFilter>
+    <referenceTo>Billing_Format__c</referenceTo>
+    <relationshipLabel>Ledgers (Default Purchase Order Format)</relationshipLabel>
+    <relationshipName>Default_Purchase_Order_Formats</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

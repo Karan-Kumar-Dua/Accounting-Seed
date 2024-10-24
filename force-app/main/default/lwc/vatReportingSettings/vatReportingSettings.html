@@ -1,0 +1,376 @@
+<template>
+    <div class="slds-var-m-bottom_medium">
+        <c-page-header
+                title={labels.commonUtilities}
+                breadcrumbs={breadcrumbs}
+                knowledge-base={knowledgeBase}
+                icon-name="standard:custom"
+        ></c-page-header>
+    </div>
+    <lightning-card if:false={userCanView}>
+        <c-insufficient-privileges></c-insufficient-privileges>
+    </lightning-card>
+    <lightning-card if:true={userCanView}>
+        <div class="postSettings--header slds-var-p-around_medium">
+            <span class="slds-text-heading_small"><strong>{labels.vatReportingSettings}</strong></span>
+            <template if:true={isAvalaraVAT}>
+                <lightning-button-icon
+                        class="slds-var-m-left_medium"
+                        if:false={isEditable}
+                        icon-name="utility:edit"
+                        onclick={handleEdit}
+                        disabled={userCannotEdit}
+                        data-id="lightningButtonIcon-edit"
+                ></lightning-button-icon>
+                <lightning-button
+                        class="slds-var-m-left_medium"
+                        if:true={isEditable}
+                        label={labels.commonCancel}
+                        variant="neutral"
+                        onclick={handleCancel}
+                        disabled={userCannotEdit}
+                        data-id="lightningButton-cancel"
+                ></lightning-button>
+                <lightning-button
+                        class="slds-var-m-left_medium"
+                        if:true={isEditable}
+                        label={labels.commonSave}
+                        variant="brand"
+                        onclick={handleSave}
+                        disabled={userCannotEdit}
+                        data-id="lightningButton-save"
+                ></lightning-button>
+            </template>
+        </div>
+    </lightning-card>
+
+    <div class="slds-var-p-top_medium">
+        <lightning-card>
+            <div class="slds-box slds-theme_warning slds-theme_alert-texture">
+                <p>
+                    {labels.INF_OTHER_TAX_METHODS_FOUND_ON_THIS_NEW} <a href={taxSettingsHref}>Tax Settings</a> {labels.COMMON_PAGE_LOWERCASE}
+                </p>
+            </div>
+        </lightning-card>
+    </div>
+
+    <div if:false={isAvalaraVAT} class="slds-var-p-top_medium">
+        <lightning-card>
+            <div class="slds-box slds-theme_error slds-theme_alert-texture">
+                <p>
+                    {labels.WRN_NOT_ALLOWED_VAT}&nbsp;
+                    {labels.INF_PLEASE_CONTACT_SALES_TEAM}&nbsp;<a href="mailto:info@accountingseed.com">info@accountingseed.com</a>&nbsp;{labels.INF_FOR_FURTHER_INFO}
+                </p>
+            </div>
+        </lightning-card>
+    </div>
+
+    <div if:true={isAvalaraVAT} class="slds-var-p-top_medium">
+        <lightning-card if:true={userCanView}>
+            <template if:true={isLoaded}>
+                <div class="slds-var-p-around_medium">
+                    <div class="slds-var-m-bottom_small">
+                    <span class="taxSettings--heading slds-var-m-bottom_small">
+                    <strong>{labels.vatReportingSettings}</strong>
+                    </span>
+                    </div>
+                    <hr>
+                    <strong class="taxSettings--subheading">{labels.taxAvalaraVATCredentialsSectionTitle}</strong>
+                    <lightning-layout>
+                        <lightning-layout-item class="slds-var-p-right_xx-large">
+                            <label class="slds-form-element__label">{accountingSettingsInfo.fields.Avalara_VAT_Reporting_Account_ID__c.label}</label>
+                            <lightning-helptext
+                                    if:true={accountingSettingsInfo}
+                                    class="slds-var-m-left_xx-small"
+                                    content={accountingSettingsInfo.fields.Avalara_VAT_Reporting_Account_ID__c.inlineHelpText}>
+                            </lightning-helptext>
+                            <lightning-input
+                                    value={accountingSettings.Avalara_VAT_Reporting_Account_ID__c}
+                                    variant="label-hidden"
+                                    data-field="Avalara_VAT_Reporting_Account_ID__c"
+                                    read-only={isDisabled}>
+                            </lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item class="slds-var-p-right_xx-large">
+                            <label class="slds-form-element__label">{accountingSettingsInfo.fields.Avalara_VAT_Reporting_License_Key__c.label}</label>
+                            <lightning-helptext
+                                    if:true={accountingSettingsInfo}
+                                    class="slds-var-m-left_xx-small"
+                                    content={accountingSettingsInfo.fields.Avalara_VAT_Reporting_License_Key__c.inlineHelpText}>
+                            </lightning-helptext>
+                            <lightning-input
+                                    value={accountingSettings.Avalara_VAT_Reporting_License_Key__c}
+                                    variant="label-hidden"
+                                    data-field="Avalara_VAT_Reporting_License_Key__c"
+                                    read-only={isDisabled}>
+                            </lightning-input>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                    <hr>
+                    <strong class="taxSettings--subheading">{labels.taxAvalaraVATEndpointSectionTitle}</strong>
+                    <lightning-layout>
+                        <lightning-layout-item>
+                            <label class="slds-form-element__label">{labels.taxAvalaraVATEndpointTitle}</label>
+                            <lightning-radio-group
+                                    if:true={isAvalaraVatEndpoint}
+                                    options={avaVATEndpointOptions.data}
+                                    value={avalaraVatEndpointType}
+                                    onchange={handleVatEndpointOptionChange}
+                                    disabled={isDisabled}>
+                            </lightning-radio-group>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                    <hr>
+
+                    <span class="taxSettings--subheading"><strong>{labels.taxAvalaraVATLedgerConfigurationSectionTitle}</strong></span>
+                    <lightning-button-icon
+                            class="slds-var-m-left_medium"
+                            if:false={isLedgerEditable}
+                            icon-name="utility:edit"
+                            onclick={handleLedgerEdit}
+                            disabled={userCannotEdit}
+                            data-id="lightningButtonIcon-edit"
+                    ></lightning-button-icon>
+                    <lightning-button
+                            class="slds-var-m-left_medium"
+                            if:true={isLedgerEditable}
+                            label={labels.commonCancel}
+                            variant="neutral"
+                            onclick={handleLedgerCancel}
+                            disabled={userCannotEdit}
+                            data-id="lightningButton-cancel"
+                    ></lightning-button>
+                    <lightning-button
+                            class="slds-var-m-left_medium"
+                            if:true={isLedgerEditable}
+                            label={labels.commonSave}
+                            variant="brand"
+                            onclick={handleLedgerSave}
+                            disabled={userCannotEdit}
+                            data-id="lightningButton-save"
+                    ></lightning-button>
+
+
+
+                    <div class="slds-var-p-around_medium">
+                        <table
+                                if:true={isLoaded}
+                                class="slds-table slds-table_cell-buffer slds-table_bordered automatedJobs--table"
+                                aria-labelledby="element-with-table-label other-element-with-table-label">
+                            <thead class="taxSettings--tableHeader">
+                            <tr class="slds-line-height_reset">
+                                <th class="" scope="col">
+                                    <div
+                                            class="slds-truncate"
+                                            title={ledgerInfo.fields.Name.label}>
+                                        {ledgerInfo.fields.Name.label}
+                                    </div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div
+                                            class="slds-truncate"
+                                            title={ledgerInfo.fields.Default_Bank_Account__c.label}>
+                                        {ledgerInfo.fields.Default_Bank_Account__c.label}
+                                    </div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div
+                                            class="slds-truncate"
+                                            title={ledgerInfo.fields.Default_Billing_Format__c.label}>
+                                        {ledgerInfo.fields.Default_Billing_Format__c.label}
+                                    </div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div
+                                            class="slds-truncate"
+                                            title={ledgerInfo.fields.Billing_Activity_Statement_Format__c.label}>
+                                        {ledgerInfo.fields.Billing_Activity_Statement_Format__c.label}
+                                    </div>
+                                </th>
+                                <th class="" scope="col" if:true={userCanEdit}>
+                                    <div
+                                            class="slds-truncate"
+                                            title={ledgerInfo.fields.Billing_Outstanding_Statement_Format__c.label}>
+                                        {ledgerInfo.fields.Billing_Outstanding_Statement_Format__c.label}
+                                    </div>
+                                </th>
+                                <th class="" scope="col" if:true={userCanEdit}>
+                                    <div
+                                            class="slds-truncate"
+                                            title={ledgerInfo.fields.Company_Code__c.label}>
+                                        {ledgerInfo.fields.Company_Code__c.label}
+                                    </div>
+                                </th>
+                                <th class="" scope="col" if:true={userCanEdit}>
+                                    <div
+                                            class="slds-truncate"
+                                            title={ledgerInfo.fields.VAT_Country__c.label}>
+                                        {ledgerInfo.fields.VAT_Country__c.label}
+                                    </div>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <template
+                                    for:each={ledgers}
+                                    for:item="ledger"
+                                    for:index="index">
+                                <tr key={ledger.Id} class="slds-hint-parent">
+                                    <th
+                                            data-id="th-ledgerName"
+                                            data-label={ledgerInfo.fields.Name.label}
+                                            scope="row">
+                                        <div class="slds-truncate" title={ledger.Name}>
+                                            <a class="taxSettings--link"
+                                               href="#"
+                                               data-sfid={ledger.Id}
+                                               onclick={handleLedgerClick}>
+                                                {ledger.Name}
+                                            </a>
+                                        </div>
+                                    </th>
+                                    <td data-id="td-startDate"
+                                        data-label={ledgerInfo.fields.Default_Bank_Account__c.label}>
+                                        <div title={ledgerInfo.fields.Default_Bank_Account__c.label}>
+                                            <c-record-popover
+                                                    if:true={isLedgerDisabled}
+                                                    record-id={ledger.Default_Bank_Account__c}
+                                                    object-api-name={glAccountApiName}
+                                                    fields={glAccountFields}
+                                                    data-id="popover-defaultBankAccount">
+                                            </c-record-popover>
+                                            <c-lookup
+                                                    if:false={isLedgerDisabled}
+                                                    search-object={glAccountApiName}
+                                                    data-id="lookup-defaultBankAccount"
+                                                    data-lookupledger="Default_Bank_Account__c"
+                                                    data-index={index}
+                                                    init-value={ledger.Default_Bank_Account__c}
+                                                    search-filter={ledgerConfigurationSearchFilters.defaultBankAccount}>
+                                            </c-lookup>
+                                        </div>
+                                    </td>
+                                    <td data-id="td-nextRunDate"
+                                        data-label={ledgerInfo.fields.Default_Billing_Format__c.label}>
+                                        <div title={ledgerInfo.fields.Default_Billing_Format__c.label}>
+                                            <c-record-popover
+                                                    if:true={isLedgerDisabled}
+                                                    record-id={ledger.Default_Billing_Format__c}
+                                                    object-api-name={pdfFormatObject}
+                                                    fields={pdfFormatFields}
+                                                    data-id="popover-defaultBillingFormat">
+                                            </c-record-popover>
+                                            <c-lookup
+                                                    if:false={isLedgerDisabled}
+                                                    search-object={pdfFormatObject}
+                                                    data-id="lookup-defaultBillingFormat"
+                                                    data-lookupledger="Default_Billing_Format__c"
+                                                    data-index={index}
+                                                    init-value={ledger.Default_Billing_Format__c}
+                                                    search-filter={ledgerConfigurationSearchFilters.defaultBillingFormat}>
+                                            </c-lookup>
+                                        </div>
+                                    </td>
+                                    <td data-id="td-preferredStartTime"
+                                        data-label={ledgerInfo.fields.Billing_Activity_Statement_Format__c.label}>
+                                        <div title={ledgerInfo.fields.Billing_Activity_Statement_Format__c.label}>
+                                            <c-record-popover
+                                                    if:true={isLedgerDisabled}
+                                                    record-id={ledger.Billing_Activity_Statement_Format__c}
+                                                    object-api-name={pdfFormatObject}
+                                                    fields={pdfFormatFields}
+                                                    data-id="popover-billingActivityStatementFormat">
+                                            </c-record-popover>
+                                            <c-lookup
+                                                    if:false={isLedgerDisabled}
+                                                    search-object={pdfFormatObject}
+                                                    data-id="lookup-billingActivityStatementFormat"
+                                                    data-lookupledger="Billing_Activity_Statement_Format__c"
+                                                    data-index={index}
+                                                    init-value={ledger.Billing_Activity_Statement_Format__c}
+                                                    search-filter={ledgerConfigurationSearchFilters.billingActivityStatementFormat}>
+                                            </c-lookup>
+                                        </div>
+                                    </td>
+                                    <td data-id="td-action"
+                                        data-label={ledgerInfo.fields.Billing_Outstanding_Statement_Format__c.label}
+                                        if:true={userCanEdit}>
+                                        <div title={ledgerInfo.fields.Billing_Outstanding_Statement_Format__c.label}>
+                                            <c-record-popover
+                                                    if:true={isLedgerDisabled}
+                                                    record-id={ledger.Billing_Outstanding_Statement_Format__c}
+                                                    object-api-name={pdfFormatObject}
+                                                    fields={pdfFormatFields}
+                                                    data-id="popover-billingOutstandingStatementFormat"></c-record-popover>
+                                            <c-lookup
+                                                    if:false={isLedgerDisabled}
+                                                    search-object={pdfFormatObject}
+                                                    data-id="lookup-billingOutstandingStatementFormat"
+                                                    data-lookupledger="Billing_Outstanding_Statement_Format__c"
+                                                    data-index={index}
+                                                    init-value={ledger.Billing_Outstanding_Statement_Format__c}
+                                                    search-filter={ledgerConfigurationSearchFilters.billingOutstandingStatementFormat}>
+                                            </c-lookup>
+                                        </div>
+                                    </td>
+                                    <td data-id="td-company-code"
+                                        data-label={ledgerInfo.fields.Company_Code__c.label}
+                                        if:true={userCanEdit}>
+                                        <div title={ledgerInfo.fields.Company_Code__c.label}>
+                                            <lightning-input
+                                                    value={ledger.Company_Code__c}
+                                                    variant="label-hidden"
+                                                    data-ledgerfield="Company_Code__c"
+                                                    data-index={index}
+                                                    read-only={isLedgerDisabled}>
+                                            </lightning-input>
+                                        </div>
+                                    </td>
+                                    <td data-id="td-company-code"
+                                        data-label={ledgerInfo.fields.VAT_Country__c.label}
+                                        if:true={userCanEdit}>
+                                        <div title={ledgerInfo.fields.VAT_Country__c.label}>
+                                            <lightning-combobox
+                                                    if:true={ledgersVatCountry.data}
+                                                    options={ledgersVatCountry.data}
+                                                    value={ledger.VAT_Country__c}
+                                                    variant="label-hidden"
+                                                    disabled={isLedgerDisabled}
+                                                    data-index={index}
+                                                    data-ledgerfield="VAT_Country__c">
+                                            </lightning-combobox>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr>
+                    <strong class="taxSettings--subheading">{labels.taxAvalaraVATReportingHelpfulLinksSectionTitle}</strong>
+                    <lightning-layout class="slds-var-p-top_large">
+                        <lightning-layout-item class="slds-var-p-right_xx-large">
+                            <a href="https://avalaracommunity.force.com/ContactAvalara/s/VATSubmitCase"
+                               target="_blank">
+                                {labels.taxAvalaraVATReportingSupportLinkLabel}
+                            </a>
+                        </lightning-layout-item>
+                        <lightning-layout-item class="slds-var-p-right_xx-large">
+                            <a href="https://help.avalara.com/008_VAT_Learning_Center?"
+                               target="_blank">
+                                {labels.taxAvalaraVATReportingHelpCenterLinkLabel}
+                            </a>
+                        </lightning-layout-item>
+                        <lightning-layout-item class="slds-var-p-right_xx-large">
+                            <a href="https://help.avalara.com/008_VAT_Learning_Center/Desktop_VAT_Reporting_Installation_Guides"
+                               target="_blank">
+                                {labels.taxAvalaraVATReportingInstallationGuideLinkLabel}
+                            </a>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </div>
+            </template>
+        </lightning-card>
+    </div>
+</template>

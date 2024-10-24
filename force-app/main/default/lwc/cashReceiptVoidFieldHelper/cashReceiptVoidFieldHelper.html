@@ -1,0 +1,36 @@
+<template>
+    <!--In edit mode tells that we have to show an lookup field where user can select cash flow category-->
+    <template if:true={inEditMode}>
+        <label class="slds-form-element__label">
+            {fieldInfo.label}
+        </label>
+        <lightning-helptext
+            class="slds-var-m-left_xx-small"
+            content={fieldInfo.helpText}>
+        </lightning-helptext>
+        <c-lookup-a
+            init-value={fieldValue}
+            search-object={fieldInfo.referenceObject}
+            search-filter={filter}
+            onselectionchange={handleValueChange}
+            data-id="gl-account">
+        </c-lookup-a>
+    </template>
+    <template if:false={inEditMode}>
+        <label class="slds-form-element__label">
+            {fieldInfo.label}
+        </label>
+        <lightning-helptext
+            class="slds-var-m-left_xx-small"
+            content={fieldInfo.helpText}>
+        </lightning-helptext>
+        <lightning-input
+                type="text"
+                variant="label-hidden"
+                name="cashFlowCategory"
+                label={fieldInfo.label}
+                value={fieldValue}
+                readonly>
+        </lightning-input>
+    </template>
+</template>

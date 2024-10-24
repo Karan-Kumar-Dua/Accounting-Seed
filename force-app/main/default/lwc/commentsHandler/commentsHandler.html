@@ -1,0 +1,81 @@
+<!-- Comments Handler -->
+<template>
+    <button type="button" class="slds-button slds-button_icon custom-icon-button" title={buttonTitle}
+            onclick={handleOpenDialog}>
+        <svg class={className} aria-hidden="true">
+            <use xlink:href={iconName}></use>
+        </svg>
+    </button>
+
+    <template if:true={showAddCommentDialog}>
+        <div>
+            <section role="dialog" tabindex="-1" aria-modal="true" aria-describedby="modal-content-id-1"
+                     class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header slds-modal__header_empty">
+                    </header>
+                    <div class="slds-text-align_center">
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <template if:true={isInternalCommentUpdateable}>
+                                <lightning-textarea label={labels.COMMON_INTERNAL_COMMENT} value={tempInternalComment}
+                                                    max-length="500" onchange={handleInternalCommentChange}>
+                                </lightning-textarea>
+                            </template>
+                            <template if:true={isInvoiceCommentUpdateable}>
+                                <lightning-textarea label={labels.INF_INVOICE_COMMENT} value={tempInvoiceComment} max-length="500"
+                                                    onchange={handleInvoiceCommentChange}>
+                                </lightning-textarea>
+                            </template>
+                        </div>
+                        <template if:true={isCommentsNotUpdateable}>
+                            <div class="slds-box slds-theme-alert-texture slds-theme–info">
+                                {labels.INF_INSUFFICIENT_PRIVILIGES}
+                                </br>
+                                {labels.INF_NOT_ACCESS_PERFORM_OPERATION}
+                            </div>
+                        </template>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button class="slds-m-around_xxx-small" type="button" label={labels.commonCancel}
+                                          onclick={handleCloseDialog}></lightning-button>
+                        <lightning-button class="slds-m-around_xxx-small" type="button" variant="Brand" label={labels.commonAdd}
+                                          onclick={handleAddComments}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+
+    <template if:true={showComments}>
+        <div>
+            <section role="dialog" tabindex="-1" aria-modal="true" aria-describedby="modal-content-id-2"
+                     class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header slds-modal__header_empty"></header>
+                    <div class="slds-modal__content slds-p-around_medium slds-text-align_center" id="modal-content-id-2">
+                        <template if:true={isInternalCommentAccessible}>
+                            <lightning-textarea readonly label={labels.COMMON_INTERNAL_COMMENT}
+                                                value={internalComment}></lightning-textarea>
+                        </template>
+                        <template if:true={isInvoiceCommentAccessible}>
+                            <lightning-textarea readonly label={labels.INF_INVOICE_COMMENT}
+                                                value={invoiceComment}></lightning-textarea>
+                        </template>
+                        <template if:true={isCommentsNotAccessible}>
+                            <div class="slds-box slds-theme-alert-texture slds-theme–info">
+                                {labels.INF_INSUFFICIENT_PRIVILIGES}
+                                </br>
+                                {labels.INF_NOT_ACCESS_PERFORM_OPERATION}
+                            </div>
+                        </template>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button class="slds-m-around_xxx-small" type="button" label={labels.commonOk} onclick={handleCloseDialog}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </template>
+</template>

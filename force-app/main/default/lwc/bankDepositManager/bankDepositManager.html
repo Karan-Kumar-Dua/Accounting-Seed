@@ -1,0 +1,98 @@
+<template>
+    <lightning-card class="slds-p-around--small" title={labels.HEADER_FOR_BANK_DISBURSEMENT_MANAGER_LWC} icon-name="standard:related_list">
+        <lightning-spinner lwc:if={isLoading} variant="brand"  alternative-text="Loading" size="medium"></lightning-spinner>
+        <lightning-layout  multiple-rows class="slds-p-around--small"> 
+                    
+            <lightning-layout-item class="slds-p-top--large slds-p-left--large container">
+                <lightning-input onblur={handleBlur} class="inputFields" type="date" data-id="startDate" label={labels.AUTOMATED_JOBS_SCHEDULED_JOBS_START_DATE}
+                  required> 
+                </lightning-input>  
+            </lightning-layout-item>
+
+            <lightning-layout-item class="slds-p-top--large slds-p-left--medium container">
+                <lightning-input onblur={handleBlur} class="inputFields" type="date" data-id="endDate" label={labels.COMMON_END_DATE} required>
+                </lightning-input>
+            </lightning-layout-item>
+
+            <lightning-layout-item class="slds-p-left--medium slds-size--1-of-12 slds-p-top--large container">
+                <lightning-combobox class="inputFields" label={labels.COMMON_TYPE} value={objectTypeVal} options={objectTypeOptions} data-id="objectType" 
+                    onchange={handleObjectTypeSelection} required>
+                </lightning-combobox>
+            </lightning-layout-item>
+
+            <lightning-layout-item class=" slds-form-element__control slds-p-left--medium slds-p-top--large container">
+                <label class="slds-form-element__label" for="text-input-id-47">{labels.FILTER_RESULTS_HEADER}</label>
+                <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">
+                    <lightning-icon size="x-small" class="slds-icon slds-input__icon slds-input__icon_left slds-icon-text-default" icon-name="utility:search"></lightning-icon>
+                        <input type="text" data-id="searchTerm" class="slds-input" oninput={handleSearchInput}/>
+                </div>   
+            </lightning-layout-item>
+
+            <lightning-layout-item class="slds-align-bottom slds-size--1-of-12 slds-p-top--xx-large container">
+                <lightning-button-menu alternative-text="Show menu" menu-alignment="auto" icon-name="utility:settings" class="slds-p-left--small">
+                    <lightning-menu-item  label="Select Fields to Display" onclick={openFieldsSelectionModal}></lightning-menu-item>    
+                </lightning-button-menu>
+            </lightning-layout-item>
+
+            <lightning-layout-item class="slds-p-left--medium slds-size--5-of-12 slds-p-top--xx-large container"> 
+                <lightning-button  label={labels.COMMON_UNASSOCIATE} variant="brand" data-id="unassociateSelectedBtn" onclick={handleButtonClick} class="slds-p-left--small slds-float--right" disabled></lightning-button>
+                <lightning-button  label={labels.COMMON_ASSOCIATE} variant="brand" data-id="associateSelectedBtn" onclick={handleButtonClick} class="slds-p-left--small slds-float--right" disabled></lightning-button>
+                <lightning-button  label={labels.COMMON_SEARCH} variant="brand" data-id="searchBtn" onclick={handleRecordSearch} class="slds-float--right"></lightning-button>
+            </lightning-layout-item>
+
+            <lightning-layout-item class="slds-p-left--large  slds-p-bottom--small" size="12">
+                <div>{labels.BANK_DEPOSIT_AMOUNT_HEADING} : {currencyISOCode} {bankDepositAmount}</div>
+            </lightning-layout-item>
+            <!-- tabs to display associated and unassociated data -->
+             <lightning-layout-item size="12" class="slds-p-top--x-small slds-p-horizontal--large">
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="12">
+                        <lightning-tabset active-tab-value={currentActiveTab}>
+                            <lightning-tab 
+                                label={labels.COMMON_ASSOCIATE} 
+                                value={labels.COMMON_ASSOCIATE}
+                                class="slds-p-around--xxx-small"
+                                data-id={labels.COMMON_ASSOCIATE} 
+                                onactive={handleTabChange} 
+                            >
+                                <c-bank-deposit-manager-result-data-table
+                                    columns={columns}
+                                    result={associatedRecords}
+                                    record-to-display={associatedRecords}
+                                    selected-row-ids={selectedAssociateRowIds}
+                                    total-records-count={totalRecordsCount}
+                                    has-more-records-to-load={hasMoreRecordsToLoad}
+                                    onloadmore={handleLoadMoreRecords}
+                                    onrowselect={handleRowSelection}
+                                >   
+                                </c-bank-deposit-manager-result-data-table>
+                            </lightning-tab>
+                            <lightning-tab 
+                                label={labels.COMMON_UNASSOCIATE} 
+                                value={labels.COMMON_UNASSOCIATE}
+                                class="slds-p-around--xxx-small"
+                                data-id={labels.COMMON_UNASSOCIATE} 
+                                onactive={handleTabChange} 
+                            >
+                                <c-bank-deposit-manager-result-data-table
+                                    columns={columns}
+                                    result={unassociatedRecords}
+                                    record-to-display={unassociatedRecords}
+                                    onrowselect={handleRowSelection}
+                                    selected-row-ids={selectedUnassociateRowIds}
+                                    total-records-count={totalRecordsCount}
+                                    has-more-records-to-load={hasMoreRecordsToLoad}
+                                    onloadmore={handleLoadMoreRecords}
+                                >   
+                                </c-bank-deposit-manager-result-data-table>
+                            </lightning-tab>
+                        </lightning-tabset>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="12">
+                        <div class="slds-align--absolute-center">{getErrorMsg}</div>
+                     </lightning-layout-item>
+                </lightning-layout>   
+             </lightning-layout-item>   
+        </lightning-layout>
+    </lightning-card>
+</template>

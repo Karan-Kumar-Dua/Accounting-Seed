@@ -1,0 +1,61 @@
+<template>
+    <template if:false={loaded}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoading} size="medium">
+        </lightning-spinner>
+    </template>
+
+    <template if:true={error}>
+        <c-inline-error-message class="inline-error-msg" errors={error}></c-inline-error-message>
+    </template>
+
+    <template if:true={loaded}>
+
+        <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+            <div class="slds-col slds-size_4-of-12">
+                <c-lookup-a data-jest="reportDef" label={labels.INF_SELECT_REPORT}
+                    search-object={financialReportDefinition.objectApiName} init-value={defaults.reportDef}
+                    show-tooltip=true onselectionchange={setCustomReport}
+                    class="slds-form-element slds-form-element_stacked" required>
+                </c-lookup-a>
+            </div>
+        </div>
+
+        <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+            <div class="slds-col slds-size_2-of-12">
+                <c-lookup-a data-jest="startingAccountingPeriod" label={labels.commonAccountingPeriod}
+                    search-object={accountingPeriod.objectApiName} init-value={defaults.startingAccountingPeriod}
+                    onselectionchange={setStartPeriod} required class="slds-form-element slds-form-element_stacked">
+                </c-lookup-a>
+            </div>
+            <div if:true={isMultiCurrencyEnabled} class="slds-col slds-size_2-of-12">
+                <lightning-combobox label={labels.commonCurrency} value={selectedCurrency} options={rateTableCurrencies}
+                    onchange={handleCurrencyChange}>
+                </lightning-combobox>
+            </div>
+            <div class="slds-col slds-size_2-of-12 slds-p-top_medium">
+                <lightning-input data-jest="suppressZeroAmountRows" type="checkbox" label={labels.commonSuppressZeroAmtRows}
+                    checked={defaults.suppressZeroAmountRows} onchange={setSuppressZeroRows}>
+                </lightning-input>
+            </div>
+        </div>
+
+        <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+            <div class="slds-col slds-size_2-of-12">
+                <lightning-input data-jest="subtitle" type="text" label={labels.commonReportSubtitle} value={defaults.subtitle}
+                    onchange={setSubtitle} variant="label-stacked"
+                    title={labels.commonReportSubtitleDisplay}
+                    maxlength="80">
+                </lightning-input>
+            </div>
+        </div>
+
+        <div class="slds-grid slds-gutters slds-var-p-top_small slds-var-p-bottom_small">
+            <div class="slds-col slds-size_1-of-12">
+                <lightning-button variant="brand" label={labels.commonRun} title={labels.commonRunReport}
+                    disabled={runButtonDisabled} onclick={handleRun}>
+                </lightning-button>
+            </div>
+        </div>
+    </template>
+
+</template>

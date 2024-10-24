@@ -1,0 +1,32 @@
+<!-- X Data Table Buttons -->
+<template>
+    <lightning-button-group>
+    <template for:each={actions} for:item="action">
+        <template if:true={action.isButton}>
+            <lightning-button key={action.name}
+                            icon-name={action.icon}
+                            label={action.label}
+                            class="topAlign"
+                            onclick={handleActionClick}
+                            disabled={action.disabled}
+                            data-action-name={action.name}
+                            data-action-global={action.global}
+                            title={action.title}
+                            data-id={action.name}>
+            </lightning-button>
+        </template>
+        <template if:false={action.isButton}>
+            <lightning-button-icon key={action.name}
+                            icon-name={action.icon}
+                            class="blue-icon topAlign"
+                            disabled={action.disabled}
+                            onclick={handleActionClick}
+                            data-action-name={action.name}
+                            data-action-global={action.global}
+                            title={action.title}
+                            data-id={action.name}>
+            </lightning-button-icon>
+        </template>
+    </template>
+    </lightning-button-group>
+</template>

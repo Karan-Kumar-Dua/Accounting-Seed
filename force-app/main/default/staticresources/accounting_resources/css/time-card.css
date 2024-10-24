@@ -1,0 +1,57 @@
+.empty-column-content {
+    display: none;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.action-col {
+    width: 40px;
+}
+
+.name-col {
+    width: 80px;
+}
+
+.project-col {
+    width: 100px;
+}
+
+.project-task-col {
+    width: 120px;
+}
+
+.bill-col {
+    width: 30px
+}
+
+.var-col {
+    width: 170px
+}
+
+.date-col {
+    width: 60px
+}
+
+.com-col {
+    width: 30px;
+}
+
+.margin-right {
+    margin-right: 5px;
+}
+.btn.refreshButton {
+    height: 18px;
+    background: url(/img/alohaSkin/sync.png) top left no-repeat;
+    width: 22px;
+    vertical-align: bottom;
+    background-position: 2px 1px;
+} 
+.btn.refreshButton:hover {
+    background-position: 2px 1px;
+}  

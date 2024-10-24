@@ -1,0 +1,158 @@
+<template>
+    <template if:true={isSpinner}>
+        <lightning-spinner variant="brand" alternative-text={labels.commonLoadingText} size="medium"></lightning-spinner>
+        <div if:true={isProgress} class="progress-container">
+            <div>
+                <span class="slds-text-heading_large slds-m-bottom_medium progress-status-container">{progressLabel}</span>
+                <lightning-progress-bar value={progressPercent} size="medium" class="progress-bar-container">
+                </lightning-progress-bar>
+            </div>
+        </div>
+    </template>
+    <template if:true={showTable}>
+
+        <template if:true={actions.showBatchButtons}>
+            <div class="inner-all-button-group slds-float_right slds-p-right_small slds-p-bottom_x-small" style="display: none">
+                <lightning-button-group>
+                    <template for:each={actions.actions} for:item="action">
+                        <lightning-button key={action.label}
+                                          data-action={action.actionName}
+                                          class="btn-save-complete"
+                                          label={action.batchLabel}
+                                          onclick={handleAllAction}>
+                        </lightning-button>
+                    </template>
+                    <template if:true={cancelButton}>
+                        <lightning-button class="btn-cancel" label={labels.INF_CANCEL_ALL} onclick={handleCancelAllAction}></lightning-button>
+                    </template>
+                </lightning-button-group>
+            </div>
+        </template>
+        <table class="slds-table slds-table_bordered slds-border_left slds-border_right">
+            <thead>
+            <tr class="slds-line-height_reset">
+                <template if:true={showDrawer}>
+                    <th class="slds-text-align_right" scope="col" style="width:3.25rem">
+                        <lightning-button-icon icon-name={iconLink}
+                                               variant="bare"
+                                               size="small"
+                                               alternative-text={labels.INF_EXPAND_ALL_OR_COLLAPSE_ALL}
+                                               class="slds-m-left_xx-small"
+                                               onclick={handleAllSectionsAction}>
+
+                        </lightning-button-icon>
+                        <div class="slds-resizable">
+                            <span class="slds-resizable__handle">
+                                <span class="slds-resizable__divider"></span>
+                            </span>
+                        </div>
+                    </th>
+                </template>
+
+                <template for:each={columns} for:item="column">
+                    <th class="slds-is-resizable dv-dynamic-width" scope="col" key={column.label} data-jest-name="headerColumn">
+                        <div class="slds-truncate" title={column.label} style={column.style} >
+                            {column.label}
+                            <template if:true={column.sortable}>
+                                <c-custom-sort-button column={column}
+                                                      data-item={column.label}
+                                                      sorted-by={sortedBy}
+                                                      sorted-direction={sortedDirection}
+                                                      data-jest-name="sortButton"
+                                                      onselectsort={handleSortAction}>
+                                </c-custom-sort-button>
+                            </template>
+                            <span class="slds-resizable__handle resize_target" onmousedown={calculateWidth} ondrag={setNewWidth}>
+                                <span class="slds-resizable__divider"></span>
+                            </span>
+                        </div>
+                    </th>
+                </template>
+                <th class="" scope="col" style="width: 10px">
+                    <template if:true={actions.showRowActionsButtons}>
+                        <template if:true={actions.showBatchButtons}>
+                            <lightning-button-menu icon-size="x-small"
+                                                   alternative-text={labels.INF_MENU_LOWERCASE}
+                                                   menu-alignment="right">
+                                <template for:each={actions.actions} for:item="action">
+                                    <lightning-menu-item key={action.label}
+                                                         data-action={action.actionName}
+                                                         class="btn-save-complete"
+                                                         label={action.batchLabel}
+                                                         onclick={handleAllAction}
+                                                         data-jest-name="columnAction">
+                                    </lightning-menu-item>
+                                </template>
+                                <template if:true={cancelButton}>
+                                    <lightning-menu-item
+                                        label={labels.INF_CANCEL_ALL}
+                                        onclick={handleCancelAllAction}
+                                        data-jest-name="cancelColumnAction">
+                                    </lightning-menu-item>
+                                </template>
+                            </lightning-button-menu>
+                        </template>
+                    </template>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <template for:each={page} for:item="row">
+                <c-custom-data-table-row class="child-row"
+                             key={row.Id}
+                             row={row}
+                             columns={columns}
+                             additional-columns={additionalColumns}
+                             actions={actions}
+                             data-main-id={row.Id}
+                             onsectionaction={handleSectionAction}
+                             onsectioneditaction={handleSectionEditAction}
+                             oneditallaction={handleAllEditAction}
+                             default-edit={defaultEdit}
+                             is-edit-mode={defaultEdit}
+                             is-edit-mode-all-components={defaultEdit}
+                             onvaluechange={handleValueChange}
+                             onrowaction={handleRowAction}>
+                </c-custom-data-table-row>
+                <c-custom-data-table-row class="additional-child-row"
+                             data-id={row.Id}
+                             key={row.Id}
+                             row={row}
+                             columns={columns}
+                             additional-columns={additionalColumns}
+                             onsectioneditaction={handleSectionEditAction}
+                             default-edit={defaultEdit}
+                             is-edit-mode={defaultEdit}
+                             is-edit-mode-all-components={defaultEdit}
+                             onvaluechange={handleValueChange}
+                             onrowaction={handleRowAction}
+                             ontemplaterowchange={handleTemplateRowChange}
+                             additional-section-template-name={additionalSectionTemplateName}
+                             additional=true>
+                </c-custom-data-table-row>
+                <c-custom-data-table-row-error data-error-id={row.Id}
+                                   key={row.Id}
+                                   row={row}
+                                   oncloseaction={handleHideErrorRow}
+                                   onshowmessageaction={handleShowErrorRow}
+                                   style="display: none">
+                </c-custom-data-table-row-error>
+
+            </template>
+            </tbody>
+        </table>
+    </template>
+    <div class="slds-p-around_medium">
+        <c-paginator
+            total-records={totalRecords}
+            page-size={pageSize}
+            onchange={handlePageChange}>
+        </c-paginator>
+    </div>
+    <template if:false={showTable}>
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_warning">
+            <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+            <h2 class="slds-p-left_x-small warn-no-records">{labels.WRN_NO_RECORDS_FOUND}</h2>
+        </div>
+    </template>
+</template>
